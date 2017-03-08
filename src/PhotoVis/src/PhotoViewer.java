@@ -233,11 +233,11 @@ public class PhotoViewer {
         
         //*********Example 3 - scaling and bounding ************//
         try {
-                filename = "images/small/image8.png";
+                filename = "images/image4.jpg";
                 BufferedImage img = ImageIO.read(new File(filename));
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
                 
-                filename = "images/image4.jpg";
+                filename = "images/small/image8.png";
                 img = ImageIO.read(new File(filename));
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
 
@@ -382,6 +382,15 @@ public class PhotoViewer {
                         imageToBeMoved.setLocation(new Point(currentLocation.x, currentLocation.y + intersection.height));
                     }
                 }
+                
+                Dimension dimension = checkBoundingDimensions(imageToBeMoved.getLocation().y+imageToBeMoved.getHeight(), imageToBeMoved.getLocation().x + imageToBeMoved.getWidth());
+                if ((int) dimension.getWidth() != imageToBeMoved.getWidth() || (int) dimension.getHeight() != imageToBeMoved.getHeight()) {
+                    // Scale image to new dimension 
+                    imageToBeMoved.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
+                    imageToBeMoved.setHeight((int) dimension.getHeight());
+                    imageToBeMoved.setWidth((int) dimension.getWidth());
+                }
+                
                 pane.getComponent(key).setBounds(imageToBeMoved.getLocation().x, imageToBeMoved.getLocation().y, imageToBeMoved.getWidth(), imageToBeMoved.getHeight());
                 pane.getParent().revalidate();
                 pane.getParent().repaint();
