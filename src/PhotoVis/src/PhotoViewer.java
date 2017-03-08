@@ -20,6 +20,8 @@ import javax.swing.JLabel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer {
@@ -235,9 +237,9 @@ public class PhotoViewer {
         try {
                 filename = "images/image4.jpg";
                 BufferedImage img = ImageIO.read(new File(filename));
-                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
+                //image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
                 
-                filename = "images/small/image8.png";
+                filename = "images/small/image10.png";
                 img = ImageIO.read(new File(filename));
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
 
@@ -340,86 +342,77 @@ public class PhotoViewer {
 
     private static void MoveOverlappingImages(Container pane, src.Image image, ArrayList<Integer> adjacency ) {
         // System.out.println(FRAME_HEIGHT +"= frame height....frame width = "+ FRAME_WIDTH);
-        Image imageToBeMoved;
-        Rectangle imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight()); // Deafault location taken as (0,0)
+        Image compareImg;
+        Rectangle imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight()); 
         Rectangle compareImgRec;
-        //  System.out.println("Size of adjacency="+ adjacency.size());
+        // holds movement vector
+        double move_x = 0;
+        double move_y = 0;
+        double magnitude = 0;
+        double direction = 0;
+        
+        Line2D line = null;
+        
+        Point2D[] intersections = null;
+        Point2D intersectionPoint = null;
+        
         for(int key =0;key<adjacency.size();key++){
-            imageToBeMoved = labelImageMap.get(key);
-            compareImgRec = new Rectangle(imageToBeMoved.getLocation().x, imageToBeMoved.getLocation().y, imageToBeMoved.width, imageToBeMoved.height);
+            compareImg = labelImageMap.get(key);
+            compareImgRec = new Rectangle(compareImg.getLocation().x, compareImg.getLocation().y, compareImg.width, compareImg.height);
             Rectangle intersection = imageRec.intersection(compareImgRec);
-            if (!intersection.isEmpty()) {
-                // System.out.println("Intersection no empty");
-                Point currentLocation = pane.getComponent(key).getBounds().getLocation();
-
-                if (image.getWidth() <= intersection.width * 2) {
-
-                    // Translate along width
-                    //  Translate towards right
-                    //  System.out.println("Translate along width" + pane.getComponent(key).getBounds().getLocation());
-                    // check if new position going out of frame boundary
-                    if (currentLocation.x + intersection.width > FRAME_WIDTH) {
-                        // Move image down. 
-
-                        int y = pane.getComponent(pane.getComponentCount() - 1).getHeight() + 1;
-                        imageToBeMoved.setLocation(new Point(0, y));
-                        // System.out.println(imageToBeMoved.id+","+imageToBeMoved.getCenter());
-                    } else {
-                        //System.out.println(imageToBeMoved.id+","+imageToBeMoved.getLocation()+","+imageToBeMoved.getCenter());
-                        imageToBeMoved.setLocation(new Point(currentLocation.x + intersection.width, currentLocation.y));
-                        //System.out.println(imageToBeMoved.id+","+imageToBeMoved.getLocation()+","+imageToBeMoved.getCenter());
-                    }
-
-                } //if(currentLocation.x+intersection.width > FRAME_WIDTH) {
-                else {  // Translate along height
-                    //System.out.println("Translate along height" + pane.getComponent(key).getBounds().getLocation());
-                    if (currentLocation.y + intersection.width > FRAME_HEIGHT) {
-                        // Move image down. 
-                        //System.out.println("In the IF..SHOULD SEE THIS");
-                        int x = pane.getComponent(pane.getComponentCount() - 1).getWidth() + 1;
-                        imageToBeMoved.setLocation(new Point(x, 0));
-                    } else {
-                        imageToBeMoved.setLocation(new Point(currentLocation.x, currentLocation.y + intersection.height));
+            if (!intersection.isEmpty()){
+                
+                // line joining centers
+                line = new Line2D.Double(intersection.getCenterX(), intersection.getCenterY(), image.getCenter().getX(), image.getCenter().getY());
+        
+                // point of intersection of line with intersection rec
+                intersections = getIntersectionPoint(line, intersection);
+                
+                for(int i =0 ; i< intersections.length;i++){
+                    if(intersections[i] != null){
+                        intersectionPoint = intersections[i];
                     }
                 }
-                
-                Dimension dimension = checkBoundingDimensions(imageToBeMoved.getLocation().y+imageToBeMoved.getHeight(), imageToBeMoved.getLocation().x + imageToBeMoved.getWidth());
-                if ((int) dimension.getWidth() != imageToBeMoved.getWidth() || (int) dimension.getHeight() != imageToBeMoved.getHeight()) {
-                    // Scale image to new dimension 
-                    imageToBeMoved.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
-                    imageToBeMoved.setHeight((int) dimension.getHeight());
-                    imageToBeMoved.setWidth((int) dimension.getWidth());
-                }
-                
-                pane.getComponent(key).setBounds(imageToBeMoved.getLocation().x, imageToBeMoved.getLocation().y, imageToBeMoved.getWidth(), imageToBeMoved.getHeight());
-                pane.getParent().revalidate();
-                pane.getParent().repaint();
-
-                // Repeat for moved image's adjacency
-                // System.out.println("Calculating adjacency of childern..");
-                //  System.out.println("New location of imageToBeMoved:("+ imageToBeMoved.getLocation().x+","+imageToBeMoved.getLocation().y+")"); 
-                ArrayList<Integer> movedAdjacency = overlappedImages(imageToBeMoved, pane, key);
-                //  System.out.println("Calculating adjacency of childern.."+movedAdjacency.size());
-                if (movedAdjacency.size() > 0) {
-                    MoveOverlappingImages(pane, imageToBeMoved, movedAdjacency);
-                }
+                // Calculating vector magnitude
+                magnitude = distance(image.getCenter().getX(),image.getCenter().getY(), intersectionPoint.getX(), intersectionPoint.getY());
+                direction = Math.atan((intersection.getCenterY()-image.getCenter().getY()) / (image.getCenter().getX()- intersection.getCenterX()));
+            } else {
+                // completely overlapped case 
+                magnitude = distance(image.getCenter().getX(),image.getCenter().getY(), compareImg.getCenter().getX(), compareImg.getCenter().getY());
+                direction = Math.atan((compareImg.getCenter().getY()-image.getCenter().getY()) / (image.getCenter().getX()- compareImg.getCenter().getX()));
+            }
+            // Resolving vector to x and y directions
+            move_x += magnitude* Math.sin(direction);
+            move_y += magnitude* Math.cos(direction);
+        }
+        
+        // New location in the direction of resultant vector. 
+        Point newLocation = new Point((int) (image.getLocation().x + move_x), (int)(image.getLocation().y + move_y));
+        
+        // Check if new location is in frame
+        if(!insideFrame(newLocation)){
+            // Shrink the image until no adjacencies/overlapps and to min shrink limit
+        }else{
+            // Check Bounding dimensions and move image
+            Dimension dimension = checkBoundingDimensions(newLocation.y+image.getHeight(), newLocation.x + image.getWidth());
+            if ((int) dimension.getWidth() != (newLocation.y+image.getWidth()) || (int) dimension.getHeight() != (newLocation.y+image.getHeight()) ) {
+                // Scale image to new dimension 
+                image.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
+                image.setHeight((int) dimension.getHeight());
+                image.setWidth((int) dimension.getWidth());
+                image.setLocation(newLocation);
             }
         }
-    }
-    
-//    private static void MoveOverlappingImages(Container pane, src.Image image, ArrayList<Integer> adjacency) {
-//        Image overlappingImage;
-//        Rectangle imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight()); // Deafault location taken as (0,0)
-//        Rectangle compareImgRec;
-//        for(int i =0;i<adjacency.size();i++){
-//            overlappingImage = labelImageMap.get(i);
-//            compareImgRec = new Rectangle(overlappingImage.getLocation().x, overlappingImage.getLocation().y, overlappingImage.width, overlappingImage.height);  
-//            if(imageRec.intersects(compareImgRec)){
-//                
-//            }
-//        }
-//    }
+        
+        pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+        pane.getParent().revalidate();
+        pane.getParent().repaint();
+        
+        // Recursive call??
+        // Base case for recursion? 
 
+     }
+                
     //this function draws lines bounding the image
     private static Line2D[] DrawPath(Image image) {
         Line2D line1 = new Line2D.Double(image.getLocation().x, image.getLocation().y, image.getLocation().x + image.getWidth() * Math.cos(image.getAngle()), image.getLocation().y + image.getWidth() * Math.sin(image.getAngle()));
@@ -456,6 +449,7 @@ public class PhotoViewer {
             imageloop = new Rectangle(pane.getComponent(key).getBounds().getLocation().x, pane.getComponent(key).getBounds().getLocation().y, clickedimage.width, clickedimage.height);
             if (imageloop.contains(new Point(x, y))) {
                 System.out.println("There is a photo there");
+                clickedimage.setImg(getScaledImage(clickedimage.getImg(), clickedimage.getHeight()*3/2, clickedimage.getWidth()*3/2));
                 clickedimage.setHeight(clickedimage.getHeight() * 3 / 2);
                 clickedimage.setWidth(clickedimage.getWidth() * 3 / 2);
                 pane.getComponent(key).setBounds(clickedimage.getLocation().x, clickedimage.getLocation().y, clickedimage.getWidth(), clickedimage.getHeight());
@@ -542,4 +536,75 @@ public class PhotoViewer {
         //System.out.println(minDim.getHeight() + "*" + maxDim.getWidth());
 
     }
+
+    private static double distance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow((x1-x2), 2)+Math.pow((y1-y2), 2));
+    }
+   
+    public static Point2D[] getIntersectionPoint(Line2D line, Rectangle2D rectangle) {
+
+            Point2D[] p = new Point2D[4];
+
+            // Top line
+            p[0] = getIntersectionPoint(line,
+                            new Line2D.Double(
+                            rectangle.getX(),
+                            rectangle.getY(),
+                            rectangle.getX() + rectangle.getWidth(),
+                            rectangle.getY()));
+            // Bottom line
+            p[1] = getIntersectionPoint(line,
+                            new Line2D.Double(
+                            rectangle.getX(),
+                            rectangle.getY() + rectangle.getHeight(),
+                            rectangle.getX() + rectangle.getWidth(),
+                            rectangle.getY() + rectangle.getHeight()));
+            // Left side...
+            p[2] = getIntersectionPoint(line,
+                            new Line2D.Double(
+                            rectangle.getX(),
+                            rectangle.getY(),
+                            rectangle.getX(),
+                            rectangle.getY() + rectangle.getHeight()));
+            // Right side
+            p[3] = getIntersectionPoint(line,
+                            new Line2D.Double(
+                            rectangle.getX() + rectangle.getWidth(),
+                            rectangle.getY(),
+                            rectangle.getX() + rectangle.getWidth(),
+                            rectangle.getY() + rectangle.getHeight()));
+
+            return p;
+
+        }
+
+     public static Point2D getIntersectionPoint(Line2D lineA, Line2D lineB) {
+
+            double x1 = lineA.getX1();
+            double y1 = lineA.getY1();
+            double x2 = lineA.getX2();
+            double y2 = lineA.getY2();
+
+            double x3 = lineB.getX1();
+            double y3 = lineB.getY1();
+            double x4 = lineB.getX2();
+            double y4 = lineB.getY2();
+
+            Point2D p = null;
+
+            double d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+            if (d != 0) {
+                double xi = ((x3 - x4) * (x1 * y2 - y1 * x2) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
+                double yi = ((y3 - y4) * (x1 * y2 - y1 * x2) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+
+                p = new Point2D.Double(xi, yi);
+
+            }
+            return p;
+        }
+
+    private static boolean insideFrame(Point newLocation) {
+        return newLocation.x < FRAME_WIDTH && newLocation.y < FRAME_HEIGHT && newLocation.x >=0 && newLocation.y >=0 ; 
+    }
+    
 }
