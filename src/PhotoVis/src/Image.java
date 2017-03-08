@@ -101,7 +101,6 @@ class Image {
 
     public void setImg(BufferedImage img) {
         this.img = img;
-        updateCenter();
     }
 
     public Point getLocation() {
