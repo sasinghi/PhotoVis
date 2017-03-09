@@ -86,7 +86,7 @@ public class PhotoViewer {
 
             pane.add(label);
             pane.getParent().revalidate();
-            pane.getParent().repaint();
+            
 
 
             // Check if overlaps exist
@@ -96,6 +96,19 @@ public class PhotoViewer {
                 System.out.println("Image "+ image.getId()+" has "+ adjacency.size()+" overlaps.");
                 // Move the overlapping images 
                 MoveOverlappingImages(pane, image, adjacency);
+            }else {
+                // enlarge image till MAX scale 
+                BufferedImage enlargedImg;
+                while (image.getOriginal_height()/image.getHeight() >= MAX && image.getOriginal_width()/image.getWidth() >= MAX && insideFrame(image)){
+                     enlargedImg = getScaledImage(image.img, (int) image.getWidth()*2, (int) image.getHeight()*2);
+                     image.setImg(enlargedImg);
+                     image.setHeight(enlargedImg.getHeight());
+                     image.setWidth(enlargedImg.getWidth());
+                }
+                
+                pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+                pane.getParent().revalidate();
+                pane.getParent().repaint();
             }
 
             //Check and resize all panel components
@@ -158,12 +171,13 @@ public class PhotoViewer {
             }
         });
 
-
+        //Display the window.
+        frame.setVisible(true);
+        
         //Set up the content pane.
         addComponentsToPane(frame.getContentPane(), images);
 
-        //Display the window.
-        frame.setVisible(true);
+        
 
         // Wait 
 //        long start = new Date().getTime();
@@ -207,16 +221,16 @@ public class PhotoViewer {
         ArrayList<Image> image = new ArrayList<>();
         //***********EXAMPLE1****************//
         //***********EXAMPLE1****************//
-//        for(int i=8;i<17;i++){
-//            try {
-//                filename = "images/small/image"+i+".png";
-//                BufferedImage img = ImageIO.read(new File(filename));
-//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,i));
-//
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//         }
+        for(int i=8;i<10;i++){
+            try {
+                filename = "images/small/image"+i+".png";
+                BufferedImage img = ImageIO.read(new File(filename));
+                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,i));
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+         }
         //***********END EXAMPLE 1****************//
         //***********EXAMPLE 2****************//
 //        for(int i=8;i<17;i++){
@@ -234,18 +248,15 @@ public class PhotoViewer {
         //***********END EXAMPLE 2****************//
         
         //*********Example 3 - scaling and bounding ************//
-        try {
-                filename = "images/image4.jpg";
-                BufferedImage img = ImageIO.read(new File(filename));
-                //image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
-                
-                filename = "images/small/image10.png";
-                img = ImageIO.read(new File(filename));
-                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+//        try {
+//                filename = "images/image4.jpg";
+//                BufferedImage img = ImageIO.read(new File(filename));
+//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
+//                
+//                } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+        // ********End Example 3*****************//
         return image;
     }
 
@@ -341,7 +352,6 @@ public class PhotoViewer {
     }
 
     private static void MoveOverlappingImages(Container pane, src.Image image, ArrayList<Integer> adjacency ) {
-        // System.out.println(FRAME_HEIGHT +"= frame height....frame width = "+ FRAME_WIDTH);
         Image compareImg;
         Rectangle imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight()); 
         Rectangle compareImgRec;
@@ -392,6 +402,13 @@ public class PhotoViewer {
         // Check if new location is in frame
         if(!insideFrame(newLocation)){
             // Shrink the image until no adjacencies/overlapps and to min shrink limit
+            BufferedImage shrunkImg;
+             while (image.getOriginal_height()/image.getHeight() <= MIN && image.getOriginal_width()/image.getWidth() <= MIN){
+                shrunkImg = getScaledImage(image.img, (int) image.getWidth()/2, (int) image.getHeight()/2);
+                image.setImg(shrunkImg);
+                image.setHeight(shrunkImg.getHeight());
+                image.setWidth(shrunkImg.getWidth());
+            }
         }else{
             // Check Bounding dimensions and move image
             Dimension dimension = checkBoundingDimensions(newLocation.y+image.getHeight(), newLocation.x + image.getWidth());
@@ -400,16 +417,21 @@ public class PhotoViewer {
                 image.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
                 image.setHeight((int) dimension.getHeight());
                 image.setWidth((int) dimension.getWidth());
-                image.setLocation(newLocation);
             }
+            image.setLocation(newLocation);
         }
         
         pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
         pane.getParent().revalidate();
         pane.getParent().repaint();
         
-        // Recursive call??
-        // Base case for recursion? 
+        // Repeat till this image overlaps with none others
+        adjacency = overlappedImages(image, pane, image.getId());
+        while (adjacency.size() > 0) {
+            System.out.println("Image "+ image.getId()+" has "+ adjacency.size()+" overlaps.");
+            // Move the overlapping images 
+            MoveOverlappingImages(pane, image, adjacency);
+        }
 
      }
                 
@@ -605,6 +627,10 @@ public class PhotoViewer {
 
     private static boolean insideFrame(Point newLocation) {
         return newLocation.x < FRAME_WIDTH && newLocation.y < FRAME_HEIGHT && newLocation.x >=0 && newLocation.y >=0 ; 
+    }
+
+    private static boolean insideFrame(src.Image image) {
+        return image.getLocation().x+image.getWidth() < FRAME_WIDTH && image.getLocation().y+image.getHeight() < FRAME_HEIGHT ; 
     }
     
 }
