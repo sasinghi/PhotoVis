@@ -29,6 +29,8 @@ class Image {
     int frame_width;
     int frame_height;
     int id;
+    int original_height;
+    int original_width;
 
     public Image() {
     }
@@ -50,6 +52,11 @@ class Image {
         this.frame_width = frame_width;
         this.frame_height = frame_height;
         this.id = id;
+        
+        // maintained to check max shrink/enlargement
+        this.original_height = height;  
+        this.original_width = width;
+        
         //this.center=new XYZPoint(((this.location.x) + (this.location.x+this.width*Math.cos(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)+this.width*Math.cos(this.angle)))/4,((this.location.y)+(this.location.y+this.width*Math.sin(this.angle))+(this.location.y-this.height*Math.cos(this.angle))+(this.location.y-this.height*Math.cos(this.angle)+this.width*Math.sin(this.angle)))/4);
     }
 
@@ -61,8 +68,25 @@ class Image {
         this.center=new XYZPoint(((this.location.x) + (this.location.x+this.width*Math.cos(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)+this.width*Math.cos(this.angle)))/4,((this.location.y)+(this.location.y+this.width*Math.sin(this.angle))+(this.location.y-this.height*Math.cos(this.angle))+(this.location.y-this.height*Math.cos(this.angle)+this.width*Math.sin(this.angle)))/4);
 
     }
+
+    public int getOriginal_height() {
+        return original_height;
+    }
+
+    public void setOriginal_height(int original_height) {
+        this.original_height = original_height;
+    }
+
+    public int getOriginal_width() {
+        return original_width;
+    }
+
+    public void setOriginal_width(int original_width) {
+        this.original_width = original_width;
+    }
     
 
+    
     public int getFrame_height() {
         return frame_height;
     }
