@@ -22,7 +22,13 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Random;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer {
@@ -46,6 +52,11 @@ public class PhotoViewer {
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
 
+    
+    public PhotoViewer() {
+        
+    }
+    
     private static BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
         BufferedImage resizedImg = srcImg;
         try {
@@ -59,10 +70,13 @@ public class PhotoViewer {
     public static void addComponentAt(Component component, Point location, Container pane) {
     }
 
-    public static void addComponentsToPane(final Container pane, ArrayList<Image> images1) throws IOException {
+    public static void addComponentsToPane(final CreateGUI gui, ArrayList<Image> images1) throws IOException {
+        Container pane = (Container) gui.getContentPane().getComponent(1);
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
+        FRAME_WIDTH=pane.getWidth();
+        FRAME_HEIGHT=pane.getHeight();
         JLabel label;
         Dimension dimension;
         Random random = new Random();
@@ -120,7 +134,7 @@ public class PhotoViewer {
         }
         
         //Check for overlaps and try resolving them
-        ResolveOverlaps(pane, images);
+        ResolveOverlaps(gui, images);
     }
 
         //detects mouse clicks longer than 2 seconds for user interaction
@@ -145,20 +159,23 @@ public class PhotoViewer {
 //
 //        }
     
+    public static void createAndShowGUI(ArrayList<Image> images) throws IOException {
+        
+        
+        CreateGUI frame=new CreateGUI();
+        
+//        //Create and set up the window.
+//        JFrame frame = new JFrame("PhoJoy");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//         //Use no layout manager
+//        frame.getContentPane().setLayout(null);
+//        frame.getContentPane().setPreferredSize(new Dimension(1200, 780));
+//        frame.pack();
+//        FRAME_WIDTH = 1200;
+//        FRAME_HEIGHT = 780;
 
-    private static void createAndShowGUI(ArrayList<Image> images) throws IOException {
-        //Create and set up the window.
-        JFrame frame = new JFrame("PhoJoy");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Use no layout manager
-        //frame.getContentPane().setLayout(null);
-        frame.getContentPane().setPreferredSize(new Dimension(800, 480));
-        frame.pack();
-        FRAME_WIDTH = 800;
-        FRAME_HEIGHT = 480;
-
-
-
+       
+        
 //        frame.getContentPane().addHierarchyBoundsListener(new HierarchyBoundsListener() {
 //
 //            @Override
@@ -182,30 +199,15 @@ public class PhotoViewer {
 //        });
 
         //Display the window.
+     
         frame.setVisible(true);
+        
         //wait
         long start = new Date().getTime();
-        while (new Date().getTime() - start < 1000L) {}
-
-        //Set up the content pane.
-        addComponentsToPane(frame.getContentPane(), images);
-
-        
-
-
-        // Wait 
-//        long start = new Date().getTime();
-//        while(new Date().getTime() - start < 1000L){}
-        //-------------TEST
-        // Change position of first image
-        // System.out.println(frame.getContentPane().getComponents().length);
-
-        // Change component location
-        //frame.getContentPane().getComponent(0).setBounds((int)FRAME_WIDTH/20, (int)FRAME_HEIGHT/20, 300, 300);
-
-        //frame.revalidate();
-        //frame.repaint();
-        //------------REMOVE
+        while (new Date().getTime() - start < 1000L) {
+        }
+       
+       addComponentsToPane(frame,images);
 
 
     }
@@ -218,17 +220,7 @@ public class PhotoViewer {
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         createAndShowGUI(images);
-//        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    createAndShowGUI(images);
-//
-//                } catch (IOException ex) {
-//                }
-//            }
-//        });
+
     }
 
     private static ArrayList<Image> readImages() {
@@ -276,7 +268,7 @@ public class PhotoViewer {
         return image;
     }
 
-    private static Dimension checkBoundingDimensions(int height, int width) {
+   private static Dimension checkBoundingDimensions(int height, int width) {
         // Checks if image larger than bounding frame
         if (height <= FRAME_HEIGHT && width <= FRAME_WIDTH) {
             // Image fits, return unchanged Dimensions
@@ -296,37 +288,7 @@ public class PhotoViewer {
         }
     }
 
-//    private static Map<Integer,Image> overlapsAnother(src.Image image, Container pane, int exclude) {
-//        Map<Integer,Image> adjacency = new HashMap<>();
-//        if(pane.getComponentCount()<=1){
-//            // pane has no components yet. This is the first. So, no overlap.
-//            System.out.println("If....");
-//            return adjacency;
-//        }
-//        else{
-//            // Check overlap using nearest neighbors  -- TODO
-//            // Avoid positions with overlap OR move the rest to create space for the new
-//            System.out.println(exclude + "is excluded");
-//            Image compareImg = new Image();
-//            Rectangle imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight()); // Deafault location taken as (0,0)
-//            Rectangle compareImgRec;
-//            for(int key : labelImageMap.keySet()){
-//                if(key!= exclude){
-//                    compareImg = labelImageMap.get(key);
-//                    //Check if image and compareImg have an intersection
-//                    compareImgRec = new Rectangle(pane.getComponent(key).getBounds().getLocation().x, pane.getComponent(key).getBounds().getLocation().y, compareImg.width, compareImg.height);
-//                    if(imageRec.intersects(compareImgRec)){
-//                        adjacency.put(key,labelImageMap.get(key));
-//                    }
-//                }
-//            }
-//            System.out.println(labelImageMap.size()+"...size of map");
-//            System.out.println(adjacency.size()+"...overlapping images");
-//            return adjacency;   
-//        }
-//        
-//    }
-//    
+ 
     private static ArrayList<Integer> overlappedImages(src.Image image, Container pane, int exclude) {
         ArrayList<Integer> adjacency = new ArrayList<>();
 
@@ -335,11 +297,11 @@ public class PhotoViewer {
             return adjacency;
         } else {
             // System.out.println(exclude + "is excluded");
-            //Lines are created to obtain the bounds of the image
+            
             Image compareImg;
-            //Line2D[] imageLine = DrawPath(image); // Considering rotation
+            
             Rectangle imageRec = pane.getComponent(image.getId()).getBounds();
-            //Line2D[] compareImgLine;
+            
             Rectangle compareImgRec;
 
             //this function finds 9 nearest neighbours of image
@@ -349,12 +311,9 @@ public class PhotoViewer {
                 int key = list.get(i);
                 if (key != exclude) {
                     compareImg = labelImageMap.get(key);
-                    //compareImgLine = DrawPath(compareImg);
+                    
                     compareImgRec = pane.getComponent(compareImg.getId()).getBounds();
-//                    //This controls the lines of images so that it can understand intersections of rotated images
-//                    if (IsIntersecting(imageLine, compareImgLine)) {
-//                        adjacency.put(key, labelImageMap.get(key));
-//                    } 
+
                     // Check if the two bounding rectangles intersect. Rotation not considered for now. 
                     // Checks - if the two images intersect, if new image completely overlaps another image & vice versa
                     if (imageRec.intersects(compareImgRec) || imageRec.contains(compareImgRec) || compareImgRec.contains(imageRec)) {
@@ -378,7 +337,7 @@ public class PhotoViewer {
         double direction = 0;
 
         Line2D line = null;
-        Line2D[] compareImgLines;
+       
         Point2D[] intersections = null;
         Point2D intersectionPoint = null;
 
@@ -451,69 +410,38 @@ public class PhotoViewer {
 
     }
 
-    //this function draws lines bounding the image
-    private static Line2D[] DrawPath(Image image) {
-        Line2D line1 = new Line2D.Double(image.getLocation().x, image.getLocation().y, image.getLocation().x + image.getWidth() * Math.cos(image.getAngle()), image.getLocation().y + image.getWidth() * Math.sin(image.getAngle()));
-        Line2D line2 = new Line2D.Double(image.getLocation().x, image.getLocation().y, image.getLocation().x + image.getHeight() * Math.sin(image.getAngle()), image.getLocation().y - image.getHeight() * Math.cos(image.getAngle()));
-        Line2D line3 = new Line2D.Double(image.getLocation().x + image.getWidth() * Math.cos(image.getAngle()), image.getLocation().y + image.getWidth() * Math.sin(image.getAngle()), image.getLocation().x + image.getHeight() * Math.sin(image.getAngle()) + image.getWidth() * Math.cos(image.getAngle()), image.getLocation().y - image.getHeight() * Math.cos(image.getAngle()) + image.getWidth() * Math.sin(image.getAngle()));
-        Line2D line4 = new Line2D.Double(image.getLocation().x + image.getHeight() * Math.sin(image.getAngle()), image.getLocation().y - image.getHeight() * Math.cos(image.getAngle()), image.getLocation().x + image.getHeight() * Math.sin(image.getAngle()) + image.getWidth() * Math.cos(image.getAngle()), image.getLocation().y - image.getHeight() * Math.cos(image.getAngle()) + image.getWidth() * Math.sin(image.getAngle()));
-        Line2D[] lines = new Line2D[]{line1, line2, line3, line4};
-        return lines;
-
-    }
-
-    //this function determines if bounding lines of two images are intersecting
-    private static boolean IsIntersecting(Line2D[] first, Line2D[] second) {
-        for (Line2D line1 : first) {
-            for (Line2D line2 : second) {
-                if (line1.intersectsLine(line2)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     //this function enlarges the clicked image, need to be improved!!
-//    private static void MouseDetect(MouseEvent e, Container pane) {
-//        int x = e.getX();
-//        int y = e.getY();
-//        Image clickedimage;
-//        Rectangle imageloop;
-//        for (int key : labelImageMap.keySet()) {
-//
-//            clickedimage = labelImageMap.get(key);
-//            imageloop = new Rectangle(pane.getComponent(key).getBounds().getLocation().x, pane.getComponent(key).getBounds().getLocation().y, clickedimage.width, clickedimage.height);
-//            if (imageloop.contains(new Point(x, y))) {
-//                System.out.println("There is a photo there");
-//                clickedimage.setImg(getScaledImage(clickedimage.getImg(), clickedimage.getHeight() * 3 / 2, clickedimage.getWidth() * 3 / 2));
-//                clickedimage.setHeight(clickedimage.getHeight() * 3 / 2);
-//                clickedimage.setWidth(clickedimage.getWidth() * 3 / 2);
-//                pane.getComponent(key).setBounds(clickedimage.getLocation().x, clickedimage.getLocation().y, clickedimage.getWidth(), clickedimage.getHeight());
-//                pane.getParent().revalidate();
-//                pane.getParent().repaint();
-//                ArrayList<Integer> adjacency = overlappedImages(clickedimage, pane, pane.getComponentCount() - 1);
-//                MoveOverlappingImages(pane, clickedimage, adjacency);
-//                break;
-//            } else {
-//                System.out.println("There are no photos there");
-//            }
-//        }
-//    }
+    private static void MouseDetect(MouseEvent e, Container pane) {
+        int x = e.getX();
+        int y = e.getY();
+        Image clickedimage;
+        Rectangle imageloop;
+        for (int key : labelImageMap.keySet()) {
+
+            clickedimage = labelImageMap.get(key);
+            imageloop = new Rectangle(pane.getComponent(key).getBounds().getLocation().x, pane.getComponent(key).getBounds().getLocation().y, clickedimage.width, clickedimage.height);
+            if (imageloop.contains(new Point(x, y))) {
+                System.out.println("There is a photo there");
+                clickedimage.setImg(getScaledImage(clickedimage.getImg(), clickedimage.getHeight() * 3 / 2, clickedimage.getWidth() * 3 / 2));
+                clickedimage.setHeight(clickedimage.getHeight() * 3 / 2);
+                clickedimage.setWidth(clickedimage.getWidth() * 3 / 2);
+                pane.getComponent(key).setBounds(clickedimage.getLocation().x, clickedimage.getLocation().y, clickedimage.getWidth(), clickedimage.getHeight());
+                pane.getParent().revalidate();
+                pane.getParent().repaint();
+                ArrayList<Integer> adjacency = overlappedImages(clickedimage, pane, pane.getComponentCount() - 1);
+                MoveOverlappingImages(pane, clickedimage, adjacency);
+                break;
+            } else {
+                System.out.println("There are no photos there");
+            }
+        }
+    }
 
     //this function detect k nearest neighbours of the image
     private static ArrayList<Integer> Neighbours(src.Image image, int exclude) {
 
-//        KdTree neighbourTree = new KdTree();
-//
-//        for (Integer key : labelImageMap.keySet()) {
-//            neighbourTree.add(labelImageMap.get(key).getCenter(), key);
-//        }
-//
-//        ArrayList<Integer> list = neighbourTree.nearestNeighbourSearch(k, image.getCenter());
-//
-//        return list;
+
 
         java.util.List<Integer> neighborlist = new ArrayList<>();
         java.util.List<Integer> overlaplist = new ArrayList<>();
@@ -640,7 +568,7 @@ public class PhotoViewer {
         return p;
     }
 
-    private static boolean insideFrame(Point newLocation) {
+     private static boolean insideFrame(Point newLocation) {
         return newLocation.x < FRAME_WIDTH && newLocation.y < FRAME_HEIGHT && newLocation.x >= 0 && newLocation.y >= 0;
     }
     
@@ -652,7 +580,9 @@ public class PhotoViewer {
         return image.getLocation().x + image.getWidth() < FRAME_WIDTH && image.getLocation().y + image.getHeight() < FRAME_HEIGHT;
     }
 
-    private static void ResolveOverlaps(Container pane, ArrayList<src.Image> images) {
+
+    private static void ResolveOverlaps(CreateGUI gui, ArrayList<src.Image> images) {
+        Container pane = (Container) gui.getContentPane().getComponent(1);
         ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
         Random r = new Random();
         ArrayList<Integer> adjacency;
@@ -686,7 +616,7 @@ public class PhotoViewer {
                     long start = new Date().getTime();
                     while (new Date().getTime() - start < 1000L) {}
                // Add images in new positions
-                addComponentsToPane(pane, images);
+                addComponentsToPane(gui, images);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -696,7 +626,7 @@ public class PhotoViewer {
     }
 
     private static ArrayList<Integer> getAllOverlappingImages(Container pane, ArrayList<src.Image> images) {
-        ArrayList<Integer> allOverlappingImages = new ArrayList<>();
+         ArrayList<Integer> allOverlappingImages = new ArrayList<>();
         for (Image image : images) {
             if (overlappedImages(image, pane, image.getId()).size() > 0) {
                 allOverlappingImages.add(image.getId());
@@ -704,7 +634,6 @@ public class PhotoViewer {
         }
         return allOverlappingImages;
     }
-
     private static void animateMovement(Container pane, src.Image image, Point oldLocation, Point newLocation) {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t=0;
@@ -723,4 +652,24 @@ public class PhotoViewer {
             } 
         }        
     }
+    
+//    private static void FaceRecognition() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    private static void Color_Grouping() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    private static void TimeLine() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    private static void GeoTag() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    private static void PhotoMosaic() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 }
