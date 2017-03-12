@@ -128,11 +128,11 @@ public class PhotoViewer extends JFrame implements ActionListener{
             }
             if (image.getId() == 1) {
                 // second image does not overlap 
-                image.setLocation(new Point((int) (0+256-90), (int) (0+250)));
+                image.setLocation(new Point((int) (0+256-90), (int) (0+230)));
                 
             }
             if(image.getId() == 2){
-                image.setLocation(new Point((int) ((FRAME_WIDTH /2)-256-50), (int) ((FRAME_HEIGHT / 2)+100)));
+                image.setLocation(new Point((int) ((FRAME_WIDTH /2)-256-50), (int) ((FRAME_HEIGHT / 2)+10)));
             }
             // END TESTING
 
@@ -818,11 +818,11 @@ public class PhotoViewer extends JFrame implements ActionListener{
         labels.get(imageId).setBounds(images.get(imageId).getLocation().x,images.get(imageId).getLocation().y, images.get(imageId).getWidth(), images.get(imageId).getHeight());
         pane.revalidate();
         pane.repaint();
-//        //wait
-//        long start = new Date().getTime();
-//        while (new Date().getTime() - start < 1000L) {
-//        }
-//        ResolveOverlaps(frame, images);
+        //wait
+        long start = new Date().getTime();
+        while (new Date().getTime() - start < 1000L) {
+        }
+        ResolveOverlaps(frame, images); // PROBLEM-- TODO
         
     }
 }
