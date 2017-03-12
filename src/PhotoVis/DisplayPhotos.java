@@ -28,28 +28,21 @@ import javax.swing.border.Border;
 public class DisplayPhotos  {
      public static void main (String args[]) throws IOException {    
          JFrame frame = new JFrame("Photo Viewer");
-         frame.setSize(1200, 800);
-         
-      //  frame.getContentPane().setLayout(new FlowLayout());
+         frame.getContentPane().setLayout(null);
+         frame.getContentPane().setPreferredSize(new Dimension(1200, 780));
+         //frame.getContentPane().setBackground(Color.red);        
 
-        JPanel green = new JPanel();
-       
-      
-
-        JPanel yellow = new JPanel();
-        yellow.setBackground(Color.YELLOW);
-        yellow.setPreferredSize(new Dimension(800, 150));
-        frame.getContentPane().add(yellow, BorderLayout.CENTER);
-        frame.setBackground(Color.red);
-        JLabel wIcon = new JLabel("Hi");
+        frame.pack();
+        frame.setVisible(true);
+        
+        
+        JLabel wIcon = new JLabel(new ImageIcon(ImageIO.read(new File("images/small/image8.png"))));
          wIcon.setBounds(0, 0, 200, 200);
          wIcon.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
          wIcon.setLocation(0, 0);
-         yellow.add(wIcon);
+         frame.getContentPane().add(wIcon);
        
-         frame.pack();
-         yellow.setVisible(true);
-         frame.setVisible(true);
+         
          
 //         //panel.setVisible(false);
 //         frame.repaint();
@@ -60,10 +53,9 @@ public class DisplayPhotos  {
          for(int i =0;i<5;i++){
                 long start = new Date().getTime();
                 while(new Date().getTime() - start < 1000L){}
-                yellow.getComponent(0).setBounds(10*i, 10*i, 100-10*i, 100-10*i);
-                yellow.getComponent(0).setLocation(10*i, 10*i);
-                
-                
+                 frame.getContentPane().getComponent(0).setBounds(10*i, 10*i, 100-10*i, 100-10*i);
+                 frame.getContentPane().getComponent(0).setLocation(10*i, 10*i);
+                 frame.getContentPane().getComponent(0).repaint();  
             }
          
 //         // move to new location
