@@ -3,6 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+
+/*  To change the metadata  -> writeMetaData(String filename, String keyword, String value)
+    To read the metadata    -> readMetaData(String fileName , String key)
+    To read the GPS info    -> readGPS(String filename)
+*/
+
 package metadata;
 
 import com.sun.imageio.plugins.png.PNGMetadata;
@@ -20,8 +27,10 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import javaxt.io.Image;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 
 /**
  *
@@ -31,16 +40,40 @@ public class Metadata {
 
     public static void main(String[] args) throws IOException, Exception {
         
-        String filename = "C:\\Users\\oyku\\Desktop\\Screenshot.png";
+        String filename = "C:\\Users\\oyku\\Desktop\\Geotagged Images\\example8.png";
+        
         
         /***************** To write keyword-value combination to metadata ***********************/
 //        writeMetaData(filename, "VisTest", "Test is completed!");
         
        
         /***************** To read keyword to metadata ***********************/
-        String value = readMetaData(filename, "VisTest");
-        System.out.println(value);
+        //String value = readMetaData(filename, "VisTest");
+        //System.out.println(value);
+        
+        
+        /***************** To read the GPS info of photo ***********************/
+        readGPS(filename);
     }
+    
+    public static double[] readGPS(String filename) throws Exception{
+       
+        Image image = new Image(filename);
+        double[] gps = null;
+        if(image.getGPSCoordinate() != null){
+            gps = image.getGPSCoordinate();
+        
+            System.out.println("Longitude:  " + gps[0]);
+            System.out.println("Latitude:   " + gps[1]);
+        }
+        else{
+            System.out.println("There is no GPS information in this photo");
+        }
+        
+        
+        return gps;
+    }
+    
     
     public static void writeMetaData(String filename, String keyword, String value) throws IOException, Exception{
         File inputfile = new File(filename);
