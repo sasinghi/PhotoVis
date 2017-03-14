@@ -37,8 +37,8 @@ import javax.swing.SwingUtilities;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer extends JFrame implements ActionListener{
-
-    final static boolean shouldFill = true;
+    
+final static boolean shouldFill = true;
     final static boolean shouldWeightX = true;
     final static boolean RIGHT_TO_LEFT = false;
     static Map<Integer, Image> labelImageMap;
@@ -180,35 +180,58 @@ public class PhotoViewer extends JFrame implements ActionListener{
             }
         }
 
+        
+        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
+        
+        ActionListener face_recognition = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               FaceRecognition();
+            }};   
+            
+        ((JButton) feature_panel.getComponent(2)).addActionListener(face_recognition);
+            
+        ActionListener color_group = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Color_Grouping();
+            }};   
+        
+        ((JButton) feature_panel.getComponent(3)).addActionListener(color_group);
+        
+        ActionListener timeline = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    TimeLine();
+            }};   
+        
+        ((JButton) feature_panel.getComponent(5)).addActionListener(timeline);
+        
+        ActionListener geotag = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    GeoTag();
+            }}; 
+        
+        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
+        
+        ActionListener photomosaic = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                    PhotoMosaic();
+            }};
+        
+        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
+        
         //Check for overlaps and try resolving them
         ResolveOverlaps(gui, images);
     }
 
-    //detects mouse clicks longer than 2 seconds for user interaction
-//            frame.getContentPane().addMouseListener(new MouseAdapter() {
-//
-//                Date pressedTime;
-//                long timeClicked;
-//
-//                @Override
-//                public void mousePressed(MouseEvent e) {
-//                    pressedTime = new Date();
-//                }
-//
-//                @Override
-//                public void mouseReleased(MouseEvent e) {
-//                    timeClicked = new Date().getTime() - pressedTime.getTime();
-//                    if (timeClicked >= 2000) {
-//                        MouseDetect(e, pane);
-//                    }
-//                }
-//            });
-//
-//        }
-
-    
-    public  void createAndShowGUI(ArrayList<Image> images) throws IOException {
-          frame=new CreateGUI();
+           
+    public void createAndShowGUI(ArrayList<Image> images) throws IOException {
+        
+        
+            frame=new CreateGUI();
         
 //        //Create and set up the window.
 //        JFrame frame = new JFrame("PhoJoy");
@@ -222,7 +245,6 @@ public class PhotoViewer extends JFrame implements ActionListener{
 
        
         
-
 //        frame.getContentPane().addHierarchyBoundsListener(new HierarchyBoundsListener() {
 //
 //            @Override
@@ -253,10 +275,11 @@ public class PhotoViewer extends JFrame implements ActionListener{
         long start = new Date().getTime();
         while (new Date().getTime() - start < 1000L) {
         }
-
        
        addComponentsToPane(frame,images);
- }
+
+
+    }
 
     public static void main(String[] args) throws IOException {
         PhotoViewer pv = new PhotoViewer();
@@ -269,10 +292,11 @@ public class PhotoViewer extends JFrame implements ActionListener{
         //creating and showing this application's GUI.
         pv.createAndShowGUI(pv.images);
 
+
     }
 
     private static ArrayList<Image> readImages() {
-        String filename;
+       String filename;
         ArrayList<Image> image = new ArrayList<>();
         //***********EXAMPLE1****************//
         //***********EXAMPLE1****************//
@@ -317,7 +341,7 @@ public class PhotoViewer extends JFrame implements ActionListener{
     }
 
    private static Dimension checkBoundingDimensions(int height, int width) {
-        // Checks if image larger than bounding frame
+         // Checks if image larger than bounding frame
         if (height <= FRAME_HEIGHT && width <= FRAME_WIDTH) {
             // Image fits, return unchanged Dimensions
             return new Dimension(width, height);
@@ -512,34 +536,6 @@ public class PhotoViewer extends JFrame implements ActionListener{
         // animate movement to new location
         animateMovement(pane, image, oldLocation, image.getLocation(),adjacency);
 
-    }
-
-
-    //this function enlarges the clicked image, need to be improved!!
-    private void MouseDetect(MouseEvent e, Container pane) {
-        int x = e.getX();
-        int y = e.getY();
-        Image clickedimage;
-        Rectangle imageloop;
-        for (int key : labelImageMap.keySet()) {
-
-            clickedimage = labelImageMap.get(key);
-            imageloop = new Rectangle(pane.getComponent(key).getBounds().getLocation().x, pane.getComponent(key).getBounds().getLocation().y, clickedimage.width, clickedimage.height);
-            if (imageloop.contains(new Point(x, y))) {
-                System.out.println("There is a photo there");
-                clickedimage.setImg(getScaledImage(clickedimage.getImg(), clickedimage.getHeight() * 3 / 2, clickedimage.getWidth() * 3 / 2));
-                clickedimage.setHeight(clickedimage.getHeight() * 3 / 2);
-                clickedimage.setWidth(clickedimage.getWidth() * 3 / 2);
-                pane.getComponent(key).setBounds(clickedimage.getLocation().x, clickedimage.getLocation().y, clickedimage.getWidth(), clickedimage.getHeight());
-                pane.getParent().revalidate();
-                pane.getParent().repaint();
-                ArrayList<Integer> adjacency = overlappedImages(clickedimage, pane, pane.getComponentCount() - 1);
-                MoveOverlappingImages(pane, clickedimage, adjacency);
-                break;
-            } else {
-                System.out.println("There are no photos there");
-            }
-        }
     }
 
 
@@ -782,25 +778,25 @@ public class PhotoViewer extends JFrame implements ActionListener{
         }
     }
     
-//    private static void FaceRecognition() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    private static void Color_Grouping() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    private static void TimeLine() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    private static void GeoTag() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    private static void PhotoMosaic() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
+    private static void FaceRecognition() {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void Color_Grouping() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void TimeLine() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void GeoTag() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void PhotoMosaic() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     @Override
     public void actionPerformed(ActionEvent ae) {

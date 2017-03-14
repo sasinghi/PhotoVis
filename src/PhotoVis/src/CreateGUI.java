@@ -37,11 +37,11 @@ public class CreateGUI extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         rotation = new javax.swing.JCheckBox();
-        face_recognition = new javax.swing.JCheckBox();
-        color_grouping = new javax.swing.JCheckBox();
         timeline = new javax.swing.JButton();
         geotags = new javax.swing.JButton();
         photomosaic = new javax.swing.JButton();
+        face_recog = new javax.swing.JButton();
+        color_group = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -54,48 +54,25 @@ public class CreateGUI extends javax.swing.JFrame {
 
         jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
+        rotation.setSelected(false);
         rotation.setText("Rotation");
         rotation.setName("rotation"); // NOI18N
-        rotation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rotationActionPerformed(evt);
-            }
-        });
 
-        face_recognition.setText("Face Recognition");
-        face_recognition.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                face_recognitionActionPerformed(evt);
-            }
-        });
-
-        color_grouping.setText("Color Grouping");
-        color_grouping.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                color_groupingActionPerformed(evt);
-            }
-        });
-
+        timeline.setSelected(false);
         timeline.setText("Timeline");
-        timeline.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                timelineActionPerformed(evt);
-            }
-        });
+        timeline.setName("timeline"); // NOI18N
 
         geotags.setText("Geotags");
-        geotags.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                geotagsActionPerformed(evt);
-            }
-        });
+        geotags.setName("geo"); // NOI18N
 
         photomosaic.setText("Photomosaic");
-        photomosaic.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                photomosaicActionPerformed(evt);
-            }
-        });
+        photomosaic.setName("photomosaic"); // NOI18N
+
+        face_recog.setText("Face Recognition");
+        face_recog.setName("face_recog"); // NOI18N
+
+        color_group.setText("Color Grouping");
+        color_group.setName("color_group"); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -103,18 +80,18 @@ public class CreateGUI extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(rotation, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                .addComponent(rotation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(face_recognition)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(color_grouping)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(timeline)
+                .addComponent(face_recog)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(color_group, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(26, 26, 26)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(timeline)
+                .addGap(24, 24, 24)
                 .addComponent(geotags, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(photomosaic)
@@ -128,15 +105,15 @@ public class CreateGUI extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(photomosaic, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(timeline, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(geotags, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(geotags, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(timeline)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                        .addGap(3, 3, 3)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(face_recognition)
-                                .addComponent(color_grouping))
+                                .addComponent(face_recog)
+                                .addComponent(color_group, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(rotation, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
@@ -152,7 +129,7 @@ public class CreateGUI extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 733, Short.MAX_VALUE)
+            .addGap(0, 721, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -178,59 +155,7 @@ public class CreateGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void rotationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rotationActionPerformed
-        // TODO add your handling code here:
-        if(rotation.isSelected()){
-            setRotate(true);
-        }
-        else setRotate(false);
-    }//GEN-LAST:event_rotationActionPerformed
-
-    private void face_recognitionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_face_recognitionActionPerformed
-        // TODO add your handling code here:
-        if(face_recognition.isSelected()){
-            setState(1);}
-    }//GEN-LAST:event_face_recognitionActionPerformed
-
-    private void timelineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timelineActionPerformed
-        // TODO add your handling code here:
-        setState(3);
-    }//GEN-LAST:event_timelineActionPerformed
-
-    private void color_groupingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_color_groupingActionPerformed
-        // TODO add your handling code here:
-        if(color_grouping.isSelected()){
-            setState(2);}
-    }//GEN-LAST:event_color_groupingActionPerformed
-
-    private void geotagsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_geotagsActionPerformed
-        // TODO add your handling code here:
-        setState(4);
-    }//GEN-LAST:event_geotagsActionPerformed
-
-    private void photomosaicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photomosaicActionPerformed
-        // TODO add your handling code here:
-        setState(5);
-    }//GEN-LAST:event_photomosaicActionPerformed
     
-    @Override
-    public void setState(int state){
-        this.state = state;
-    }
-    
-    @Override
-    public int getState(){
-        return this.state;
-    }
-    
-    public void setRotate(boolean rot){
-        this.rotate = rot;
-    }
-    
-    public boolean getRotate(){
-        return this.rotate;
-    }
     
     /**
      * @param args the command line arguments
@@ -274,8 +199,8 @@ public class CreateGUI extends javax.swing.JFrame {
 //    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox color_grouping;
-    private javax.swing.JCheckBox face_recognition;
+    private javax.swing.JButton color_group;
+    private javax.swing.JButton face_recog;
     private javax.swing.JButton geotags;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
