@@ -21,22 +21,24 @@ import java.lang.Math;
  */
 class Image {
     BufferedImage img;
+    BufferedImage original_img;
     Point location;
     XYZPoint center;
-    int height;
-    int width;
+    double height;
+    double width;
     float angle;
     int frame_width;
     int frame_height;
     int id;
-    int original_height;
-    int original_width;
+    double original_height;
+    double original_width;
 
     public Image() {
     }
 
     public Image(BufferedImage img, Point location, int height, int width, float angle, int id) {
         this.img = img;
+        this.original_img = img;
         this.location = location;
         this.height = height;
         this.width = width;
@@ -47,6 +49,7 @@ class Image {
 
     public Image(BufferedImage img, int height, int width, int frame_width, int frame_height, int id) {
         this.img = img;
+        this.original_img = img;
         this.height = height;
         this.width = width;
         this.frame_width = frame_width;
@@ -62,6 +65,7 @@ class Image {
 
     public Image(BufferedImage img, int height, int width, int id) {
         this.img = img;
+        this.original_img = img;
         this.height = height;
         this.width = width;
         this.id = id;
@@ -69,19 +73,29 @@ class Image {
 
     }
 
-    public int getOriginal_height() {
+    public BufferedImage getOriginal_img() {
+        return original_img;
+    }
+
+    public void setOriginal_img(BufferedImage original_img) {
+        this.original_img = original_img;
+    }
+    
+    
+
+    public double getOriginal_height() {
         return original_height;
     }
 
-    public void setOriginal_height(int original_height) {
+    public void setOriginal_height(double original_height) {
         this.original_height = original_height;
     }
 
-    public int getOriginal_width() {
+    public double getOriginal_width() {
         return original_width;
     }
 
-    public void setOriginal_width(int original_width) {
+    public void setOriginal_width(double original_width) {
         this.original_width = original_width;
     }
     
@@ -111,11 +125,11 @@ class Image {
         this.angle = angle;
     }
 
-    public int getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 
@@ -133,14 +147,14 @@ class Image {
 
     public void setLocation(Point location) {
         this.location = location;
-        this.updateCenter();
+        
     }
 
-    public int getWidth() {
+    public double getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(double width) {
         this.width = width;
     }
     
@@ -153,8 +167,8 @@ class Image {
     }
     
     public void updateCenter() {
-       double a = ((this.getLocation().x) + (this.getLocation().x+this.getWidth()*Math.cos(this.getAngle())) + (this.getLocation().x+this.getHeight()*Math.sin(this.getAngle())) + (this.getLocation().x+this.getHeight()*Math.sin(this.getAngle())+this.getWidth()*Math.cos(this.getAngle())))/4 ;
-       double b = ((this.getLocation().y)+(this.getLocation().y+this.getWidth()*Math.sin(this.getAngle()))+(this.getLocation().y-this.getHeight()*Math.cos(this.getAngle()))+(this.getLocation().y-this.getHeight()*Math.cos(this.getAngle())+this.getWidth()*Math.sin(this.getAngle())))/4;
+       double a = ((this.getLocation().x) + (this.getLocation().x + this.getWidth()))/2;
+       double b = ((this.getLocation().y) + (this.getLocation().y + this.getHeight()))/2;
        center = new XYZPoint(a,b);
     }
     

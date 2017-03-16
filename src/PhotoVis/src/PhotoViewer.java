@@ -91,50 +91,65 @@ final static boolean shouldFill = true;
         Dimension dimension;
         Random random = new Random();
         for (src.Image image : images) {
-            dimension = checkBoundingDimensions(image.getOriginal_height(), image.getOriginal_width());
+            dimension = checkBoundingDimensions((int)image.getOriginal_height(), (int)image.getOriginal_width());
             if ((int) dimension.getWidth() != image.getWidth() || (int) dimension.getHeight() != image.getHeight()) {
                 // Scale image to new dimension 
                 image.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
                 image.setHeight((int) dimension.getHeight());
                 image.setWidth((int) dimension.getWidth());
-
+                 
             }
             // Choose a random point inside frame
-//            int x = random.nextInt((int) FRAME_WIDTH);
-//            int y = random.nextInt((int) FRAME_HEIGHT);
-//            image.setLocation(new Point(x, y));
-//            BufferedImage shrunkImg=null;
-//            while(!insideFrame(image)){
-//                // Try shrinking image once
-//                shrunkImg = getScaledImage(image.getImg(), (int)(image.getOriginal_width()/1.9), (int)(image.getOriginal_height()/1.9));
-//                if(insideFrame(image.getLocation(),shrunkImg)){
-//                    image.setImg(shrunkImg);
-//                    image.setWidth(shrunkImg.getWidth());
-//                    image.setHeight(shrunkImg.getHeight());
-//                }else{
-//                    // try a new location
-//                    x = random.nextInt((int) FRAME_WIDTH);
-//                    y = random.nextInt((int) FRAME_HEIGHT);
-//                    image.setLocation(new Point(x, y));
-//                }
-//            }
+            int x = random.nextInt((int) FRAME_WIDTH);
+            int y = random.nextInt((int) FRAME_HEIGHT);
+            image.setLocation(new Point(x, y));
             
-
-            // TESTING
-            if (image.getId() == 0) {
-                // set first image and center 
-                image.setLocation(new Point(0,0));
+            
+            if(!insideFrame(image)){
                 
+                BufferedImage shrunkImg=null;
+                double scaleDowm=1.2;
+                // Try shrinking image once
+                shrunkImg = getScaledImage(image.getOriginal_img(), (int)(image.getOriginal_width()/scaleDowm), (int)(image.getOriginal_height()/scaleDowm));
+                image.setImg(shrunkImg);
+                image.setHeight(image.getImg().getHeight());
+                image.setWidth(image.getImg().getWidth());
+                while(!insideFrame(image.getLocation(),shrunkImg) && (image.getOriginal_width()/image.getWidth())<=MIN && (image.getOriginal_height()/image.getHeight())<=MIN ){
+                    // Choose another random point inside frame
+                    x = random.nextInt((int) FRAME_WIDTH);
+                    y = random.nextInt((int) FRAME_HEIGHT);
+                    image.setLocation(new Point(x, y));
+                    if(insideFrame(image)){
+                        break;
+                    }else{
+                        // Try with even shrunk image in a new location
+                        scaleDowm+=0.2;
+                        shrunkImg = getScaledImage(image.getOriginal_img(), (int)(image.getOriginal_width()/scaleDowm), (int)(image.getOriginal_height()/scaleDowm));
+                        image.setImg(shrunkImg);
+                        image.setHeight(image.getImg().getHeight());
+                        image.setWidth(image.getImg().getWidth());
+                    } 
+                }
             }
-            if (image.getId() == 1) {
-                // second image does not overlap 
-                image.setLocation(new Point((int) (0+256-90), (int) (0+230)));
-                
-            }
-            if(image.getId() == 2){
-                image.setLocation(new Point((int) ((FRAME_WIDTH /2)-256-50), (int) ((FRAME_HEIGHT / 2)+10)));
-            }
-            // END TESTING
+            
+            image.setHeight(image.getImg().getHeight());
+            image.setWidth(image.getImg().getWidth());
+            image.updateCenter();
+//            // TESTING
+//            if (image.getId() == 0) {
+//                // set first image and center 
+//                image.setLocation(new Point(0,0));
+//                
+//            }
+//            if (image.getId() == 1) {
+//                // second image does not overlap 
+//                image.setLocation(new Point((int) (0+256-90), (int) (0+230)));
+//                
+//            }
+//            if(image.getId() == 2){
+//                image.setLocation(new Point((int) ((FRAME_WIDTH /2)-256-50), (int) ((FRAME_HEIGHT / 2)+10)));
+//            }
+//            // END TESTING
 
             // Add pair in labelImage Map
             labelImageMap.put(pane.getComponentCount(), image);
@@ -144,7 +159,7 @@ final static boolean shouldFill = true;
             label.setOpaque(false);
             label.setContentAreaFilled(false);
             //label.setBorderPainted(false);
-            label.setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+            label.setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
             label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
             label.setName(""+image.getId());
             
@@ -155,7 +170,7 @@ final static boolean shouldFill = true;
             labels.get(image.getId()).setActionCommand(label.getName());
             
             pane.add(labels.get(image.getId()));
-            pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+            pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
 
 //            while(pane.getComponent(image.getId()).getLocation().x != image.getLocation().x && pane.getComponent(image.getId()).getLocation().y != image.getLocation().y && pane.getComponent(image.getId()).getSize()!= new Dimension(image.getWidth(), image.getHeight())){
 //                System.out.println("Bounds mismatch for image"+ image.getId());
@@ -300,17 +315,17 @@ final static boolean shouldFill = true;
         ArrayList<Image> image = new ArrayList<>();
         //***********EXAMPLE1****************//
         //***********EXAMPLE1****************//
-        int j = 0;
-        for (int i = 8; i < 11; i++) {
-            try {
-                filename = "images/small/image" + i + ".png";
-                BufferedImage img = ImageIO.read(new File(filename));
-                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
-                j++;
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+//        int j = 0;
+//        for (int i = 8; i < 10; i++) {
+//            try {
+//                filename = "images/small/image" + i + ".png";
+//                BufferedImage img = ImageIO.read(new File(filename));
+//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
+//                j++;
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
         //***********END EXAMPLE 1****************//
         //***********EXAMPLE 2****************//
 //        for(int i=8;i<17;i++){
@@ -337,22 +352,35 @@ final static boolean shouldFill = true;
 //                ex.printStackTrace();
 //            }
         // ********End Example 3*****************//
+        
+        
+        int j = 0;
+        for (int i = 1; i <9 ; i++) {
+            try {
+                filename = "images/small/example" + i + ".png";
+                BufferedImage img = ImageIO.read(new File(filename));
+                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
+                j++;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
         return image;
     }
 
    private static Dimension checkBoundingDimensions(int height, int width) {
          // Checks if image larger than bounding frame
-        if (height <= FRAME_HEIGHT && width <= FRAME_WIDTH) {
+        if (height <= (FRAME_HEIGHT/7) && width <= (FRAME_WIDTH/7)) {
             // Image fits, return unchanged Dimensions
             return new Dimension(width, height);
         } else {
-            if (height > FRAME_HEIGHT) {
-                while (height > FRAME_HEIGHT && height > 0) {
+            if (height > (FRAME_HEIGHT/7)) {
+                while (height > (FRAME_HEIGHT/7) && height > 0) {
                     height -= 10;
                 }
             }
-            if (width > FRAME_WIDTH) {
-                while (width > FRAME_WIDTH && width > 0) {
+            if (width > (FRAME_WIDTH/7)) {
+                while (width > (FRAME_WIDTH/7) && width > 0) {
                     width -= 10;
                 }
             }
@@ -372,7 +400,13 @@ final static boolean shouldFill = true;
             
             Image compareImg;
             
-            Rectangle imageRec = pane.getComponent(image.getId()).getBounds();
+            Rectangle imageRec;
+            if(image.getId()<0){
+                imageRec = new Rectangle(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
+            }
+            else{
+                imageRec= pane.getComponent(image.getId()).getBounds();
+            }
             
             Rectangle compareImgRec;
 
@@ -482,37 +516,36 @@ final static boolean shouldFill = true;
         // New location in the direction of resultant vector. 
         Point newLocation = new Point((int) (image.getLocation().x + move_x), (int) (image.getLocation().y + move_y));
         BufferedImage shrunkImg = image.img;
-            
+        double scaleDown=1.2;
         // Check if new location is in frame
         if (!insideFrame(newLocation) ) {
-            // Shrink image and try resolving overlaps again.
-            while (image.getOriginal_height() / image.getHeight() <= MIN && image.getOriginal_width() / image.getWidth() <= MIN && insideFrame(image)) {
-                shrunkImg = getScaledImage(image.img, (int) (image.getWidth()/1.9), (int) (image.getHeight()/1.9));
-                image.setImg(shrunkImg);
-                image.setHeight(shrunkImg.getHeight());
-                image.setWidth(shrunkImg.getWidth());
+            // Shrink image in current location
+            while ((image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
+//                shrunkImg = getScaledImage(image.getOriginal_img(), (int) (image.getOriginal_width()/scaleDown), (int) (image.getOriginal_height()/scaleDown));
+//                image.setImg(shrunkImg);
+//                image.setHeight(shrunkImg.getHeight());
+//                image.setWidth(shrunkImg.getWidth());
+                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown, adjacency);
+                scaleDown+=0.2;
             }
-            labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
-            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+            //labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
+            labelImageMap.put(image.getId(), image);
+            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             pane.revalidate();
             pane.repaint();
-            MoveOverlappingImages(pane, image, adjacency);
         } else if (insideFrame(newLocation) && !insideFrame(newLocation, image)) {
             // At new location but shrinked image
             image.setLocation(newLocation);
-            System.out.println("Here in new location");
-            while (!insideFrame(image) && image.getOriginal_height() / image.getHeight() <= MIN && image.getOriginal_width() / image.getWidth() <= MIN) {
-                shrunkImg = getScaledImage(image.img, (int) (image.getWidth()/1.9), (int) (image.getHeight()/1.9));
-                System.out.println("Shrinked in new location");
-                image.setImg(shrunkImg);
-                image.setHeight(shrunkImg.getHeight());
-                image.setWidth(shrunkImg.getWidth());
+            scaleDown=1.2;
+            while (!insideFrame(image) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN) {
+                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown, adjacency);
+                scaleDown+=0.2;
             } 
-            labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
-            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
+            //labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
+            labelImageMap.put(image.getId(), image);
+            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             pane.revalidate();
             pane.repaint();
-            MoveOverlappingImages(pane, image, adjacency);
         }else{
             // At new location with same size 
             image.setLocation(newLocation);
@@ -530,6 +563,8 @@ final static boolean shouldFill = true;
 //        pane.revalidate();
 //        pane.repaint();
 
+        // update center
+        image.updateCenter();
         // update image in the labelImageMap
         labelImageMap.put(image.getId(), image);      
 
@@ -578,32 +613,7 @@ final static boolean shouldFill = true;
 
     }
 
-    private static void getLargestImage(ArrayList<src.Image> images) {
-        int maxH = 3000;
-        Dimension minDim = new Dimension(3000, 3000);
-        Dimension iDim = new Dimension();
-        System.out.println(images.size());
-        for (Image i : images) {
-            System.out.println(i.getWidth() + "*" + i.getHeight());
-            //iDim = new Dimension(i.getWidth(), i.getHeight());
-//            if( (iDim.getHeight()*iDim.getWidth()) > (maxDim.getHeight()*maxDim.getWidth())){
-//                maxDim = iDim;
-//            }
-//            if( (iDim.getHeight()*iDim.getWidth()) < (minDim.getHeight()*minDim.getWidth())){
-//                minDim = iDim;
-//            }
-            if (maxH > i.getWidth()) {
-                maxH = i.getWidth();
-            }
-        }
-
-        System.out.println("================sizes( H* W)=============");
-        System.out.println(maxH);
-        //System.out.println(minDim.getHeight() + "*" + maxDim.getWidth());
-
-    }
-
-    private static double distance(double x1, double y1, double x2, double y2) {
+   private static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
     }
 
@@ -684,7 +694,7 @@ final static boolean shouldFill = true;
     }
 
     private static boolean insideFrame(src.Image image) {
-        return image.getLocation().x + image.getWidth() < FRAME_WIDTH && image.getLocation().y + image.getHeight() < FRAME_HEIGHT;
+        return (image.getLocation().x + image.getWidth()) < FRAME_WIDTH && (image.getLocation().y + image.getHeight()) < FRAME_HEIGHT;
     }
 
 
@@ -726,6 +736,10 @@ final static boolean shouldFill = true;
                     //wait
                     long start = new Date().getTime();
                     while (new Date().getTime() - start < 1000L) {}
+                    
+                    labels = new ArrayList<>();
+                    images = readImages();
+                    
                // Add images in new positions
                 addComponentsToPane(gui, images);
 
@@ -734,6 +748,26 @@ final static boolean shouldFill = true;
             }
         } else {
             System.out.println("Packed.");
+            Image temp = new Image();
+            double scale=1.2;
+            for(Image image : images){
+                scale=1.1;
+                temp = new Image();
+                temp.setImg(getScaledImage(image.getOriginal_img(), (int)(image.getWidth()*scale), (int)(image.getHeight()*scale)));
+                temp.setId(-1);
+                temp.setHeight(temp.getImg().getHeight());
+                temp.setWidth(temp.getImg().getWidth());
+                temp.setLocation(image.getLocation());
+                temp.updateCenter();
+                adjacency = overlappedImages(temp, pane, image.getId());
+                while(adjacency.size()<=0 && insideFrame(temp) && scale<=1.4){
+                    //image.setImg(temp.getImg());
+                    //image.setHeight(temp.getImg().getHeight());
+                    //image.setWidth(temp.getImg().getWidth());
+                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()*scale,image.getWidth()*scale, adjacency);
+                    scale+=0.2;
+                }
+            }
         }
     }
 
@@ -757,8 +791,13 @@ final static boolean shouldFill = true;
                 location.x = (int) ((1 - t) * oldLocation.x + t * newLocation.x);
                 location.y = (int) ((1 - t) * oldLocation.y + t * newLocation.y);
                 image.setLocation(location);
-                pane.getComponent(image.getId()).setBounds(location.x, location.y, image.getWidth(), image.getHeight());
-                pane.getComponent(image.getId()).repaint();
+                image.updateCenter();
+                labelImageMap.put(image.getId(), image);
+//                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
+//                pane.getComponent(image.getId()).repaint();
+                labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
+                pane.revalidate();
+                pane.repaint();
                 currentOverlaps = overlappedImages(image, pane, image.getId());
                 if(currentOverlaps.size()<=0){
                     // No overlaps
@@ -777,6 +816,39 @@ final static boolean shouldFill = true;
             }
         }
     }
+    
+    private  void animateMovement(Container pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, ArrayList<Integer> adjacency) {
+        // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
+        double t = 0;
+        BufferedImage img;
+        ArrayList<Integer> currentOverlaps = new ArrayList<>(); 
+        if (newWidth != oldWidth && newHeight!=oldHeight) {
+            while (t < 1) {
+                t += 0.4;
+                img = getScaledImage(image.getOriginal_img(), (int)(((1-t)*oldWidth)+(t*newWidth)), (int)(((1-t)*oldHeight)+(t*newHeight)));
+                image.setImg(img);
+                image.setHeight(img.getHeight());
+                image.setWidth(img.getWidth());
+                image.updateCenter();
+                labelImageMap.put(image.getId(), image);
+                labels.get(image.getId()).setIcon(new ImageIcon(img));
+                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
+                pane.revalidate();
+                pane.repaint();
+//                currentOverlaps = overlappedImages(image, pane, image.getId());
+//                if(currentOverlaps.size()<=0){
+//                    // No overlaps
+//                    break;
+//                }
+                //wait
+                long start = new Date().getTime();
+                while (new Date().getTime() - start < 1000L) {
+                }
+            }
+        }
+    }
+    
+    
     
     private static void FaceRecognition() {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -805,20 +877,20 @@ final static boolean shouldFill = true;
         System.out.println("Image: "+image_id +" was in focus");
         int imageId = Integer.parseInt(image_id);
         System.out.println("Image: "+imageId +" was in focus");
-        BufferedImage scaledImg = getScaledImage(images.get(imageId).img, images.get(imageId).getOriginal_width()*2,images.get(imageId).getOriginal_height()*2) ;
+        BufferedImage scaledImg = getScaledImage(images.get(imageId).getOriginal_img(), (int) (images.get(imageId).getWidth()*2),(int)(images.get(imageId).getHeight()*2)) ;
         images.get(imageId).setImg(scaledImg);
         images.get(imageId).setWidth(scaledImg.getWidth());
         images.get(imageId).setHeight(scaledImg.getHeight());
         labelImageMap.put(imageId, images.get(imageId));
         labels.get(imageId).setIcon(new ImageIcon(images.get(imageId).img));
-        labels.get(imageId).setBounds(images.get(imageId).getLocation().x,images.get(imageId).getLocation().y, images.get(imageId).getWidth(), images.get(imageId).getHeight());
+        labels.get(imageId).setBounds(images.get(imageId).getLocation().x,images.get(imageId).getLocation().y, (int)(images.get(imageId).getWidth()), (int)(images.get(imageId).getHeight()));
         pane.revalidate();
         pane.repaint();
         //wait
         long start = new Date().getTime();
         while (new Date().getTime() - start < 1000L) {
         }
-        ResolveOverlaps(frame, images); // PROBLEM-- TODO
+       // ResolveOverlaps(frame, images); // PROBLEM-- TODO
         
     }
 }
