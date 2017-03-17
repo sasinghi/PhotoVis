@@ -377,7 +377,9 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <2 ; i++) {
+
+        for (int i = 1; i <9 ; i++) {
+
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
@@ -963,6 +965,7 @@ final static boolean shouldFill = true;
     public void actionPerformed(ActionEvent ae) {
         String image_id = ae.getActionCommand();
         int imageId = Integer.parseInt(image_id);
+
         
         if(!colorGroupClicked){
             System.out.println("Here in action performed");
@@ -991,6 +994,7 @@ final static boolean shouldFill = true;
         }
         
         
+
         
     }
 }
