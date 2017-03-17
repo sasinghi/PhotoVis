@@ -56,13 +56,18 @@ final static boolean shouldFill = true;
     final static double SCALE = 1;
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
-
+    public static boolean colorGroupClicked = false;
+    public static boolean firstColorClicked = false;
+    public static boolean secondColorClicked = false;
+    
+    
     private static ArrayList<JButton> labels;
     private static Date TIME_BEGIN;
     private int FOCUS = 0;
     
     Container pane;
     private static CreateGUI frame;
+   
     
     public PhotoViewer() {
         labels = new ArrayList<>();
@@ -372,7 +377,9 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
+
         for (int i = 1; i <9 ; i++) {
+
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
@@ -917,7 +924,15 @@ final static boolean shouldFill = true;
     }
 
     private static void Color_Grouping() {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!colorGroupClicked){
+            colorGroupClicked = true;
+        }
+        
+        else{
+            firstColorClicked = false;
+            secondColorClicked = false;
+            colorGroupClicked = false;
+        }
     }
 
     private static void TimeLine() {
@@ -932,23 +947,54 @@ final static boolean shouldFill = true;
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    private void onePhotoforColorGroup(src.Image testimg){
+        int[] testavg = ColorSimilarity.averageColor(testimg.getImg());
+        double[] testavgd = ColorSimilarity.convertCIEvalues(testavg);
+        for(src.Image image : images){
+            if(testimg.getId() != image.getId()){
+                int[] imageavg = ColorSimilarity.averageColor(image.getImg());
+                double[] imageavgd = ColorSimilarity.convertCIEvalues(imageavg);
+                
+                double diff = ColorSimilarity.findDifference(testavgd, imageavgd);
+            }
+            
+        }
+    }
+    
     @Override
     public void actionPerformed(ActionEvent ae) {
-        System.out.println("Here in action performed");
         String image_id = ae.getActionCommand();
-        System.out.println("Image: "+image_id +" was in focus");
         int imageId = Integer.parseInt(image_id);
-        System.out.println("Image: "+imageId +" was in focus");
-        animateMovement(pane, labelImageMap.get(imageId), labelImageMap.get(imageId).getHeight(), labelImageMap.get(imageId).getWidth(), labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2);
-        labels.get(imageId).setIcon(new ImageIcon(labelImageMap.get(imageId).getImg()));
-        labels.get(imageId).setBounds(labelImageMap.get(imageId).getLocation().x,labelImageMap.get(imageId).getLocation().y, (int)(labelImageMap.get(imageId).getWidth()), (int)(labelImageMap.get(imageId).getHeight()));
-        pane.revalidate();
-        pane.repaint();
-        //wait
-        long start = new Date().getTime();
-        while (new Date().getTime() - start < 1000L) {
+
+        
+        if(!colorGroupClicked){
+            System.out.println("Here in action performed");
+            System.out.println("Image: "+image_id +" was in focus");
+            animateMovement(pane, labelImageMap.get(imageId), labelImageMap.get(imageId).getHeight(), labelImageMap.get(imageId).getWidth(), labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2);
+            labels.get(imageId).setIcon(new ImageIcon(labelImageMap.get(imageId).getImg()));
+            labels.get(imageId).setBounds(labelImageMap.get(imageId).getLocation().x,labelImageMap.get(imageId).getLocation().y, (int)(labelImageMap.get(imageId).getWidth()), (int)(labelImageMap.get(imageId).getHeight()));
+            pane.revalidate();
+            pane.repaint();
+            //wait
+            long start = new Date().getTime();
+            while (new Date().getTime() - start < 1000L) {
+            }
+           // ResolveOverlaps(frame, images); // PROBLEM-- TODO
         }
-       // ResolveOverlaps(frame, images); // PROBLEM-- TODO
+        
+        else if(colorGroupClicked && !firstColorClicked){
+            firstColorClicked = true;
+            onePhotoforColorGroup(labelImageMap.get(imageId));
+            System.out.println("1st photo clicked");
+        }
+        
+        else if(colorGroupClicked && firstColorClicked){
+            secondColorClicked = true;
+            System.out.println("2nd photo clicked");
+        }
+        
+        
+
         
     }
 }
