@@ -379,8 +379,7 @@ final static boolean shouldFill = true;
         int k=0;
         for (int i = 1; i <2 ; i++) {
             try {
-                filename = "C:\\Users\\oyku\\Documents\\NetBeansProjects\\PhotoVis\\images\\GeotaggedImages\\example" + i + ".png";
-                //filename = "images/small/example" + i + ".png";
+                filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
                 k=0;
                 while(k<10){
