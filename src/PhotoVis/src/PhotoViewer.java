@@ -9,6 +9,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import net.coobird.thumbnailator.Thumbnails;
 
-public class PhotoViewer extends JFrame implements ActionListener{
+public class PhotoViewer extends JPanel {
     
 final static boolean shouldFill = true;
     final static boolean shouldWeightX = true;
@@ -47,25 +49,30 @@ final static boolean shouldFill = true;
     static double FRAME_WIDTH;
     static double FRAME_HEIGHT;
     // Nearest neighbors parameters. range along x and y direction is 10. 
-    final static int xrad = 100;
-    final static int yrad = 100;
+    final static int xrad = 200;
+    final static int yrad = 200;
     // Minimum scale is h/2 * w/2
     // Maximum scale is h*2 * w*2
-    final static double MIN = 70.0;
+    final static double MIN = 60.0;
     final static double MAX = 9.5;
     final static double SCALE = 1;
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
+    private static int IMAGE_TRIAL_COUNT_1 =0 ;
 
     private static ArrayList<JButton> labels;
     private static Date TIME_BEGIN;
     private int FOCUS = 0;
     
     Container pane;
-    private static CreateGUI frame;
+    private static JFrame frame;
+    private static boolean INTERRUPT = false;
+    
     
     public PhotoViewer() {
         labels = new ArrayList<>();
+        setFocusable(true);
+        
     }
     
     private  BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
@@ -81,8 +88,9 @@ final static boolean shouldFill = true;
     public  void addComponentAt(Component component, Point location, Container pane) {
     }
 
-    public  void addComponentsToPane(final CreateGUI gui, ArrayList<Image> images1) throws IOException {
+    public  void addComponentsToPane(final JFrame gui, ArrayList<Image> images1) throws IOException {
         pane = (Container) gui.getContentPane().getComponent(1);
+        //pane = gui.getContentPane();
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
@@ -146,9 +154,7 @@ final static boolean shouldFill = true;
                 }
             }
             
-            image.setHeight(image.getImg().getHeight());
-            image.setWidth(image.getImg().getWidth());
-            image.updateCenter();
+            
 //            // TESTING
 //            if (image.getId() == 0) {
 //                // set first image and center 
@@ -157,7 +163,7 @@ final static boolean shouldFill = true;
 //            }
 //            if (image.getId() == 1) {
 //                // second image does not overlap 
-//                image.setLocation(new Point((int) (0+256-90), (int) (0+230)));
+//                image.setLocation(new Point((int) (0), (int) (0+50)));
 //                
 //            }
 //            if(image.getId() == 2){
@@ -165,6 +171,11 @@ final static boolean shouldFill = true;
 //            }
 //            // END TESTING
 
+            
+            image.setHeight(image.getImg().getHeight());
+            image.setWidth(image.getImg().getWidth());
+            image.updateCenter();
+            
             // Add pair in labelImage Map
             labelImageMap.put(pane.getComponentCount(), image);
 
@@ -180,7 +191,30 @@ final static boolean shouldFill = true;
 
             labels.add(label);
             
-            labels.get(image.getId()).addActionListener(this);
+            //labels.get(image.getId()).addActionListener(this);
+//            
+//            labels.get(image.getId()).addMouseListener(new java.awt.event.MouseAdapter(){ 
+//                public void mouseEntered(java.awt.event.MouseEvent evt) {
+//                    System.out.println("Entered");
+//                    if(evt.getSource().equals(JButton.class)){
+//                        JButton button = (JButton) evt.getSource();
+//                        button.setBorder(BorderFactory.createLineBorder(Color.BLUE, 100));
+//                        pane.validate();
+//                        pane.repaint();
+//                    }     
+//                }
+//
+//                public void mouseExited(java.awt.event.MouseEvent evt) {
+//                    System.out.println("Exited");
+//                    if(evt.getSource().equals(JButton.class)){
+//                        JButton button = (JButton) evt.getSource();
+//                        button.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
+//                        pane.validate();
+//                        pane.repaint();
+//                    } 
+//                }
+//            });
+            
             labels.get(image.getId()).setActionCommand(label.getName());
             
             pane.add(labels.get(image.getId()));
@@ -202,6 +236,16 @@ final static boolean shouldFill = true;
             pane.getComponent(image.getId()).repaint();
             
             
+            // Try to move image if any overlaps. 
+            IMAGE_TRIAL_COUNT_1 = 0;
+            ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId());
+            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size()/5)) {
+                // Move the image to escape current overlaps
+                MoveOverlappingImages(pane, image, adjacency);
+                adjacency = overlappedImages(image, pane, image.getId());
+                IMAGE_TRIAL_COUNT_1++;
+            }
+            
 
             //wait
             long start = new Date().getTime();
@@ -210,48 +254,48 @@ final static boolean shouldFill = true;
         }
 
         
-        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
-        
-        ActionListener face_recognition = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               FaceRecognition();
-            }};   
-            
-        ((JButton) feature_panel.getComponent(2)).addActionListener(face_recognition);
-            
-        ActionListener color_group = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Color_Grouping();
-            }};   
-        
-        ((JButton) feature_panel.getComponent(3)).addActionListener(color_group);
-        
-        ActionListener timeline = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    TimeLine();
-            }};   
-        
-        ((JButton) feature_panel.getComponent(5)).addActionListener(timeline);
-        
-        ActionListener geotag = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    GeoTag();
-            }}; 
-        
-        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
-        
-        ActionListener photomosaic = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    PhotoMosaic();
-            }};
-        
-        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
-        
+//        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
+//        
+//        ActionListener face_recognition = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//               FaceRecognition();
+//            }};   
+//            
+//        ((JButton) feature_panel.getComponent(2)).addActionListener(face_recognition);
+//            
+//        ActionListener color_group = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Color_Grouping();
+//            }};   
+//        
+//        ((JButton) feature_panel.getComponent(3)).addActionListener(color_group);
+//        
+//        ActionListener timeline = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                    TimeLine();
+//            }};   
+//        
+//        ((JButton) feature_panel.getComponent(5)).addActionListener(timeline);
+//        
+//        ActionListener geotag = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                    GeoTag();
+//            }}; 
+//        
+//        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
+//        
+//        ActionListener photomosaic = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                    PhotoMosaic();
+//            }};
+//        
+//        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
+//        
         //Check for overlaps and try resolving them
         ResolveOverlaps(gui, images);
     }
@@ -260,17 +304,9 @@ final static boolean shouldFill = true;
     public void createAndShowGUI(ArrayList<Image> images) throws IOException {
         
         
-            frame=new CreateGUI();
+         frame=new CreateGUI();
         
-//        //Create and set up the window.
-//        JFrame frame = new JFrame("PhoJoy");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//         //Use no layout manager
-//        frame.getContentPane().setLayout(null);
-//        frame.getContentPane().setPreferredSize(new Dimension(1200, 780));
-//        frame.pack();
-//        FRAME_WIDTH = 1200;
-//        FRAME_HEIGHT = 780;
+        
 
        
         
@@ -321,6 +357,17 @@ final static boolean shouldFill = true;
         //creating and showing this application's GUI.
         TIME_BEGIN = new Date();
         System.out.println("Begin:"+System.currentTimeMillis());
+        
+//        //Create and set up the window.
+//        frame = new JFrame("PhoJoy");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//         //Use no layout manager
+//        frame.getContentPane().setLayout(null);
+//        frame.add(pv);
+//        frame.getContentPane().setPreferredSize(new Dimension(1200, 780));
+//        frame.pack();
+//        FRAME_WIDTH = 1200;
+//        FRAME_HEIGHT = 780;
         pv.createAndShowGUI(pv.images);
 
 
@@ -370,6 +417,7 @@ final static boolean shouldFill = true;
         // ********End Example 3*****************//
         
         
+        
         int j = 0;
         int k=0;
         for (int i = 1; i <9 ; i++) {
@@ -381,7 +429,7 @@ final static boolean shouldFill = true;
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
                 j++;
                 k++;
-                }
+               }
                 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -468,12 +516,22 @@ final static boolean shouldFill = true;
        
         Point2D[] intersections = null;
         Point2D intersectionPoint = null;
+        
+        if(INTERRUPT){
+            return;
+        }
 
         for (int key = 0; key < adjacency.size(); key++) {
             compareImg = labelImageMap.get(adjacency.get(key));
             compareImgRec = pane.getComponent(compareImg.getId()).getBounds();
             Rectangle intersection = imageRec.intersection(compareImgRec);
+            if(INTERRUPT){
+                    return;
+             }
             if (!intersection.isEmpty() && intersection.getWidth() > 0 && intersection.getHeight() > 0) {
+                if(INTERRUPT){
+                        return;
+                 }
 
                 // If image center is inside the intersection rectangle, move by a magnitude of their distance from intersection center to image center
                 if (intersection.contains(new Point((int) imageRec.getCenterX(), (int) imageRec.getCenterY()))) {
@@ -487,6 +545,9 @@ final static boolean shouldFill = true;
                         direction = Math.atan2((intersection.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - intersection.getCenterX()));
                     }
                 } else {
+                    if(INTERRUPT){
+                            return;
+                     }
                     // line joining centers
                     line = new Line2D.Double(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
                     // point of intersection of line with intersection rec
@@ -504,6 +565,11 @@ final static boolean shouldFill = true;
                     direction = Math.atan2((intersection.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - intersection.getCenterX()));
                 }
             } else {
+                
+                if(INTERRUPT){
+                        return;
+                 }
+                
                 // completely overlapped case -- DOESN'T WORK. TODO.
                 magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), compareImgRec.getCenterX(), compareImgRec.getCenterY());
                 direction = Math.atan2((compareImgRec.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - compareImgRec.getCenterX()));
@@ -588,7 +654,11 @@ final static boolean shouldFill = true;
         // update center
         image.updateCenter();
         // update image in the labelImageMap
-        labelImageMap.put(image.getId(), image);      
+        labelImageMap.put(image.getId(), image);   
+        
+        if(INTERRUPT){
+            return;
+        }
 
         // animate movement to new location
         animateMovement(pane, image, oldLocation, image.getLocation(),adjacency);
@@ -720,15 +790,19 @@ final static boolean shouldFill = true;
     }
 
 
-    private  void ResolveOverlaps(CreateGUI gui, ArrayList<src.Image> images) {
+    private  void ResolveOverlaps(JFrame gui, ArrayList<src.Image> images) {
         pane = (Container) gui.getContentPane().getComponent(1);
+        //pane=gui.getContentPane();
         ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
         Random r = new Random();
         ArrayList<Integer> adjacency;
         int limit = containOverlaps.size();
         int i=0;
         PACKING_TRIAL_COUNT = 0;
-        while (containOverlaps.size() > 0 && PACKING_TRIAL_COUNT <= limit) {
+        while (containOverlaps.size() > 0 && PACKING_TRIAL_COUNT <= limit ) {
+            if(INTERRUPT){
+                break;
+            }
             // choose a random image containing overlaps
             i = r.nextInt(containOverlaps.size());
             Image image = labelImageMap.get(containOverlaps.get(i));
@@ -738,7 +812,10 @@ final static boolean shouldFill = true;
             // END TESTING
             IMAGE_TRIAL_COUNT = 0;
             adjacency = overlappedImages(image, pane, image.getId());
-            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/3)) {
+            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/3) ) {
+                if(INTERRUPT){
+                    break;
+                }
                 // Move the image to escape current overlaps
                 MoveOverlappingImages(pane, image, adjacency);
                 adjacency = overlappedImages(image, pane, image.getId());
@@ -748,7 +825,13 @@ final static boolean shouldFill = true;
             containOverlaps = getAllOverlappingImages(pane, images);
             PACKING_TRIAL_COUNT++;
         }
-        if (containOverlaps.size() > 0) {
+        if(INTERRUPT){
+                return;
+         }
+        if (containOverlaps.size() > 0 ) {
+            if(INTERRUPT){
+                    return;
+             }
             // After 5 tries, overlaps still exist. Change positions of all images. 
             try {
                 // Remove all components
@@ -761,47 +844,50 @@ final static boolean shouldFill = true;
                     while (new Date().getTime() - start < 1000L) {}
                     
                     labels = new ArrayList<>();
-                    images = readImages();
+                    this.images = readImages();
                     
                // Add images in new positions
-                addComponentsToPane(gui, images);
+                addComponentsToPane(gui, this.images);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         } else {
+            if(INTERRUPT){
+                    return;
+             }
             System.out.println("Packed." + System.currentTimeMillis() );
-            Image temp = new Image();
-            double scale=1.2;
-            while(containOverlaps.size()<=0){
-                for(Image image : images){
-                    scale=1.1;
-                    temp = new Image();
-                    temp.setImg(getScaledImage(image.getOriginal_img(), (int)(image.getWidth()*scale), (int)(image.getHeight()*scale)));
-                    temp.setId(-1);
-                    temp.setHeight(temp.getImg().getHeight());
-                    temp.setWidth(temp.getImg().getWidth());
-                    temp.setLocation(image.getLocation());
-                    temp.updateCenter();
-                    adjacency = overlappedImages(temp, pane, image.getId());
-                    while(adjacency.size()<=0 && insideFrame(temp)&& scale<=2){
-                        //image.setImg(temp.getImg());
-                        //image.setHeight(temp.getImg().getHeight());
-                        //image.setWidth(temp.getImg().getWidth());
-                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()*scale),(image.getWidth()*scale), adjacency,false);
-                        adjacency = overlappedImages(image, pane, image.getId());
-                        scale+=0.2;
-                    }
-                    if(adjacency.size()>0){
-                        // scale back down 
-                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()/(scale-0.2)),(image.getWidth()/(scale-0.2)), adjacency,true);
-                    }
-                }
-                containOverlaps = getAllOverlappingImages(pane, images);
-            }
-            
-            System.out.println("Enlarged where possible." + System.currentTimeMillis() );
-            
+//            Image temp = new Image();
+//            double scale=1.2;
+//            while(containOverlaps.size()<=0){
+//                for(Image image : images){
+//                    scale=1.1;
+//                    temp = new Image();
+//                    temp.setImg(getScaledImage(image.getOriginal_img(), (int)(image.getWidth()*scale), (int)(image.getHeight()*scale)));
+//                    temp.setId(-1);
+//                    temp.setHeight(temp.getImg().getHeight());
+//                    temp.setWidth(temp.getImg().getWidth());
+//                    temp.setLocation(image.getLocation());
+//                    temp.updateCenter();
+//                    adjacency = overlappedImages(temp, pane, image.getId());
+//                    while(adjacency.size()<=0 && insideFrame(temp)&& scale<=2){
+//                        //image.setImg(temp.getImg());
+//                        //image.setHeight(temp.getImg().getHeight());
+//                        //image.setWidth(temp.getImg().getWidth());
+//                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()*scale),(image.getWidth()*scale), adjacency,false);
+//                        adjacency = overlappedImages(image, pane, image.getId());
+//                        scale+=0.2;
+//                    }
+//                    if(adjacency.size()>0){
+//                        // scale back down 
+//                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()/(scale-0.2)),(image.getWidth()/(scale-0.2)), adjacency,true);
+//                    }
+//                }
+//                containOverlaps = getAllOverlappingImages(pane, images);
+//            }
+//            
+//            System.out.println("Enlarged where possible." + System.currentTimeMillis() );
+//            
         }
     }
 
@@ -833,11 +919,11 @@ final static boolean shouldFill = true;
                 pane.revalidate();
                 pane.repaint();
                 currentOverlaps = overlappedImages(image, pane, image.getId());
-                if(currentOverlaps.size()<=0){
+                if(currentOverlaps.size()<=0 ){
                     // No overlaps
                     break;
                 }
-                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=5){
+                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=5 ){
                     // new overlaps being created, recalculate movement vector
                     MoveOverlappingImages(pane, image, currentOverlaps);
                     IMAGE_TRIAL_COUNT++;
@@ -865,6 +951,7 @@ final static boolean shouldFill = true;
                 image.updateCenter();
                 labelImageMap.put(image.getId(), image);
                 labels.get(image.getId()).setIcon(new ImageIcon(img));
+                labels.get(image.getId()).setLocation(image.getLocation());
                 labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
@@ -932,23 +1019,32 @@ final static boolean shouldFill = true;
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-        System.out.println("Here in action performed");
-        String image_id = ae.getActionCommand();
-        System.out.println("Image: "+image_id +" was in focus");
-        int imageId = Integer.parseInt(image_id);
-        System.out.println("Image: "+imageId +" was in focus");
-        animateMovement(pane, labelImageMap.get(imageId), labelImageMap.get(imageId).getHeight(), labelImageMap.get(imageId).getWidth(), labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2);
-        labels.get(imageId).setIcon(new ImageIcon(labelImageMap.get(imageId).getImg()));
-        labels.get(imageId).setBounds(labelImageMap.get(imageId).getLocation().x,labelImageMap.get(imageId).getLocation().y, (int)(labelImageMap.get(imageId).getWidth()), (int)(labelImageMap.get(imageId).getHeight()));
-        pane.revalidate();
-        pane.repaint();
-        //wait
-        long start = new Date().getTime();
-        while (new Date().getTime() - start < 1000L) {
-        }
-       // ResolveOverlaps(frame, images); // PROBLEM-- TODO
-        
-    }
+//    @Override
+//    public void actionPerformed(ActionEvent ae) {
+//        try {
+//            INTERRUPT = true;
+//            System.out.println("Here in action performed");
+//            String image_id = ae.getActionCommand();
+//            System.out.println("Image: "+image_id +" was in focus");
+//            int imageId = Integer.parseInt(image_id);
+//            System.out.println("Image: "+imageId +" was in focus");
+//            this.animateMovement(this.pane, PhotoViewer.labelImageMap.get(imageId), PhotoViewer.labelImageMap.get(imageId).getHeight(), PhotoViewer.labelImageMap.get(imageId).getWidth(), PhotoViewer.labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2);
+//            labels.get(imageId).setIcon(new ImageIcon(labelImageMap.get(imageId).getImg()));
+//            labels.get(imageId).setBounds(labelImageMap.get(imageId).getLocation().x,labelImageMap.get(imageId).getLocation().y, (int)(labelImageMap.get(imageId).getWidth()), (int)(labelImageMap.get(imageId).getHeight()));
+//            this.pane.getComponent(imageId).revalidate();
+//            this.pane.getComponent(imageId).repaint();
+//            
+//            this.pane.revalidate();
+//            this.pane.repaint();
+//            
+//            Thread.sleep(100);
+//            INTERRUPT = false;
+//            ResolveOverlaps(PhotoViewer.frame, PhotoViewer.images); // PROBLEM-- TODO
+//        } catch (InterruptedException ex) {
+//            ex.printStackTrace();
+//        }
+//        
+//    }
 }
+
+
