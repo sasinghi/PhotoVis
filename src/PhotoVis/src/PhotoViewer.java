@@ -411,14 +411,12 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-
-
         for (int i = 1; i <9 ; i++) {
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
                 k=0;
-                while(k<10){
+                while(k<25){
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
                 j++;
                 k++;
@@ -602,9 +600,8 @@ final static boolean shouldFill = true;
             // At new location but shrinked image
             image.setLocation(newLocation);
             scaleDown=1.2;
-            while (!insideFrame(image) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN) {
+            while (!insideFrame(labelImageMap.get(image.getId())) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN) {
                 animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
-                image = labelImageMap.get(image.getId());
                 scaleDown+=0.2;
             } 
             labelImageMap.put(image.getId(), image);
@@ -761,7 +758,7 @@ final static boolean shouldFill = true;
         ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
         Random r = new Random();
         ArrayList<Integer> adjacency;
-        int limit = containOverlaps.size();
+        int limit = labelImageMap.size()/5;
         int i=0;
         PACKING_TRIAL_COUNT = 0;
         while (containOverlaps.size() > 0 && PACKING_TRIAL_COUNT <= limit ) {
@@ -777,7 +774,7 @@ final static boolean shouldFill = true;
             // END TESTING
             IMAGE_TRIAL_COUNT = 0;
             adjacency = overlappedImages(image, pane, image.getId());
-            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/3) ) {
+            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/2) ) {
                 if(INTERRUPT){
                     break;
                 }
@@ -800,19 +797,22 @@ final static boolean shouldFill = true;
             // After 5 tries, overlaps still exist. Change positions of all images. 
             try {
                 // Remove all components
-
+                    System.out.println(containOverlaps.size()+" UNRESOLVED OVERLAPS");
                     pane.removeAll();
                     pane.revalidate();
                     pane.repaint();
+                    
+                    
+                    labels = new ArrayList<>();
+                    PhotoViewer.images = readImages();
+                    labelImageMap = new HashMap<>();
+                    
                     //wait
                     long start = new Date().getTime();
                     while (new Date().getTime() - start < 1000L) {}
                     
-                    labels = new ArrayList<>();
-                    this.images = readImages();
-                    
                // Add images in new positions
-                addComponentsToPane(gui, this.images);
+                addComponentsToPane(gui, PhotoViewer.images);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -889,16 +889,13 @@ final static boolean shouldFill = true;
                     // No overlaps
                     break;
                 }
-                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=5 ){
-                    // new overlaps being created, recalculate movement vector
-                    MoveOverlappingImages(pane, image, currentOverlaps);
-                    IMAGE_TRIAL_COUNT++;
-                }
+//                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=5 ){
+//                    // new overlaps being created, recalculate movement vector
+//                    MoveOverlappingImages(pane, image, currentOverlaps);
+//                    IMAGE_TRIAL_COUNT++;
+//                }
                 
-                //wait
-                long start = new Date().getTime();
-                while (new Date().getTime() - start < 1000L) {
-                }
+                
             }
         }
     }
