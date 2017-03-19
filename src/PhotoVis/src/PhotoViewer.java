@@ -53,7 +53,7 @@ final static boolean shouldFill = true;
     final static int yrad = 200;
     // Minimum scale is h/2 * w/2
     // Maximum scale is h*2 * w*2
-    final static double MIN = 60.0;
+    final static double MIN = 70.0;
     final static double MAX = 9.5;
     final static double SCALE = 1;
     private static int IMAGE_TRIAL_COUNT = 0;
@@ -115,7 +115,7 @@ final static boolean shouldFill = true;
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for(Image image:images){
-                img = getScaledImage(image.getImg(), (int)(image.getWidth()/50), (int)(image.getHeight()/50));
+                img = getScaledImage(image.getImg(), (int)(image.getWidth()/20), (int)(image.getHeight()/20));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -235,14 +235,20 @@ final static boolean shouldFill = true;
             
             pane.add(labels.get(image.getId()));
             pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
-
             pane.getComponent(image.getId()).repaint();
-            
+            long start = new Date().getTime();
+            while(new Date().getTime() - start < 10L){}
             
             // Try to move image if any overlaps. 
             IMAGE_TRIAL_COUNT_1 = 0;
+            double scaleDown=1.2;
             ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId());
             while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size()/5)) {
+                 if(IMAGE_TRIAL_COUNT_1 > (images.size()/20) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)){
+                    // Tried enough times. Now shrink and try
+                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+                    scaleDown+=0.2;    
+                }
                 // Move the image to escape current overlaps
                 MoveOverlappingImages(pane, image, adjacency);
                 adjacency = overlappedImages(image, pane, image.getId());
@@ -587,7 +593,7 @@ final static boolean shouldFill = true;
         // Check if new location is in frame
         if (!insideFrame(newLocation) ) {
             // Shrink image in current location-- ONLY ONCE and check if new Location this time is inside frame
-            if ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
+            while ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
                 animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,adjacency,true);
                 currentOverlaps =overlappedImages(image, pane, image.getId());
                 scaleDown+=0.2;
@@ -773,10 +779,16 @@ final static boolean shouldFill = true;
             //Image image = labelImageMap.get(1);
             // END TESTING
             IMAGE_TRIAL_COUNT = 0;
+            double scaleDown = 1.2;
             adjacency = overlappedImages(image, pane, image.getId());
             while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/2) ) {
                 if(INTERRUPT){
                     break;
+                }
+                if(IMAGE_TRIAL_COUNT > (limit/8) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)){
+                    // Tried enough times. Now shrink and try
+                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+                    scaleDown+=0.2;    
                 }
                 // Move the image to escape current overlaps
                 MoveOverlappingImages(pane, image, adjacency);
@@ -884,12 +896,14 @@ final static boolean shouldFill = true;
                 labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
+                long start = new Date().getTime();
+                while(new Date().getTime() - start < 10L){}
                 currentOverlaps = overlappedImages(image, pane, image.getId());
                 if(currentOverlaps.size()<=0 ){
                     // No overlaps
                     break;
                 }
-//                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=5 ){
+//                if(currentOverlaps.size() > adjacency.size() && IMAGE_TRIAL_COUNT<=(images.size()/10) ){
 //                    // new overlaps being created, recalculate movement vector
 //                    MoveOverlappingImages(pane, image, currentOverlaps);
 //                    IMAGE_TRIAL_COUNT++;
@@ -918,6 +932,8 @@ final static boolean shouldFill = true;
                 labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
+                long start = new Date().getTime();
+                while(new Date().getTime() - start < 10L){}
             }
         }
     }
@@ -941,6 +957,8 @@ final static boolean shouldFill = true;
                 labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
+                long start = new Date().getTime();
+                while(new Date().getTime() - start < 10L){}
                 currentOverlaps = overlappedImages(image, pane, image.getId());
                 if(currentOverlaps.size()<=0 && check){
                     // No overlaps while shrinking down ONLY
@@ -1013,7 +1031,7 @@ final static boolean shouldFill = true;
             pane.repaint();
             //wait
             long start = new Date().getTime();
-            while (new Date().getTime() - start < 1000L) {
+            while (new Date().getTime() - start < 10L) {
             }
            // ResolveOverlaps(frame, images); // PROBLEM-- TODO
         }
