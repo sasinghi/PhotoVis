@@ -94,8 +94,8 @@ final static boolean shouldFill = true;
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
-        FRAME_WIDTH=pane.getWidth();
-        FRAME_HEIGHT=pane.getHeight();
+        FRAME_WIDTH=pane.getPreferredSize().width;
+        FRAME_HEIGHT=pane.getPreferredSize().height;
         JButton label;
         Dimension dimension;
         Random random = new Random();
@@ -126,7 +126,6 @@ final static boolean shouldFill = true;
             int y = random.nextInt((int) FRAME_HEIGHT);
             image.setLocation(new Point(x, y));
             
-            
             if(!insideFrame(image)){
                 
                 BufferedImage shrunkImg=null;
@@ -136,7 +135,7 @@ final static boolean shouldFill = true;
                 image.setImg(shrunkImg);
                 image.setHeight(image.getImg().getHeight());
                 image.setWidth(image.getImg().getWidth());
-                while(!insideFrame(image.getLocation(),shrunkImg) && (image.getOriginal_width()/image.getWidth())<=MIN && (image.getOriginal_height()/image.getHeight())<=MIN ){
+                while(!insideFrame(image) && (image.getOriginal_width()/image.getWidth())<=MIN && (image.getOriginal_height()/image.getHeight())<=MIN ){
                     // Choose another random point inside frame
                     x = random.nextInt((int) FRAME_WIDTH);
                     y = random.nextInt((int) FRAME_HEIGHT);
@@ -152,18 +151,24 @@ final static boolean shouldFill = true;
                         image.setWidth(image.getImg().getWidth());
                     } 
                 }
+                while(!insideFrame(image)){
+                    // Still not inside frame but MIN shrink limit reached. Choose new point. 
+                    x = random.nextInt((int) FRAME_WIDTH);
+                    y = random.nextInt((int) FRAME_HEIGHT);
+                    image.setLocation(new Point(x, y)); 
+                }
             }
             
             
 //            // TESTING
 //            if (image.getId() == 0) {
 //                // set first image and center 
-//                image.setLocation(new Point(0,0));
+//                image.setLocation(new Point(40,40));
 //                
 //            }
 //            if (image.getId() == 1) {
 //                // second image does not overlap 
-//                image.setLocation(new Point((int) (0), (int) (0+50)));
+//                image.setLocation(new Point((int) (20), (int) (40)));
 //                
 //            }
 //            if(image.getId() == 2){
@@ -220,19 +225,6 @@ final static boolean shouldFill = true;
             pane.add(labels.get(image.getId()));
             pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
 
-//            while(pane.getComponent(image.getId()).getLocation().x != image.getLocation().x && pane.getComponent(image.getId()).getLocation().y != image.getLocation().y && pane.getComponent(image.getId()).getSize()!= new Dimension(image.getWidth(), image.getHeight())){
-//                System.out.println("Bounds mismatch for image"+ image.getId());
-//                System.out.println("Image Location"+ image.getLocation());
-//                System.out.println("Component Location"+ pane.getComponent(image.getId()).getLocation());
-//                System.out.print("sIZES:");
-//                System.out.println(pane.getComponent(image.getId()).getSize()!= new Dimension(image.getWidth(), image.getHeight()));
-//                pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());  
-//                //wait
-//                long start = new Date().getTime();
-//                while (new Date().getTime() - start < 1000L) {
-//                }
-//            }
-
             pane.getComponent(image.getId()).repaint();
             
             
@@ -246,13 +238,10 @@ final static boolean shouldFill = true;
                 IMAGE_TRIAL_COUNT_1++;
             }
             
-
-            //wait
-            long start = new Date().getTime();
-            while (new Date().getTime() - start < 1000L) {
-            }
         }
 
+        // For overlaps that couldn't be resolved while placing photos
+        ResolveOverlaps(gui, images);
         
 //        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
 //        
@@ -297,7 +286,7 @@ final static boolean shouldFill = true;
 //        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
 //        
         //Check for overlaps and try resolving them
-        ResolveOverlaps(gui, images);
+        
     }
 
            
@@ -335,11 +324,6 @@ final static boolean shouldFill = true;
         //Display the window.
      
         frame.setVisible(true);
-        
-        //wait
-        long start = new Date().getTime();
-        while (new Date().getTime() - start < 1000L) {
-        }
        
        addComponentsToPane(frame,images);
 
@@ -353,10 +337,9 @@ final static boolean shouldFill = true;
         pv.images = pv.readImages();
         // instantiate label image map 
         pv.labelImageMap = new HashMap<>();
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
         TIME_BEGIN = new Date();
         System.out.println("Begin:"+System.currentTimeMillis());
+        pv.createAndShowGUI(pv.images);
         
 //        //Create and set up the window.
 //        frame = new JFrame("PhoJoy");
@@ -368,12 +351,9 @@ final static boolean shouldFill = true;
 //        frame.pack();
 //        FRAME_WIDTH = 1200;
 //        FRAME_HEIGHT = 780;
-        pv.createAndShowGUI(pv.images);
+ }
 
-
-    }
-
-    private static ArrayList<Image> readImages() {
+    public static ArrayList<Image> readImages() {
        String filename;
         ArrayList<Image> image = new ArrayList<>();
         //***********EXAMPLE1****************//
@@ -420,7 +400,7 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <9 ; i++) {
+        for (int i = 3; i <9 ; i++) {
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
@@ -466,8 +446,6 @@ final static boolean shouldFill = true;
             // pane has no components yet. This is the first. So, no overlap.
             return adjacency;
         } else {
-            // System.out.println(exclude + "is excluded");
-            
             Image compareImg;
             
             Rectangle imageRec;
@@ -533,35 +511,30 @@ final static boolean shouldFill = true;
                         return;
                  }
 
-                // If image center is inside the intersection rectangle, move by a magnitude of their distance from intersection center to image center
+                // If image center is inside the intersection rectangle
                 if (intersection.contains(new Point((int) imageRec.getCenterX(), (int) imageRec.getCenterY()))) {
-                    if(compareImgRec.contains(imageRec)){
-                        // image is contained inside Compare image
-                        magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), compareImgRec.getCenterX(), compareImgRec.getCenterY());
-                        // from compare image center to image center. Outwards.
-                        direction = Math.atan2((compareImgRec.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - compareImgRec.getCenterX()));
-                    }else{
-                        magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), intersection.getCenterX(), intersection.getCenterY());
-                        direction = Math.atan2((intersection.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - intersection.getCenterX()));
-                    }
+                    // Move by disttance between centeres of recs of the two images. 
+                    magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), compareImgRec.getCenterX(), compareImgRec.getCenterY());
+                    // Move along intersection center to image center direction.
+                    direction = Math.atan2((intersection.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - intersection.getCenterX()));
                 } else {
                     if(INTERRUPT){
                             return;
                      }
-                    // line joining centers
-                    line = new Line2D.Double(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
-                    // point of intersection of line with intersection rec
-                    intersections = getIntersectionPoint(line, intersection);
-                    
-                    // To get the intersection point that lies between imageRec.center and intersection.center.
-                    for (int i = 0; i < intersections.length; i++) {
-                        if (intersections[i] != null) {
-                            intersectionPoint=intersections[i];
-                        }
-                    }
+//                    // line joining intersection center and imageRec center
+//                    line = new Line2D.Double(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
+//                    // point of intersection of line with intersection rec
+//                    intersections = getIntersectionPoint(line, intersection);
+//                    
+//                    // To get the intersection point that lies between imageRec.center and intersection.center.
+//                    for (int i = 0; i < intersections.length; i++) {
+//                        if (intersections[i] != null) {
+//                            intersectionPoint=intersections[i];
+//                        }
+//                    }
                     // Calculating vector magnitude
-                    //magnitude = distance(intersection.getCenterX(), intersection.getCenterY(), intersectionPoint.getX(), intersectionPoint.getY());
-                    magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), intersectionPoint.getX(), intersectionPoint.getY());
+                    magnitude = distance(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
+                    //magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), intersectionPoint.getX(), intersectionPoint.getY());
                     direction = Math.atan2((intersection.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - intersection.getCenterX()));
                 }
             } else {
@@ -570,15 +543,10 @@ final static boolean shouldFill = true;
                         return;
                  }
                 
-                // completely overlapped case -- DOESN'T WORK. TODO.
+                // completely overlapped case 
                 magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), compareImgRec.getCenterX(), compareImgRec.getCenterY());
                 direction = Math.atan2((compareImgRec.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - compareImgRec.getCenterX()));
             }
-            
-            // direction is always from compare image center to image center
-            //direction = Math.atan2((compareImgRec.getCenterY() - imageRec.getCenterY()) , (imageRec.getCenterX() - compareImgRec.getCenterX()));
-                   
-            
             // Resolving vector to x and y directions
             
             // handling special cases
@@ -603,20 +571,16 @@ final static boolean shouldFill = true;
 
         // New location in the direction of resultant vector. 
         Point newLocation = new Point((int) (image.getLocation().x + move_x), (int) (image.getLocation().y + move_y));
-        BufferedImage shrunkImg = image.img;
         double scaleDown=1.2;
+        ArrayList<Integer> currentOverlaps = overlappedImages(image, pane, image.getId());
         // Check if new location is in frame
         if (!insideFrame(newLocation) ) {
-            // Shrink image in current location
-            while ((image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
-//                shrunkImg = getScaledImage(image.getOriginal_img(), (int) (image.getOriginal_width()/scaleDown), (int) (image.getOriginal_height()/scaleDown));
-//                image.setImg(shrunkImg);
-//                image.setHeight(shrunkImg.getHeight());
-//                image.setWidth(shrunkImg.getWidth());
-                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+            // Shrink image in current location-- ONLY ONCE and check if new Location this time is inside frame
+            if ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
+                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,adjacency,true);
+                currentOverlaps =overlappedImages(image, pane, image.getId());
                 scaleDown+=0.2;
             }
-            //labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
             labelImageMap.put(image.getId(), image);
             labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             pane.revalidate();
@@ -627,9 +591,9 @@ final static boolean shouldFill = true;
             scaleDown=1.2;
             while (!insideFrame(image) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN) {
                 animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+                image = labelImageMap.get(image.getId());
                 scaleDown+=0.2;
             } 
-            //labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
             labelImageMap.put(image.getId(), image);
             labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             pane.revalidate();
@@ -638,18 +602,6 @@ final static boolean shouldFill = true;
             // At new location with same size 
             image.setLocation(newLocation);
         }
-        
-        // TESTING -- SCALING AND UPDATING
-//        BufferedImage shrunkImg = getScaledImage(image.img, (int) (image.getWidth()/1.1), (int) (image.getHeight()/1.1));
-//        System.out.println("Shrinked in new location");
-//        image.setImg(shrunkImg);
-//        image.setHeight(shrunkImg.getHeight());
-//        image.setWidth(shrunkImg.getWidth());
-//        labels.get(image.getId()).setIcon(new ImageIcon(shrunkImg));
-//        labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, image.getWidth(), image.getHeight());
-//
-//        pane.revalidate();
-//        pane.repaint();
 
         // update center
         image.updateCenter();
@@ -857,6 +809,7 @@ final static boolean shouldFill = true;
                     return;
              }
             System.out.println("Packed." + System.currentTimeMillis() );
+            // Once packed, enlarge images..
 //            Image temp = new Image();
 //            double scale=1.2;
 //            while(containOverlaps.size()<=0){
@@ -943,7 +896,7 @@ final static boolean shouldFill = true;
         BufferedImage img;
         if (newWidth != oldWidth && newHeight!=oldHeight) {
             while (t < 1) {
-                t += 0.4;
+                t += 0.6;
                 img = getScaledImage(image.getOriginal_img(), (int)(((1-t)*oldWidth)+(t*newWidth)), (int)(((1-t)*oldHeight)+(t*newHeight)));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
@@ -955,11 +908,6 @@ final static boolean shouldFill = true;
                 labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
-
-                //wait
-                long start = new Date().getTime();
-                while (new Date().getTime() - start < 1000L) {
-                }
             }
         }
     }
@@ -972,7 +920,7 @@ final static boolean shouldFill = true;
         ArrayList<Integer> currentOverlaps = new ArrayList<>();
         if (newWidth != oldWidth && newHeight!=oldHeight) {
             while (t < 1) {
-                t += 0.4;
+                t += 0.6;
                 img = getScaledImage(image.getOriginal_img(), (int)(((1-t)*oldWidth)+(t*newWidth)), (int)(((1-t)*oldHeight)+(t*newHeight)));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
@@ -988,11 +936,7 @@ final static boolean shouldFill = true;
                     // No overlaps while shrinking down ONLY
                     break;
                 }
-                
-                //wait
-                long start = new Date().getTime();
-                while (new Date().getTime() - start < 1000L) {
-                }
+                    
             }
         }
     }
