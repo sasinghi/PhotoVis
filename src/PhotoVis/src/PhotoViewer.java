@@ -57,7 +57,7 @@ final static boolean shouldFill = true;
     final static int yrad = 200;
     // Minimum scale is h/2 * w/2
     // Maximum scale is h*2 * w*2
-    final static double MIN = 70.0;
+    final static double MIN = 60.0;
     final static double MAX = 9.5;
     final static double SCALE = 1;
     private static int IMAGE_TRIAL_COUNT = 0;
@@ -74,12 +74,18 @@ final static boolean shouldFill = true;
     private static Date TIME_BEGIN;
     private int FOCUS = 0;
     
-    JPanel pane;
-
-    //private static JFrame frame;
-    private static boolean INTERRUPT = false;
+    
+    // TimeLine
+    private static ArrayList<Integer> times;
+    static HashMap<Integer, ArrayList<Image>> timeImageMap;
+    static HashMap<Integer, Integer> timeBoundaryMap;
+    
     
 
+    private static boolean INTERRUPT = false;
+    
+    // UI
+    JPanel pane;
     private static PhoJoy frame;
    
 
@@ -90,6 +96,7 @@ final static boolean shouldFill = true;
         
     }
     
+    @SuppressWarnings("CallToThreadDumpStack")
     private  BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
         BufferedImage resizedImg = srcImg;
         try {
@@ -102,26 +109,42 @@ final static boolean shouldFill = true;
 
     public  void addComponentAt(Component component, Point location, Container pane) {
     }
+    
 
-    public  void addComponentsToPane(final PhoJoy gui, ArrayList<Image> images1) throws IOException {
+    public  void addComponentsToPane(final PhoJoy gui, ArrayList<Image> images, Boolean timeline) throws IOException {
         JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
         pane = (JPanel) tabPane.getComponentAt(0);
+        addComponentsToPane(pane, images, timeline) ;
+    }  
+        
+        
+
+    
+     private void addComponentsToPane(JPanel pane, ArrayList<src.Image> images, Boolean timeline) {
         //pane = (Container) gui.getContentPane().getComponent(1);
         //pane = gui.getContentPane();
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
+        
+        double MIN_S;
+        if(timeline)
+            MIN_S = 1;
+        else 
+            MIN_S =MIN;
+        
+        
         FRAME_WIDTH=pane.getPreferredSize().width;
         FRAME_HEIGHT=pane.getPreferredSize().height;
         JButton label;
         Dimension dimension;
         Random random = new Random();
         
-        if(images.size()>=15){
+        if(images.size()>=15 && !timeline){
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for(Image image:images){
-                img = getScaledImage(image.getImg(), (int)(image.getWidth()/20), (int)(image.getHeight()/20));
+                img = getScaledImage(image.getImg(), (int)(image.getWidth()/50), (int)(image.getHeight()/50));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -152,7 +175,7 @@ final static boolean shouldFill = true;
                 image.setImg(shrunkImg);
                 image.setHeight(image.getImg().getHeight());
                 image.setWidth(image.getImg().getWidth());
-                while(!insideFrame(image) && (image.getOriginal_width()/image.getWidth())<=MIN && (image.getOriginal_height()/image.getHeight())<=MIN ){
+                while(!insideFrame(image) && (image.getOriginal_width()/image.getWidth())<=MIN_S && (image.getOriginal_height()/image.getHeight())<=MIN_S ){
                     // Choose another random point inside frame
                     x = random.nextInt((int) FRAME_WIDTH);
                     y = random.nextInt((int) FRAME_HEIGHT);
@@ -243,20 +266,20 @@ final static boolean shouldFill = true;
             pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
             pane.getComponent(image.getId()).repaint();
             long start = new Date().getTime();
-            while(new Date().getTime() - start < 10L){}
+            while(new Date().getTime() - start < 1L){}
             
             // Try to move image if any overlaps. 
             IMAGE_TRIAL_COUNT_1 = 0;
             double scaleDown=1.2;
             ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId());
             while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size()/5)) {
-                 if(IMAGE_TRIAL_COUNT_1 > (images.size()/20) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)){
+                 if(IMAGE_TRIAL_COUNT_1 > (images.size()/20) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)){
                     // Tried enough times. Now shrink and try
                     animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
                     scaleDown+=0.2;    
                 }
                 // Move the image to escape current overlaps
-                MoveOverlappingImages(pane, image, adjacency);
+                MoveOverlappingImages(pane, image, adjacency,timeline);
                 adjacency = overlappedImages(image, pane, image.getId());
                 IMAGE_TRIAL_COUNT_1++;
             }
@@ -264,9 +287,9 @@ final static boolean shouldFill = true;
         }
 
         // For overlaps that couldn't be resolved while placing photos
-        ResolveOverlaps(gui, images);
+        ResolveOverlaps(frame, images,timeline);
         
-        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
+        Container feature_panel = (Container) frame.getContentPane().getComponent(0);
 //        
 //        ActionListener face_recognition = new ActionListener() {
 //            @Override
@@ -318,7 +341,6 @@ final static boolean shouldFill = true;
         
         
     }
-
            
     public void createAndShowGUI(ArrayList<Image> images) throws IOException {
         
@@ -361,25 +383,70 @@ final static boolean shouldFill = true;
         
         // TO-DO - Make below three run in parallel. Zoom, shrink interaction
         
+        
+         // Default Browsing
+       addComponentsToPane(frame,images,false);
+        
        // TimeLine Scroll 
         
        JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-       pane = (JPanel) tabPane.getComponentAt(1);
+       JPanel panel = (JPanel) tabPane.getComponentAt(1);
        
-       JPanel longPanel = new JPanel();
-       longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width*100, pane.getMinimumSize().height));
-       longPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE, 10));
+       JPanel longPanel = new JPanel(null);
+       longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width*2, panel.getPreferredSize().height-15));
+       longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
+       
+       int prev=0;
+       JPanel timePeriod = new JPanel();
+       JLabel year = new JLabel("Year");
+//       timePeriod.setBackground(Color.yellow);
+//       timePeriod.setPreferredSize(new Dimension(200, longPanel.getPreferredSize().height-17));
+//       timePeriod.setBounds(10, 10, 200, longPanel.getPreferredSize().height-17);
+//       longPanel.add(timePeriod);
+//       longPanel.revalidate();
+//       longPanel.repaint();
        
        JScrollPane scroll = new JScrollPane(longPanel);
        scroll.setSize(tabPane.getComponentAt(1).getSize());
+       scroll.setVisible(true);
+       panel.add(scroll);
        
-       pane.add(scroll);
        
-       frame.revalidate();
-       frame.repaint();
+       
+       FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
+       TimeLine();
+       for(int i=0;i<times.size();i++){
+           timePeriod = new JPanel();
+           year = new JLabel(""+times.get(i));
+           int width = (int) (timeBoundaryMap.get(times.get(i)));
+           //int width = 300;
+           timePeriod.setPreferredSize(new Dimension(width, longPanel.getPreferredSize().height-17));
+           if(i%2==0)
+               timePeriod.setBackground(Color.LIGHT_GRAY);
+           else
+               timePeriod.setBackground(Color.white);
+           
+           timePeriod.setBounds(10+prev, 30, width, longPanel.getPreferredSize().height-17);
+           timePeriod.setVisible(true);
+           year.setBounds(10+prev, 5, width, 30);
+           longPanel.add(year);
+           longPanel.add(timePeriod);
+           labels = new ArrayList<>();
+           //PhotoViewer.images = readImages();
+           labelImageMap = new HashMap<>();
+           addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)),true);
+           longPanel.revalidate();
+           longPanel.repaint();
+           //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
+           prev+=width;
+           
+           frame.revalidate();
+           frame.repaint();
+       }
+       
+       
         
-       // Default Browsing
-       addComponentsToPane(frame,images);
+      
        
               
 //       // PhotoMosiac
@@ -476,7 +543,7 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <2 ; i++) {
+        for (int i = 1; i <9 ; i++) {
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
@@ -496,17 +563,17 @@ final static boolean shouldFill = true;
 
    private static Dimension checkBoundingDimensions(int height, int width) {
          // Checks if image larger than bounding frame
-        if (height < (FRAME_HEIGHT/7) && width < (FRAME_WIDTH/7)) {
+        if (height < (FRAME_HEIGHT/2) && width < (FRAME_WIDTH/2)) {
             // Image fits, return unchanged Dimensions
             return new Dimension(width, height);
         } else {
-            if (height > (FRAME_HEIGHT/7)) {
-                while (height > (FRAME_HEIGHT/7) && height > 0) {
+            if (height > (FRAME_HEIGHT/2)) {
+                while (height > (FRAME_HEIGHT/2) && height > 0) {
                     height -= 10;
                 }
             }
-            if (width > (FRAME_WIDTH/7)) {
-                while (width > (FRAME_WIDTH/7) && width > 0) {
+            if (width > (FRAME_WIDTH/2)) {
+                while (width > (FRAME_WIDTH/2) && width > 0) {
                     width -= 10;
                 }
             }
@@ -536,7 +603,7 @@ final static boolean shouldFill = true;
 
             //this function finds 9 nearest neighbours of image
             ArrayList<Integer> list = Neighbours(image, exclude);
-            System.out.println("Image " + image.getId() + " has " + list.size() + " neighbors.");
+            //System.out.println("Image " + image.getId() + " has " + list.size() + " neighbors.");
             for (int i = 0; i < list.size(); i++) {
                 int key = list.get(i);
                 if (key != exclude) {
@@ -551,12 +618,12 @@ final static boolean shouldFill = true;
                     }
                 }
             }
-            System.out.println("Image" + image.getId() + " has " + adjacency.size() + " overlaps.");
+           // System.out.println("Image" + image.getId() + " has " + adjacency.size() + " overlaps.");
             return adjacency;
         }
     }
 
-    private  void MoveOverlappingImages(Container pane, src.Image image, ArrayList<Integer> adjacency) {
+    private  void MoveOverlappingImages(Container pane, src.Image image, ArrayList<Integer> adjacency, Boolean timeline) {
         Image compareImg;
         Rectangle imageRec = pane.getComponent(image.getId()).getBounds();
         Rectangle compareImgRec;
@@ -570,6 +637,12 @@ final static boolean shouldFill = true;
        
         Point2D[] intersections = null;
         Point2D intersectionPoint = null;
+        
+        double MIN_S;
+        if(timeline)
+            MIN_S = 1;
+        else 
+            MIN_S =MIN;
         
         if(INTERRUPT){
             return;
@@ -652,7 +725,7 @@ final static boolean shouldFill = true;
         // Check if new location is in frame
         if (!insideFrame(newLocation) ) {
             // Shrink image in current location-- ONLY ONCE and check if new Location this time is inside frame
-            while ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)) {
+            while ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)) {
                 animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,adjacency,true);
                 currentOverlaps =overlappedImages(image, pane, image.getId());
                 scaleDown+=0.2;
@@ -665,7 +738,7 @@ final static boolean shouldFill = true;
             // At new location but shrinked image
             image.setLocation(newLocation);
             scaleDown=1.2;
-            while (!insideFrame(labelImageMap.get(image.getId())) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN) {
+            while (!insideFrame(labelImageMap.get(image.getId())) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S) {
                 animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
                 scaleDown+=0.2;
             } 
@@ -817,11 +890,18 @@ final static boolean shouldFill = true;
     }
 
 
-    private  void ResolveOverlaps(PhoJoy gui, ArrayList<src.Image> images) {
+    private  void ResolveOverlaps(PhoJoy gui, ArrayList<src.Image> images, Boolean timeline) {
         JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
         pane = (JPanel) tabPane.getComponentAt(0);
         //pane = (Container) gui.getContentPane().getComponent(1);
         //pane=gui.getContentPane();
+        
+        double MIN_S;
+        if(timeline)
+            MIN_S = 1;
+        else 
+            MIN_S =MIN;
+        
         ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
         Random r = new Random();
         ArrayList<Integer> adjacency;
@@ -846,13 +926,13 @@ final static boolean shouldFill = true;
                 if(INTERRUPT){
                     break;
                 }
-                if(IMAGE_TRIAL_COUNT > (limit/8) && (image.getOriginal_height() / image.getHeight()) <= MIN && (image.getOriginal_width() / image.getWidth()) <= MIN && insideFrame(image)){
+                if(IMAGE_TRIAL_COUNT > (limit/8) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)){
                     // Tried enough times. Now shrink and try
                     animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
                     scaleDown+=0.2;    
                 }
                 // Move the image to escape current overlaps
-                MoveOverlappingImages(pane, image, adjacency);
+                MoveOverlappingImages(pane, image, adjacency,timeline);
                 adjacency = overlappedImages(image, pane, image.getId());
                 IMAGE_TRIAL_COUNT++;
                 System.out.println("Trying again...."+ IMAGE_TRIAL_COUNT);
@@ -882,10 +962,10 @@ final static boolean shouldFill = true;
                     
                     //wait
                     long start = new Date().getTime();
-                    while (new Date().getTime() - start < 1000L) {}
+                    while (new Date().getTime() - start < 10L) {}
                     
                // Add images in new positions
-                addComponentsToPane(gui, PhotoViewer.images);
+                addComponentsToPane(gui, PhotoViewer.images,false);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -958,7 +1038,7 @@ final static boolean shouldFill = true;
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
-                while(new Date().getTime() - start < 10L){}
+                while(new Date().getTime() - start < 1L){}
                 currentOverlaps = overlappedImages(image, pane, image.getId());
                 if(currentOverlaps.size()<=0 ){
                     // No overlaps
@@ -994,7 +1074,7 @@ final static boolean shouldFill = true;
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
-                while(new Date().getTime() - start < 10L){}
+                while(new Date().getTime() - start < 1L){}
             }
         }
     }
@@ -1019,7 +1099,7 @@ final static boolean shouldFill = true;
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
-                while(new Date().getTime() - start < 10L){}
+                while(new Date().getTime() - start < 1L){}
                 currentOverlaps = overlappedImages(image, pane, image.getId());
                 if(currentOverlaps.size()<=0 && check){
                     // No overlaps while shrinking down ONLY
@@ -1050,27 +1130,29 @@ final static boolean shouldFill = true;
 
     private static void TimeLine() {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-       HashMap<Integer, ArrayList<Image>> timeImageMap = new HashMap<>();
-       HashMap<Integer, Double> timeBoundaryMap = new HashMap<>();
+       timeImageMap = new HashMap<>();
+       timeBoundaryMap = new HashMap<>();
        // Populate Map
-       timeImageMap.put(2000, (ArrayList) images.subList(1, 5));
-       timeImageMap.put(2001, (ArrayList) images.subList(6, 15));
-       timeImageMap.put(2002, (ArrayList) images.subList(16, 25));
-       timeImageMap.put(2003, (ArrayList) images.subList(26, 45));
-       timeImageMap.put(2004, (ArrayList) images.subList(46, 55));
+       times= new ArrayList<>();
+       for(int i=0;i<17;i++){
+       ArrayList<Image> imgs = new ArrayList<>();
+       imgs.add(labelImageMap.get(0));
+       imgs.add(labelImageMap.get(1));
+       for(int k=1;k<(i+2);k++){
+           imgs.add(labelImageMap.get(1+k));
+       }
+       times.add(2000+i);
+       timeImageMap.put(2000+i, imgs);
+       }
        
-       int total=55;
-       ArrayList<Integer> times= new ArrayList<>();
-       times.add(2000);
-       times.add(2001);
-       times.add(2002);
-       times.add(2003);
-       times.add(2004);
-       
-       double length = 0;
-       
+       int total=0;
+       for(int k=0; k< times.size();k++){
+           total += timeImageMap.get(times.get(k)).size();
+       }
+       int length = 0;
+       System.out.println("TOTAL:"+total);
        for(int i=0;i<times.size();i++){
-           length = FRAME_WIDTH*(timeImageMap.get(times.get(i)).size()/total);
+           length = (int) (FRAME_WIDTH*timeImageMap.get(times.get(i)).size()/total);
            timeBoundaryMap.put(times.get(i),length);
        }
        
@@ -1168,6 +1250,8 @@ final static boolean shouldFill = true;
 //        }
 //        
 //    }
+
+   
 
 }
 

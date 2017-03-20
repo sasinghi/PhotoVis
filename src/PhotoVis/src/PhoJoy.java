@@ -42,6 +42,7 @@ public class PhoJoy extends javax.swing.JFrame {
         geoPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         mosaicPane = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
 
@@ -50,7 +51,7 @@ public class PhoJoy extends javax.swing.JFrame {
         setLocationByPlatform(true);
         setResizable(false);
 
-        tabbedPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-65536,true)));
+        tabbedPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
         tabbedPane.setToolTipText("");
         tabbedPane.setAutoscrolls(true);
         tabbedPane.setDoubleBuffered(true);
@@ -63,7 +64,7 @@ public class PhoJoy extends javax.swing.JFrame {
             }
         });
 
-        defaultPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-14336,true)));
+        defaultPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         javax.swing.GroupLayout defaultPaneLayout = new javax.swing.GroupLayout(defaultPane);
         defaultPane.setLayout(defaultPaneLayout);
@@ -78,7 +79,7 @@ public class PhoJoy extends javax.swing.JFrame {
 
         tabbedPane.addTab("Browse", defaultPane);
 
-        timelinePane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-256,true), 10));
+        timelinePane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true), 10));
 
         javax.swing.GroupLayout timelinePaneLayout = new javax.swing.GroupLayout(timelinePane);
         timelinePane.setLayout(timelinePaneLayout);
@@ -93,7 +94,7 @@ public class PhoJoy extends javax.swing.JFrame {
 
         tabbedPane.addTab("Timeline", timelinePane);
 
-        geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16711681,true)));
+        geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         jLabel3.setText("Geo Tags come here");
 
@@ -127,7 +128,7 @@ public class PhoJoy extends javax.swing.JFrame {
 
         tabbedPane.addTab("GeoTags", geoPane);
 
-        mosaicPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-20561,true)));
+        mosaicPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         javax.swing.GroupLayout mosaicPaneLayout = new javax.swing.GroupLayout(mosaicPane);
         mosaicPane.setLayout(mosaicPaneLayout);
@@ -141,6 +142,19 @@ public class PhoJoy extends javax.swing.JFrame {
         );
 
         tabbedPane.addTab("Mosaic", mosaicPane);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1273, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 599, Short.MAX_VALUE)
+        );
+
+        tabbedPane.addTab("Color grouping", jPanel1);
 
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
@@ -240,6 +254,7 @@ private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JPanel geoPanel;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
     private javax.swing.JTabbedPane tabbedPane;
