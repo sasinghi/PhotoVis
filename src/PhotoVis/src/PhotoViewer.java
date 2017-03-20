@@ -32,6 +32,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -260,7 +262,7 @@ final static boolean shouldFill = true;
         // For overlaps that couldn't be resolved while placing photos
         ResolveOverlaps(gui, images);
         
-//        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
+        Container feature_panel = (Container) gui.getContentPane().getComponent(0);
 //        
 //        ActionListener face_recognition = new ActionListener() {
 //            @Override
@@ -294,15 +296,22 @@ final static boolean shouldFill = true;
 //        
 //        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
 //        
-//        ActionListener photomosaic = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                    PhotoMosaic();
-//            }};
-//        
-//        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
-//        
-        //Check for overlaps and try resolving them
+        ActionListener photomosaic = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File target = new File("images/dataset-2/IMG57.png");
+                frame.setVisible(false);
+                pane.removeAll();
+                try {
+                    PhotoMosaic(target);
+                } catch (IOException ex) {
+                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }};
+        
+        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
+        
         
     }
 
@@ -417,7 +426,7 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <9 ; i++) {
+        for (int i = 1; i <1 ; i++) {
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
@@ -995,8 +1004,12 @@ final static boolean shouldFill = true;
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void PhotoMosaic() {
+    private static void PhotoMosaic(File file) throws IOException {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       
+       PhotoMosaic mosaic = new PhotoMosaic(file);
+       
+      
     }
 
 
