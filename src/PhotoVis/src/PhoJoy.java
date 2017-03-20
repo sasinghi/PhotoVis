@@ -42,8 +42,6 @@ public class PhoJoy extends javax.swing.JFrame {
         geoPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         mosaicPane = new javax.swing.JPanel();
-        mosaicPanel = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
 
@@ -71,11 +69,11 @@ public class PhoJoy extends javax.swing.JFrame {
         defaultPane.setLayout(defaultPaneLayout);
         defaultPaneLayout.setHorizontalGroup(
             defaultPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1116, Short.MAX_VALUE)
+            .addGap(0, 1271, Short.MAX_VALUE)
         );
         defaultPaneLayout.setVerticalGroup(
             defaultPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 529, Short.MAX_VALUE)
+            .addGap(0, 597, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Browse", defaultPane);
@@ -86,11 +84,11 @@ public class PhoJoy extends javax.swing.JFrame {
         timelinePane.setLayout(timelinePaneLayout);
         timelinePaneLayout.setHorizontalGroup(
             timelinePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1098, Short.MAX_VALUE)
+            .addGap(0, 1253, Short.MAX_VALUE)
         );
         timelinePaneLayout.setVerticalGroup(
             timelinePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 511, Short.MAX_VALUE)
+            .addGap(0, 579, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Timeline", timelinePane);
@@ -106,14 +104,14 @@ public class PhoJoy extends javax.swing.JFrame {
             .addGroup(geoPanelLayout.createSequentialGroup()
                 .addGap(167, 167, 167)
                 .addComponent(jLabel3)
-                .addContainerGap(851, Short.MAX_VALUE))
+                .addContainerGap(1006, Short.MAX_VALUE))
         );
         geoPanelLayout.setVerticalGroup(
             geoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(geoPanelLayout.createSequentialGroup()
                 .addGap(102, 102, 102)
                 .addComponent(jLabel3)
-                .addContainerGap(413, Short.MAX_VALUE))
+                .addContainerGap(481, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout geoPaneLayout = new javax.swing.GroupLayout(geoPane);
@@ -131,34 +129,15 @@ public class PhoJoy extends javax.swing.JFrame {
 
         mosaicPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-20561,true)));
 
-        jLabel4.setText("Photo Mosaic comes here");
-
-        javax.swing.GroupLayout mosaicPanelLayout = new javax.swing.GroupLayout(mosaicPanel);
-        mosaicPanel.setLayout(mosaicPanelLayout);
-        mosaicPanelLayout.setHorizontalGroup(
-            mosaicPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mosaicPanelLayout.createSequentialGroup()
-                .addGap(146, 146, 146)
-                .addComponent(jLabel4)
-                .addContainerGap(849, Short.MAX_VALUE))
-        );
-        mosaicPanelLayout.setVerticalGroup(
-            mosaicPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mosaicPanelLayout.createSequentialGroup()
-                .addGap(98, 98, 98)
-                .addComponent(jLabel4)
-                .addContainerGap(417, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout mosaicPaneLayout = new javax.swing.GroupLayout(mosaicPane);
         mosaicPane.setLayout(mosaicPaneLayout);
         mosaicPaneLayout.setHorizontalGroup(
             mosaicPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mosaicPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 1271, Short.MAX_VALUE)
         );
         mosaicPaneLayout.setVerticalGroup(
             mosaicPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mosaicPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 597, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Mosaic", mosaicPane);
@@ -179,7 +158,7 @@ public class PhoJoy extends javax.swing.JFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jCheckBox1)
-                .addContainerGap(1010, Short.MAX_VALUE))
+                .addContainerGap(1165, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,21 +174,21 @@ public class PhoJoy extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1125, Short.MAX_VALUE)
+                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1280, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+                .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 629, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-1151)/2, (screenSize.height-661)/2, 1151, 661);
+        setBounds((screenSize.width-1306)/2, (screenSize.height-729)/2, 1306, 729);
     }// </editor-fold>//GEN-END:initComponents
 
 private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabbedPaneMouseClicked
@@ -261,10 +240,8 @@ private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JPanel geoPanel;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
-    private javax.swing.JPanel mosaicPanel;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JPanel timelinePane;
     // End of variables declaration//GEN-END:variables

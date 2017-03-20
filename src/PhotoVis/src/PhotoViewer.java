@@ -300,21 +300,21 @@ final static boolean shouldFill = true;
 //        
 //        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
 //        
-        ActionListener photomosaic = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File target = new File("images/dataset-2/IMG57.png");
-                frame.setVisible(false);
-                pane.removeAll();
-                try {
-                    PhotoMosaic(target);
-                } catch (IOException ex) {
-                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-            }};
-        
-        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
+//        ActionListener photomosaic = new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                File target = new File("images/dataset-2/IMG57.png");
+//                frame.setVisible(false);
+//                pane.removeAll();
+//                try {
+//                    PhotoMosaic(target);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                
+//            }};
+//        
+//        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
         
         
     }
@@ -357,6 +357,10 @@ final static boolean shouldFill = true;
      
         frame.setVisible(true);
         
+        
+        
+        // TO-DO - Make below three run in parallel. Zoom, shrink interaction
+        
        // TimeLine Scroll 
         
        JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
@@ -369,16 +373,35 @@ final static boolean shouldFill = true;
        JScrollPane scroll = new JScrollPane(longPanel);
        scroll.setSize(tabPane.getComponentAt(1).getSize());
        
-       
        pane.add(scroll);
        
        frame.revalidate();
        frame.repaint();
-
-       
         
        // Default Browsing
        addComponentsToPane(frame,images);
+       
+              
+//       // PhotoMosiac
+//       File target = new File("images/dataset/dataset/IMG57.png");
+//       try {
+//            PhotoMosaic(target);
+//        } catch (IOException ex) {
+//            Logger.getLogger(PhotoViewer_2.class.getName()).log(Level.SEVERE, null, ex);
+//        } 
+       
+        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+        pane = (JPanel) tabPane.getComponentAt(3);
+        BufferedImage img = ImageIO.read(new File("output.png"));
+        JButton mosaic = new JButton(new ImageIcon(img));
+        mosaic.setOpaque(false);
+        mosaic.setContentAreaFilled(false);
+        mosaic.setBounds(100,100,img.getWidth(),img.getHeight());
+        JScrollPane mosaic_scroll = new JScrollPane(mosaic);
+        mosaic_scroll.setSize(tabPane.getComponentAt(1).getSize());
+        pane.add(mosaic_scroll);
+        frame.revalidate();
+        frame.repaint();
 
 
     }
@@ -453,7 +476,7 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <1 ; i++) {
+        for (int i = 1; i <2 ; i++) {
             try {
                 filename = "images/small/example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
