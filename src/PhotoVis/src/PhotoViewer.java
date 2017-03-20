@@ -129,7 +129,7 @@ final static boolean shouldFill = true;
         
         double MIN_S;
         if(timeline)
-            MIN_S = 1;
+            MIN_S = (MIN/10)-4;
         else 
             MIN_S =MIN;
         
@@ -460,13 +460,10 @@ final static boolean shouldFill = true;
         tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
         pane = (JPanel) tabPane.getComponentAt(3);
         BufferedImage img = ImageIO.read(new File("output.png"));
-        JButton mosaic = new JButton(new ImageIcon(img));
-        mosaic.setOpaque(false);
-        mosaic.setContentAreaFilled(false);
-        mosaic.setBounds(100,100,img.getWidth(),img.getHeight());
-        JScrollPane mosaic_scroll = new JScrollPane(mosaic);
-        mosaic_scroll.setSize(tabPane.getComponentAt(1).getSize());
-        pane.add(mosaic_scroll);
+        InteractivePanel mosaic = new InteractivePanel(img);
+        
+        mosaic.setSize(tabPane.getComponentAt(1).getSize());
+        pane.add(mosaic);
         frame.revalidate();
         frame.repaint();
 
@@ -640,7 +637,7 @@ final static boolean shouldFill = true;
         
         double MIN_S;
         if(timeline)
-            MIN_S = 1;
+            MIN_S = (MIN/10)-4;
         else 
             MIN_S =MIN;
         
@@ -898,7 +895,7 @@ final static boolean shouldFill = true;
         
         double MIN_S;
         if(timeline)
-            MIN_S = 1;
+            MIN_S = (MIN/10)-4;
         else 
             MIN_S =MIN;
         
