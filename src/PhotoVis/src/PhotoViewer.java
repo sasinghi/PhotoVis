@@ -35,6 +35,8 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -70,13 +72,13 @@ final static boolean shouldFill = true;
     private static Date TIME_BEGIN;
     private int FOCUS = 0;
     
-    Container pane;
+    JPanel pane;
 
     //private static JFrame frame;
     private static boolean INTERRUPT = false;
     
 
-    private static CreateGUI frame;
+    private static PhoJoy frame;
    
 
     
@@ -99,8 +101,10 @@ final static boolean shouldFill = true;
     public  void addComponentAt(Component component, Point location, Container pane) {
     }
 
-    public  void addComponentsToPane(final JFrame gui, ArrayList<Image> images1) throws IOException {
-        pane = (Container) gui.getContentPane().getComponent(1);
+    public  void addComponentsToPane(final PhoJoy gui, ArrayList<Image> images1) throws IOException {
+        JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
+        pane = (JPanel) tabPane.getComponentAt(0);
+        //pane = (Container) gui.getContentPane().getComponent(1);
         //pane = gui.getContentPane();
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
@@ -310,7 +314,9 @@ final static boolean shouldFill = true;
     public void createAndShowGUI(ArrayList<Image> images) throws IOException {
         
         
-         frame=new CreateGUI();
+         //frame=new CreateGUI();
+        
+        frame = new PhoJoy();
         
         
 
@@ -341,7 +347,28 @@ final static boolean shouldFill = true;
         //Display the window.
      
         frame.setVisible(true);
+        
+       // TimeLine Scroll 
+        
+       JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+       pane = (JPanel) tabPane.getComponentAt(1);
        
+       JPanel longPanel = new JPanel();
+       longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width*100, pane.getMinimumSize().height));
+       longPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE, 10));
+       
+       JScrollPane scroll = new JScrollPane(longPanel);
+       scroll.setSize(tabPane.getComponentAt(1).getSize());
+       
+       
+       pane.add(scroll);
+       
+       frame.revalidate();
+       frame.repaint();
+
+       
+        
+       // Default Browsing
        addComponentsToPane(frame,images);
 
 
@@ -758,8 +785,10 @@ final static boolean shouldFill = true;
     }
 
 
-    private  void ResolveOverlaps(JFrame gui, ArrayList<src.Image> images) {
-        pane = (Container) gui.getContentPane().getComponent(1);
+    private  void ResolveOverlaps(PhoJoy gui, ArrayList<src.Image> images) {
+        JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
+        pane = (JPanel) tabPane.getComponentAt(0);
+        //pane = (Container) gui.getContentPane().getComponent(1);
         //pane=gui.getContentPane();
         ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
         Random r = new Random();
@@ -989,6 +1018,30 @@ final static boolean shouldFill = true;
 
     private static void TimeLine() {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       HashMap<Integer, ArrayList<Image>> timeImageMap = new HashMap<>();
+       HashMap<Integer, Double> timeBoundaryMap = new HashMap<>();
+       // Populate Map
+       timeImageMap.put(2000, (ArrayList) images.subList(1, 5));
+       timeImageMap.put(2001, (ArrayList) images.subList(6, 15));
+       timeImageMap.put(2002, (ArrayList) images.subList(16, 25));
+       timeImageMap.put(2003, (ArrayList) images.subList(26, 45));
+       timeImageMap.put(2004, (ArrayList) images.subList(46, 55));
+       
+       int total=55;
+       ArrayList<Integer> times= new ArrayList<>();
+       times.add(2000);
+       times.add(2001);
+       times.add(2002);
+       times.add(2003);
+       times.add(2004);
+       
+       double length = 0;
+       
+       for(int i=0;i<times.size();i++){
+           length = FRAME_WIDTH*(timeImageMap.get(times.get(i)).size()/total);
+           timeBoundaryMap.put(times.get(i),length);
+       }
+       
     }
 
     private static void GeoTag() {
