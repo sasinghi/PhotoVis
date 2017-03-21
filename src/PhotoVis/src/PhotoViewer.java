@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -48,6 +49,7 @@ final static boolean shouldFill = true;
     final static boolean shouldWeightX = true;
     final static boolean RIGHT_TO_LEFT = false;
     static Map<Integer, Image> labelImageMap;
+    static Map<Integer, Image> timelineLabelImageMap;
     static ArrayList<Image> images = new ArrayList<>();
     //frame dimensions
     static double FRAME_WIDTH;
@@ -57,7 +59,7 @@ final static boolean shouldFill = true;
     final static int yrad = 200;
     // Minimum scale is h/2 * w/2
     // Maximum scale is h*2 * w*2
-    final static double MIN = 60.0;
+    final static double MIN = 50.0;
     final static double MAX = 9.5;
     final static double SCALE = 1;
     private static int IMAGE_TRIAL_COUNT = 0;
@@ -85,7 +87,6 @@ final static boolean shouldFill = true;
     private static boolean INTERRUPT = false;
     
     // UI
-    JPanel pane;
     private static PhoJoy frame;
    
 
@@ -107,20 +108,18 @@ final static boolean shouldFill = true;
         return resizedImg;
     }
 
-    public  void addComponentAt(Component component, Point location, Container pane) {
-    }
-    
-
-    public  void addComponentsToPane(final PhoJoy gui, ArrayList<Image> images, Boolean timeline) throws IOException {
+   
+    public  void addComponentsToPane(final PhoJoy gui, ArrayList<Image> images, Boolean timeline, Boolean fromResolve) throws IOException {
         JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
-        pane = (JPanel) tabPane.getComponentAt(0);
-        addComponentsToPane(pane, images, timeline) ;
+        //if(!timeline)
+        JPanel pane = (JPanel) tabPane.getComponentAt(0);
+        addComponentsToPane(pane, images, timeline,fromResolve) ;
     }  
         
         
 
     
-     private void addComponentsToPane(JPanel pane, ArrayList<src.Image> images, Boolean timeline) {
+     private void addComponentsToPane(JPanel pane, ArrayList<src.Image> images, Boolean timeline, Boolean fromResolve) {
         //pane = (Container) gui.getContentPane().getComponent(1);
         //pane = gui.getContentPane();
         if (RIGHT_TO_LEFT) {
@@ -140,11 +139,11 @@ final static boolean shouldFill = true;
         Dimension dimension;
         Random random = new Random();
         
-        if(images.size()>=15 && !timeline){
+        if(images.size()>=15 && !timeline && !fromResolve){
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for(Image image:images){
-                img = getScaledImage(image.getImg(), (int)(image.getWidth()/50), (int)(image.getHeight()/50));
+                img = getScaledImage(image.getImg(), (int)(image.getWidth()/40), (int)(image.getHeight()/40));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -221,8 +220,13 @@ final static boolean shouldFill = true;
             image.setWidth(image.getImg().getWidth());
             image.updateCenter();
             
-            // Add pair in labelImage Map
-            labelImageMap.put(pane.getComponentCount(), image);
+            if(timeline){
+                timelineLabelImageMap.put(pane.getComponentCount(), image); 
+            }else{
+               // Add pair in labelImage Map
+                labelImageMap.put(pane.getComponentCount(), image); 
+            }
+            
 
             label = new JButton(new ImageIcon(image.getImg()));
 
@@ -271,23 +275,26 @@ final static boolean shouldFill = true;
             // Try to move image if any overlaps. 
             IMAGE_TRIAL_COUNT_1 = 0;
             double scaleDown=1.2;
-            ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId());
+            ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId(),timeline);
             while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size()/5)) {
                  if(IMAGE_TRIAL_COUNT_1 > (images.size()/20) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)){
                     // Tried enough times. Now shrink and try
-                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,timeline);
                     scaleDown+=0.2;    
                 }
                 // Move the image to escape current overlaps
                 MoveOverlappingImages(pane, image, adjacency,timeline);
-                adjacency = overlappedImages(image, pane, image.getId());
+                if(timeline)
+                    adjacency = overlappedImages(timelineLabelImageMap.get(image.getId()), pane, image.getId(),timeline);
+                else
+                    adjacency = overlappedImages(labelImageMap.get(image.getId()), pane, image.getId(),timeline);
                 IMAGE_TRIAL_COUNT_1++;
             }
             
         }
 
         // For overlaps that couldn't be resolved while placing photos
-        ResolveOverlaps(frame, images,timeline);
+        ResolveOverlaps(pane, images,timeline);
         
         Container feature_panel = (Container) frame.getContentPane().getComponent(0);
 //        
@@ -385,7 +392,7 @@ final static boolean shouldFill = true;
         
         
          // Default Browsing
-       addComponentsToPane(frame,images,false);
+       addComponentsToPane(frame,images,false,false);
         
        // TimeLine Scroll 
         
@@ -394,7 +401,7 @@ final static boolean shouldFill = true;
        
        JPanel longPanel = new JPanel(null);
        longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width*2, panel.getPreferredSize().height-15));
-       longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
+       //longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
        
        int prev=0;
        JPanel timePeriod = new JPanel();
@@ -416,7 +423,7 @@ final static boolean shouldFill = true;
        FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
        TimeLine();
        for(int i=0;i<times.size();i++){
-           timePeriod = new JPanel();
+           timePeriod = new JPanel(null);
            year = new JLabel(""+times.get(i));
            int width = (int) (timeBoundaryMap.get(times.get(i)));
            //int width = 300;
@@ -426,15 +433,17 @@ final static boolean shouldFill = true;
            else
                timePeriod.setBackground(Color.white);
            
-           timePeriod.setBounds(10+prev, 30, width, longPanel.getPreferredSize().height-17);
+           timePeriod.setBounds(prev, 30, width, longPanel.getPreferredSize().height-17);
            timePeriod.setVisible(true);
-           year.setBounds(10+prev, 5, width, 30);
+           year.setBounds(prev, 5, width, 30);
            longPanel.add(year);
            longPanel.add(timePeriod);
            labels = new ArrayList<>();
            //PhotoViewer.images = readImages();
-           labelImageMap = new HashMap<>();
-           addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)),true);
+           timelineLabelImageMap = new HashMap<>();
+           addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)),true,false);
+           enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i)),true);
+           ResolveOverlaps(timePeriod, timeImageMap.get(times.get(i)), true);
            longPanel.revalidate();
            longPanel.repaint();
            //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
@@ -458,7 +467,7 @@ final static boolean shouldFill = true;
 //        } 
        
         tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-        pane = (JPanel) tabPane.getComponentAt(3);
+        JPanel pane = (JPanel) tabPane.getComponentAt(3);
         BufferedImage img = ImageIO.read(new File("output.png"));
         InteractivePanel mosaic = new InteractivePanel(img);
         
@@ -472,14 +481,14 @@ final static boolean shouldFill = true;
 
     public static void main(String[] args) throws IOException {
         PhotoViewer pv = new PhotoViewer();
-        
         // Add images in an ArrayList
-        pv.images = pv.readImages();
+        PhotoViewer.images = PhotoViewer.readImages();
         // instantiate label image map 
-        pv.labelImageMap = new HashMap<>();
+        PhotoViewer.labelImageMap = new HashMap<>();
+        PhotoViewer.timelineLabelImageMap = new HashMap<>();
         TIME_BEGIN = new Date();
         System.out.println("Begin:"+System.currentTimeMillis());
-        pv.createAndShowGUI(pv.images);
+        pv.createAndShowGUI(PhotoViewer.images);
         
 //        //Create and set up the window.
 //        frame = new JFrame("PhoJoy");
@@ -579,7 +588,7 @@ final static boolean shouldFill = true;
     }
 
  
-    private static ArrayList<Integer> overlappedImages(src.Image image, Container pane, int exclude) {
+    private static ArrayList<Integer> overlappedImages(src.Image image, Container pane, int exclude,Boolean timeline) {
         ArrayList<Integer> adjacency = new ArrayList<>();
 
         if (pane.getComponentCount() <= 1) {
@@ -599,12 +608,17 @@ final static boolean shouldFill = true;
             Rectangle compareImgRec;
 
             //this function finds 9 nearest neighbours of image
-            ArrayList<Integer> list = Neighbours(image, exclude);
+            ArrayList<Integer> list = Neighbours(image, exclude,timeline);
             //System.out.println("Image " + image.getId() + " has " + list.size() + " neighbors.");
             for (int i = 0; i < list.size(); i++) {
                 int key = list.get(i);
                 if (key != exclude) {
-                    compareImg = labelImageMap.get(key);
+                    if(timeline){
+                        compareImg = timelineLabelImageMap.get(key);
+                    }else{
+                        compareImg = labelImageMap.get(key);
+                    }
+                    
                     
                     compareImgRec = pane.getComponent(compareImg.getId()).getBounds();
 
@@ -646,7 +660,12 @@ final static boolean shouldFill = true;
         }
 
         for (int key = 0; key < adjacency.size(); key++) {
-            compareImg = labelImageMap.get(adjacency.get(key));
+            if(timeline){
+                compareImg = timelineLabelImageMap.get(adjacency.get(key));
+            }else{
+                compareImg = labelImageMap.get(adjacency.get(key));
+            }
+            
             compareImgRec = pane.getComponent(compareImg.getId()).getBounds();
             Rectangle intersection = imageRec.intersection(compareImgRec);
             if(INTERRUPT){
@@ -718,16 +737,24 @@ final static boolean shouldFill = true;
         // New location in the direction of resultant vector. 
         Point newLocation = new Point((int) (image.getLocation().x + move_x), (int) (image.getLocation().y + move_y));
         double scaleDown=1.2;
-        ArrayList<Integer> currentOverlaps = overlappedImages(image, pane, image.getId());
+        ArrayList<Integer> currentOverlaps = overlappedImages(image, pane, image.getId(),timeline);
         // Check if new location is in frame
         if (!insideFrame(newLocation) ) {
             // Shrink image in current location-- ONLY ONCE and check if new Location this time is inside frame
             while ((currentOverlaps.size()>=adjacency.size()) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)) {
-                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,adjacency,true);
-                currentOverlaps =overlappedImages(image, pane, image.getId());
+                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,adjacency,true,timeline);
+                if(timeline)
+                    currentOverlaps = overlappedImages(timelineLabelImageMap.get(image.getId()), pane, image.getId(),timeline);
+                else
+                    currentOverlaps = overlappedImages(labelImageMap.get(image.getId()), pane, image.getId(),timeline);
+
                 scaleDown+=0.2;
             }
-            labelImageMap.put(image.getId(), image);
+            if(timeline){
+                timelineLabelImageMap.put(image.getId(), image);
+            }else{
+                labelImageMap.put(image.getId(), image);
+            }
             labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             pane.revalidate();
             pane.repaint();
@@ -735,11 +762,21 @@ final static boolean shouldFill = true;
             // At new location but shrinked image
             image.setLocation(newLocation);
             scaleDown=1.2;
-            while (!insideFrame(labelImageMap.get(image.getId())) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S) {
-                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+            while ((image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S) {
+                if(!timeline && insideFrame(labelImageMap.get(image.getId()))){
+                    break;
+                }
+                if(timeline && insideFrame(timelineLabelImageMap.get(image.getId()))){
+                    break;
+                }
+                animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,timeline);
                 scaleDown+=0.2;
             } 
-            labelImageMap.put(image.getId(), image);
+            if(timeline){
+                timelineLabelImageMap.put(image.getId(), image);
+            }else{
+                labelImageMap.put(image.getId(), image);
+            }
             labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             pane.revalidate();
             pane.repaint();
@@ -751,34 +788,53 @@ final static boolean shouldFill = true;
         // update center
         image.updateCenter();
         // update image in the labelImageMap
-        labelImageMap.put(image.getId(), image);   
+        if(timeline){
+            timelineLabelImageMap.put(image.getId(), image);
+        }else{
+            labelImageMap.put(image.getId(), image);
+        }  
         
         if(INTERRUPT){
             return;
         }
 
         // animate movement to new location
-        animateMovement(pane, image, oldLocation, image.getLocation(),adjacency);
+        animateMovement(pane, image, oldLocation, image.getLocation(),adjacency,timeline);
 
     }
 
 
     //this function detect k nearest neighbours of the image
-    private static ArrayList<Integer> Neighbours(src.Image image, int exclude) {
+    private static ArrayList<Integer> Neighbours(src.Image image, int exclude,Boolean timeline) {
 
 
 
         java.util.List<Integer> neighborlist = new ArrayList<>();
         java.util.List<Integer> overlaplist = new ArrayList<>();
         java.util.List<Integer> list = new ArrayList<>();
+        Set<Integer> imageSet;
+        double[] center = new double[2];
         try {
             //KdTree neighbourTree=new KdTree();
             // 2 dimensional kd tree - initialized everytime. 
             KDTree<Integer> neighbourTree = new KDTree<>(2);
-            for (Integer key : labelImageMap.keySet()) {
+            if(timeline){
+                imageSet = timelineLabelImageMap.keySet();
+            }else{
+                imageSet = labelImageMap.keySet();
+            }
+            
+            for (Integer key : imageSet) {
                 if (key != exclude) {
+                    if(timeline){
+                        center[0]= timelineLabelImageMap.get(key).getCenter().getX();
+                        center[1] =timelineLabelImageMap.get(key).getCenter().getY();
+                    }else{
+                        center[0]= labelImageMap.get(key).getCenter().getX();
+                        center[1] =labelImageMap.get(key).getCenter().getY();
+                    }
                     //neighbourTree.add(labelImageMap.get(key).getCenter(),key);
-                    double[] center = {labelImageMap.get(key).getCenter().getX(), labelImageMap.get(key).getCenter().getY()};
+                    
                     if (neighbourTree.search(center) != null) {
                         // This image list should always be empty. -- CHECK CORRECTNESS
                         overlaplist.add(key);
@@ -887,9 +943,8 @@ final static boolean shouldFill = true;
     }
 
 
-    private  void ResolveOverlaps(PhoJoy gui, ArrayList<src.Image> images, Boolean timeline) {
-        JTabbedPane tabPane = (JTabbedPane) gui.getContentPane().getComponent(0);
-        pane = (JPanel) tabPane.getComponentAt(0);
+    private  void ResolveOverlaps(JPanel pane, ArrayList<src.Image> images, Boolean timeline) {
+        
         //pane = (Container) gui.getContentPane().getComponent(1);
         //pane=gui.getContentPane();
         
@@ -899,42 +954,52 @@ final static boolean shouldFill = true;
         else 
             MIN_S =MIN;
         
-        ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images);
+        ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images,timeline);
         Random r = new Random();
         ArrayList<Integer> adjacency;
         int limit = labelImageMap.size()/5;
         int i=0;
         PACKING_TRIAL_COUNT = 0;
+        src.Image image;
         while (containOverlaps.size() > 0 && PACKING_TRIAL_COUNT <= limit ) {
             if(INTERRUPT){
                 break;
             }
             // choose a random image containing overlaps
             i = r.nextInt(containOverlaps.size());
-            Image image = labelImageMap.get(containOverlaps.get(i));
+            if(timeline){
+                image = timelineLabelImageMap.get(containOverlaps.get(i));
+            }else {
+                image = labelImageMap.get(containOverlaps.get(i));
+            }
+            
 
             //TESTING
             //Image image = labelImageMap.get(1);
             // END TESTING
             IMAGE_TRIAL_COUNT = 0;
             double scaleDown = 1.2;
-            adjacency = overlappedImages(image, pane, image.getId());
+            adjacency = overlappedImages(image, pane, image.getId(),timeline);
             while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT <= (limit/2) ) {
                 if(INTERRUPT){
                     break;
                 }
                 if(IMAGE_TRIAL_COUNT > (limit/8) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(image)){
                     // Tried enough times. Now shrink and try
-                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown);
+                    animateMovement(pane, image, image.getHeight(), image.getWidth(),image.getHeight()/scaleDown,image.getWidth()/scaleDown,timeline);
                     scaleDown+=0.2;    
                 }
                 // Move the image to escape current overlaps
                 MoveOverlappingImages(pane, image, adjacency,timeline);
-                adjacency = overlappedImages(image, pane, image.getId());
+                if(timeline)
+                    adjacency = overlappedImages(timelineLabelImageMap.get(image.getId()), pane, image.getId(),timeline);
+                else
+                    adjacency = overlappedImages(labelImageMap.get(image.getId()), pane, image.getId(),timeline);
+
                 IMAGE_TRIAL_COUNT++;
                 System.out.println("Trying again...."+ IMAGE_TRIAL_COUNT);
             }
-            containOverlaps = getAllOverlappingImages(pane, images);
+            containOverlaps = getAllOverlappingImages(pane, images,timeline);
             PACKING_TRIAL_COUNT++;
         }
         if(INTERRUPT){
@@ -956,13 +1021,13 @@ final static boolean shouldFill = true;
                     labels = new ArrayList<>();
                     PhotoViewer.images = readImages();
                     labelImageMap = new HashMap<>();
-                    
+                    timelineLabelImageMap=new HashMap<>();
                     //wait
                     long start = new Date().getTime();
-                    while (new Date().getTime() - start < 10L) {}
+                    while (new Date().getTime() - start < 1L) {}
                     
-               // Add images in new positions
-                addComponentsToPane(gui, PhotoViewer.images,false);
+                // Add images in new positions
+                addComponentsToPane(pane, images ,timeline,true);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -1007,16 +1072,16 @@ final static boolean shouldFill = true;
         }
     }
 
-    private static ArrayList<Integer> getAllOverlappingImages(Container pane, ArrayList<src.Image> images) {
+    private static ArrayList<Integer> getAllOverlappingImages(Container pane, ArrayList<src.Image> images,Boolean timeline) {
          ArrayList<Integer> allOverlappingImages = new ArrayList<>();
         for (Image image : images) {
-            if (overlappedImages(image, pane, image.getId()).size() > 0) {
+            if (overlappedImages(image, pane, image.getId(),timeline).size() > 0) {
                 allOverlappingImages.add(image.getId());
             }
         }
         return allOverlappingImages;
     }
-    private  void animateMovement(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency) {
+    private  void animateMovement(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency,Boolean timeline) {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         Point location = new Point();
@@ -1028,7 +1093,11 @@ final static boolean shouldFill = true;
                 location.y = (int) ((1 - t) * oldLocation.y + t * newLocation.y);
                 image.setLocation(location);
                 image.updateCenter();
-                labelImageMap.put(image.getId(), image);
+                if(timeline){
+                    timelineLabelImageMap.put(image.getId(), image);
+                }else{
+                    labelImageMap.put(image.getId(), image);
+                }
 //                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
 //                pane.getComponent(image.getId()).repaint();
                 labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
@@ -1036,7 +1105,7 @@ final static boolean shouldFill = true;
                 pane.repaint();
                 long start = new Date().getTime();
                 while(new Date().getTime() - start < 1L){}
-                currentOverlaps = overlappedImages(image, pane, image.getId());
+                currentOverlaps = overlappedImages(image, pane, image.getId(),timeline);
                 if(currentOverlaps.size()<=0 ){
                     // No overlaps
                     break;
@@ -1052,7 +1121,7 @@ final static boolean shouldFill = true;
         }
     }
     
-    private  void animateMovement(Container pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth) {
+    private  void animateMovement(Container pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, Boolean timeline) {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         BufferedImage img;
@@ -1064,7 +1133,11 @@ final static boolean shouldFill = true;
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
                 image.updateCenter();
-                labelImageMap.put(image.getId(), image);
+                if(timeline){
+                    timelineLabelImageMap.put(image.getId(), image);
+                }else{
+                    labelImageMap.put(image.getId(), image);
+                }
                 labels.get(image.getId()).setIcon(new ImageIcon(img));
                 labels.get(image.getId()).setLocation(image.getLocation());
                 labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
@@ -1077,12 +1150,12 @@ final static boolean shouldFill = true;
     }
     
     
-     private  void animateMovement(Container pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, ArrayList<Integer> adjacency, Boolean check) {
+     private  void animateMovement(Container pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, ArrayList<Integer> adjacency, Boolean check, Boolean timeline) {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         BufferedImage img;
         ArrayList<Integer> currentOverlaps = new ArrayList<>();
-        if (newWidth != oldWidth && newHeight!=oldHeight) {
+        //if (newWidth != oldWidth && newHeight!=oldHeight) {
             while (t < 1) {
                 t += 0.6;
                 img = getScaledImage(image.getOriginal_img(), (int)(((1-t)*oldWidth)+(t*newWidth)), (int)(((1-t)*oldHeight)+(t*newHeight)));
@@ -1090,20 +1163,24 @@ final static boolean shouldFill = true;
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
                 image.updateCenter();
-                labelImageMap.put(image.getId(), image);
+                if(timeline){
+                    timelineLabelImageMap.put(image.getId(), image);
+                }else{
+                    labelImageMap.put(image.getId(), image);
+                }
                 labels.get(image.getId()).setIcon(new ImageIcon(img));
-                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
+                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) Math.floor(image.getWidth()), (int)Math.floor(image.getHeight()));
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
                 while(new Date().getTime() - start < 1L){}
-                currentOverlaps = overlappedImages(image, pane, image.getId());
+                currentOverlaps = overlappedImages(image, pane, image.getId(),timeline);
                 if(currentOverlaps.size()<=0 && check){
                     // No overlaps while shrinking down ONLY
                     break;
                 }
                     
-            }
+          //  }
         }
     }
    
@@ -1126,7 +1203,6 @@ final static boolean shouldFill = true;
     }
 
     private static void TimeLine() {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
        timeImageMap = new HashMap<>();
        timeBoundaryMap = new HashMap<>();
        // Populate Map
@@ -1187,12 +1263,15 @@ final static boolean shouldFill = true;
     public void actionPerformed(ActionEvent ae) {
         String image_id = ae.getActionCommand();
         int imageId = Integer.parseInt(image_id);
-
+        
+        JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+        JPanel pane = (JPanel) tabPane.getComponentAt(0);
         
         if(!colorGroupClicked){
             System.out.println("Here in action performed");
             System.out.println("Image: "+image_id +" was in focus");
-            animateMovement(pane, labelImageMap.get(imageId), labelImageMap.get(imageId).getHeight(), labelImageMap.get(imageId).getWidth(), labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2);
+            Boolean timeline = false;
+            animateMovement(pane, labelImageMap.get(imageId), labelImageMap.get(imageId).getHeight(), labelImageMap.get(imageId).getWidth(), labelImageMap.get(imageId).getHeight()*2, labelImageMap.get(imageId).getWidth()*2,timeline);
             labels.get(imageId).setIcon(new ImageIcon(labelImageMap.get(imageId).getImg()));
             labels.get(imageId).setBounds(labelImageMap.get(imageId).getLocation().x,labelImageMap.get(imageId).getLocation().y, (int)(labelImageMap.get(imageId).getWidth()), (int)(labelImageMap.get(imageId).getHeight()));
             pane.revalidate();
@@ -1247,6 +1326,54 @@ final static boolean shouldFill = true;
 //        }
 //        
 //    }
+
+    private void enlargeWherePossible(JPanel pane, ArrayList<src.Image> images, boolean timeline) {
+            // Once packed, enlarge images.
+            FRAME_WIDTH=pane.getPreferredSize().width;
+            FRAME_HEIGHT=pane.getPreferredSize().height;
+            ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images,timeline);
+            Image temp = new Image();
+            double scale=1.2;
+            ArrayList<Integer> adjacency;
+            if(containOverlaps.size()<=0){
+                for(Image image : images){
+                    scale=1;
+                    temp = new Image();
+                    temp.setImg(getScaledImage(image.getOriginal_img(), (int) (image.getWidth()*scale), (int)(image.getHeight()*scale)));
+                    temp.setId(-1);
+                    temp.setHeight(temp.getImg().getHeight());
+                    temp.setWidth(temp.getImg().getWidth());
+                    temp.setLocation(image.getLocation());
+                    temp.updateCenter();
+                    adjacency = overlappedImages(temp, pane, image.getId(),timeline);
+                    while(adjacency.size()<=0 && scale<=2){
+                        if(!timeline && !insideFrame(labelImageMap.get(image.getId()))){
+                            break;
+                        }
+                        if(timeline && !insideFrame(timelineLabelImageMap.get(image.getId()))){
+                            break;
+                        }
+                        //image.setImg(temp.getImg());
+                        //image.setHeight(temp.getImg().getHeight());
+                        //image.setWidth(temp.getImg().getWidth());
+                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()*scale),(image.getWidth()*scale), adjacency,false,timeline);
+                        if(timeline)
+                            adjacency = overlappedImages(timelineLabelImageMap.get(image.getId()), pane, image.getId(),timeline);
+                        else
+                            adjacency = overlappedImages(labelImageMap.get(image.getId()), pane, image.getId(),timeline);
+                        scale+=0.2;
+                    }
+                    if(adjacency.size()>0){
+                        // scale back down 
+                        animateMovement(pane, image, image.getHeight(), image.getWidth(),Math.floor(image.getHeight()/(scale-0.2)),Math.floor(image.getWidth()/(scale-0.2)), adjacency,false,timeline);
+                    }
+                }
+                //containOverlaps = getAllOverlappingImages(pane, images,timeline);
+            }
+            
+            System.out.println("Enlarged where possible." + System.currentTimeMillis() );
+   
+    }
 
    
 

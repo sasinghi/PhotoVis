@@ -42,7 +42,6 @@ public class PhoJoy extends javax.swing.JFrame {
         geoPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         mosaicPane = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
 
@@ -143,19 +142,6 @@ public class PhoJoy extends javax.swing.JFrame {
 
         tabbedPane.addTab("Mosaic", mosaicPane);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1273, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 599, Short.MAX_VALUE)
-        );
-
-        tabbedPane.addTab("Color grouping", jPanel1);
-
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         jCheckBox1.setText("Face Recognition");
@@ -205,13 +191,13 @@ public class PhoJoy extends javax.swing.JFrame {
         setBounds((screenSize.width-1306)/2, (screenSize.height-729)/2, 1306, 729);
     }// </editor-fold>//GEN-END:initComponents
 
-private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabbedPaneMouseClicked
-
-}//GEN-LAST:event_tabbedPaneMouseClicked
-
 private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
 // TODO add your handling code here:
 }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabbedPaneMouseClicked
+
+}//GEN-LAST:event_tabbedPaneMouseClicked
 
     /**
      * @param args the command line arguments
@@ -254,7 +240,6 @@ private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JPanel geoPanel;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
     private javax.swing.JTabbedPane tabbedPane;
