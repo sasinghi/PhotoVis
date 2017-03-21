@@ -10,7 +10,7 @@
     To read the GPS info    -> readGPS(String filename)
 */
 
-package src.metadata;
+package metadata;
 
 import com.sun.imageio.plugins.png.PNGMetadata;
 import java.awt.image.BufferedImage;
@@ -40,7 +40,7 @@ public class Metadata {
 
     public static void main(String[] args) throws IOException, Exception {
         
-        String filename = "C:\\Users\\Preetama\\Documents\\NetBeansProjects\\PhotoVis\\images\\small\\example8.png";
+        String filename = "C:\\Users\\oyku\\Desktop\\Geotagged Images\\example8.png";
         
         
         /***************** To write keyword-value combination to metadata ***********************/
