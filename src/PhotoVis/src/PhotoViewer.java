@@ -760,10 +760,11 @@ final static boolean shouldFill = true;
             }
             if(timeline){
                 timelineLabelImageMap.put(image.getId(), image);
+                timelineLabels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             }else{
                 labelImageMap.put(image.getId(), image);
+                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             }
-            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(),(int) image.getHeight());
             pane.revalidate();
             pane.repaint();
         } else if (insideFrame(newLocation) && !insideFrame(newLocation, image)) {
