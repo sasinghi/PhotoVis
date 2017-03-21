@@ -73,6 +73,7 @@ final static boolean shouldFill = true;
     
 
     private static ArrayList<JButton> labels;
+    private static ArrayList<JButton> timelineLabels;
     private static Date TIME_BEGIN;
     private int FOCUS = 0;
     
@@ -93,6 +94,7 @@ final static boolean shouldFill = true;
     
     public PhotoViewer() {
         labels = new ArrayList<>();
+        timelineLabels = new ArrayList<>();
         setFocusable(true);
         
     }
@@ -237,8 +239,16 @@ final static boolean shouldFill = true;
             label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
             label.setName(""+image.getId());
             
-
-            labels.add(label);
+            if(!timeline){
+                labels.add(label);
+                labels.get(image.getId()).setActionCommand(label.getName());
+                pane.add(labels.get(image.getId()));
+            }
+            else{
+                timelineLabels.add(label);
+                pane.add(timelineLabels.get(image.getId()));
+            }
+                
             
             //labels.get(image.getId()).addActionListener(this);
 //            
@@ -264,9 +274,7 @@ final static boolean shouldFill = true;
 //                }
 //            });
             
-            labels.get(image.getId()).setActionCommand(label.getName());
             
-            pane.add(labels.get(image.getId()));
             pane.getComponent(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int)image.getWidth(), (int)image.getHeight());
             pane.getComponent(image.getId()).repaint();
             long start = new Date().getTime();
@@ -438,7 +446,7 @@ final static boolean shouldFill = true;
            year.setBounds(prev, 5, width, 30);
            longPanel.add(year);
            longPanel.add(timePeriod);
-           labels = new ArrayList<>();
+           timelineLabels = new ArrayList<>();
            //PhotoViewer.images = readImages();
            timelineLabelImageMap = new HashMap<>();
            addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)),true,false);
@@ -774,10 +782,11 @@ final static boolean shouldFill = true;
             } 
             if(timeline){
                 timelineLabelImageMap.put(image.getId(), image);
+                timelineLabels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             }else{
                 labelImageMap.put(image.getId(), image);
+                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             }
-            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int) image.getHeight());
             pane.revalidate();
             pane.repaint();
         }else{
@@ -1017,7 +1026,7 @@ final static boolean shouldFill = true;
                     pane.revalidate();
                     pane.repaint();
                     
-                    
+                    timelineLabels = new ArrayList<>();
                     labels = new ArrayList<>();
                     PhotoViewer.images = readImages();
                     labelImageMap = new HashMap<>();
@@ -1095,12 +1104,13 @@ final static boolean shouldFill = true;
                 image.updateCenter();
                 if(timeline){
                     timelineLabelImageMap.put(image.getId(), image);
+                    timelineLabels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
                 }else{
                     labelImageMap.put(image.getId(), image);
+                    labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
                 }
 //                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
 //                pane.getComponent(image.getId()).repaint();
-                labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
@@ -1135,12 +1145,15 @@ final static boolean shouldFill = true;
                 image.updateCenter();
                 if(timeline){
                     timelineLabelImageMap.put(image.getId(), image);
+                    timelineLabels.get(image.getId()).setIcon(new ImageIcon(img));
+                    timelineLabels.get(image.getId()).setLocation(image.getLocation());
+                    timelineLabels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 }else{
                     labelImageMap.put(image.getId(), image);
+                    labels.get(image.getId()).setIcon(new ImageIcon(img));
+                    labels.get(image.getId()).setLocation(image.getLocation());
+                    labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 }
-                labels.get(image.getId()).setIcon(new ImageIcon(img));
-                labels.get(image.getId()).setLocation(image.getLocation());
-                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) image.getWidth(), (int)image.getHeight());
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
@@ -1165,11 +1178,13 @@ final static boolean shouldFill = true;
                 image.updateCenter();
                 if(timeline){
                     timelineLabelImageMap.put(image.getId(), image);
+                    timelineLabels.get(image.getId()).setIcon(new ImageIcon(img));
+                    timelineLabels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) Math.floor(image.getWidth()), (int)Math.floor(image.getHeight()));
                 }else{
                     labelImageMap.put(image.getId(), image);
+                    labels.get(image.getId()).setIcon(new ImageIcon(img));
+                    labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) Math.floor(image.getWidth()), (int)Math.floor(image.getHeight()));
                 }
-                labels.get(image.getId()).setIcon(new ImageIcon(img));
-                labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y,(int) Math.floor(image.getWidth()), (int)Math.floor(image.getHeight()));
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
