@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.floor;
+import static java.lang.Math.min;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import net.coobird.thumbnailator.Thumbnails;
@@ -20,12 +21,13 @@ import net.coobird.thumbnailator.Thumbnails;
  * @author guliz
  */
 public class PhotoMosaic {
-        static int size = 20;
+        static int size = 10;
         static int final_width;
         static int final_height;
-        static int resolution = 2;
+        static int frame_width=1250;
+        static int frame_height=600;
         static ArrayList<MosaicImage> images = new ArrayList<>();
-        
+        static BufferedImage output;
         static File target;
        
     public static void initiate(File input) throws IOException {
@@ -33,6 +35,8 @@ public class PhotoMosaic {
         System.out.println("PhotoMosaic is initiated");
         File directory;
         directory = new File("images/dataset-2/");
+        
+
         int j=0;
         for (File file : directory.listFiles())
             {
@@ -41,10 +45,10 @@ public class PhotoMosaic {
                 if(file.getName().toLowerCase().endsWith(".png") || file.getName().toLowerCase().endsWith(".jpg"))
                 {
                     BufferedImage myimage = ImageIO.read(file);
-                    BufferedImage unitImg = Thumbnails.of(myimage).size(1, 1).asBufferedImage();
+                    BufferedImage unitImg = Thumbnails.of(myimage).forceSize(1, 1).asBufferedImage();
                     double[] avg = convertCIEvalues(averageColor(unitImg));
 
-                    BufferedImage tileImg = Thumbnails.of(myimage).size(size,size).asBufferedImage();
+                    BufferedImage tileImg = Thumbnails.of(myimage).forceSize(size,size).asBufferedImage();
                     images.add(new MosaicImage(tileImg,avg,j));
                     j++;
                 }
@@ -63,28 +67,54 @@ public class PhotoMosaic {
         }
         
         BufferedImage final_result = createOutput(results);
-        ImageIO.write(final_result, "png", new File("output.png"));
+        CalculateDimensions();
+        //ImageIO.write(final_result, "png", new File("output.png"));
+        //output=Thumbnails.of(final_result).size(final_width, final_height).asBufferedImage();
+        output=final_result;
         System.out.println("PhotoMosaic is created");
     }
-    
-        public static BufferedImage createOutput(ArrayList<BufferedImage> results) throws IOException{
+        public static void CalculateDimensions() throws IOException{
             BufferedImage input = ImageIO.read(target);
-            final_width = input.getWidth()/resolution;
-            final_height = input.getHeight()/resolution;
+            System.out.println("input.getHeight() " + input.getHeight() + " input.getWidth()" + input.getWidth() );
+            if(input.getHeight()<frame_height && input.getWidth()<frame_width){
+                final_height = input.getHeight();
+                final_width = input.getWidth();
+            } else if (input.getHeight()<frame_height && input.getWidth()>frame_width){
+                final_width = frame_width;
+                final_height = input.getHeight()*final_width/input.getWidth();
+            } else if (input.getHeight()>frame_height && input.getWidth()<frame_width){
+                final_height = frame_height;
+                final_width = input.getWidth()*final_height/input.getWidth();
+            } else if (input.getHeight()>frame_height && input.getWidth()>frame_width){
+                if((input.getWidth()/frame_width)>(input.getHeight()/frame_height)){
+                    final_width = frame_width;
+                    final_height = input.getHeight()*final_width/input.getWidth();
+                }else{
+                    final_height = frame_height;
+                    final_width = input.getWidth()*final_height/input.getHeight();
+                }
+                
+            } 
+            System.out.println("final_height " + final_height + " final_width" + final_width );
+
+        
+        }
+        public static BufferedImage createOutput(ArrayList<BufferedImage> results) throws IOException{
+            
+            BufferedImage input = ImageIO.read(target);
             int tilePerLine = input.getWidth()/size;
             int tilePerColumn = input.getHeight()/size;
-            int x=final_width/tilePerLine;
-            int y=final_height/tilePerColumn;
+            int x=input.getWidth()/tilePerLine;
+            int y=input.getHeight()/tilePerColumn;
             //System.out.println(x + " x and y  "+ y);
-            BufferedImage photo = new BufferedImage(final_width, final_height, BufferedImage.TYPE_3BYTE_BGR); 
+            BufferedImage photo = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_3BYTE_BGR); 
             
             for(int k=0;k<results.size();k++){
                         int locX=x*(k%tilePerLine);
                         int locY=(int) (y*floor(k/tilePerLine));
                         
 			BufferedImage imagePart = photo.getSubimage(locX,locY,x,y);
-			imagePart.setData(Thumbnails.of(results.get(k)).forceSize(x,y).asBufferedImage().getData());
-                      //  System.out.println(locX + "  "+ locY);
+			imagePart.setData(results.get(k).getData());
 		}
             
         
@@ -128,7 +158,7 @@ public class PhotoMosaic {
         }
         
         public static int getScore(BufferedImage a,MosaicImage b) throws IOException{
-            BufferedImage unitImg = Thumbnails.of(a).size(1, 1).asBufferedImage();
+            BufferedImage unitImg = Thumbnails.of(a).forceSize(1, 1).asBufferedImage();
             double[] avg = convertCIEvalues(averageColor(unitImg));
             int score = findDifference(avg,b.getAvg());
             return score;
@@ -238,6 +268,7 @@ public class PhotoMosaic {
             
             initiate(file);
         }
+    
     
          
     }
