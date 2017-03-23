@@ -39,8 +39,6 @@ public class PhoJoy extends javax.swing.JFrame {
         defaultPane = new javax.swing.JPanel();
         timelinePane = new javax.swing.JPanel();
         geoPane = new javax.swing.JPanel();
-        geoPanel = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
         mosaicPane = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
@@ -95,34 +93,15 @@ public class PhoJoy extends javax.swing.JFrame {
 
         geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
-        jLabel3.setText("Geo Tags come here");
-
-        javax.swing.GroupLayout geoPanelLayout = new javax.swing.GroupLayout(geoPanel);
-        geoPanel.setLayout(geoPanelLayout);
-        geoPanelLayout.setHorizontalGroup(
-            geoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(geoPanelLayout.createSequentialGroup()
-                .addGap(167, 167, 167)
-                .addComponent(jLabel3)
-                .addContainerGap(1006, Short.MAX_VALUE))
-        );
-        geoPanelLayout.setVerticalGroup(
-            geoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(geoPanelLayout.createSequentialGroup()
-                .addGap(102, 102, 102)
-                .addComponent(jLabel3)
-                .addContainerGap(481, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout geoPaneLayout = new javax.swing.GroupLayout(geoPane);
         geoPane.setLayout(geoPaneLayout);
         geoPaneLayout.setHorizontalGroup(
             geoPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(geoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 1271, Short.MAX_VALUE)
         );
         geoPaneLayout.setVerticalGroup(
             geoPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(geoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 597, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("GeoTags", geoPane);
@@ -237,9 +216,7 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel defaultPane;
     private javax.swing.JPanel geoPane;
-    private javax.swing.JPanel geoPanel;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
     private javax.swing.JTabbedPane tabbedPane;

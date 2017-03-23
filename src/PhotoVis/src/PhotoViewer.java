@@ -483,6 +483,16 @@ final static boolean shouldFill = true;
         pane.add(mosaic);
         frame.revalidate();
         frame.repaint();
+        
+        // Geo Tags
+        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+        JPanel geopane = (JPanel) tabPane.getComponentAt(2);
+        final GeoTags sample = new GeoTags();
+        sample.setSize(tabPane.getComponentAt(1).getSize());
+        
+        geopane.add(sample, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
 
 
     }
