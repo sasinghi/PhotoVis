@@ -68,7 +68,7 @@ final static boolean shouldFill = true;
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
     private static int IMAGE_TRIAL_COUNT_1 =0 ;
-    private static int ENLARGE_COUNT = 2;
+
 
     public static boolean colorGroupClicked = false;
     public static boolean firstColorClicked = false;
@@ -244,6 +244,7 @@ final static boolean shouldFill = true;
             
             if(!timeline){
                 labels.add(label);
+                labels.get(image.getId()).addActionListener(this);
                 labels.get(image.getId()).setActionCommand(label.getName());
                 pane.add(labels.get(image.getId()));
             }
@@ -251,10 +252,9 @@ final static boolean shouldFill = true;
                 timelineLabels.add(label);
                 pane.add(timelineLabels.get(image.getId()));
             }
-                
+           // labels.get(image.getId()).addActionListener(this);
+
             
-            //labels.get(image.getId()).addActionListener(this);
-//            
 //            labels.get(image.getId()).addMouseListener(new java.awt.event.MouseAdapter(){ 
 //                public void mouseEntered(java.awt.event.MouseEvent evt) {
 //                    System.out.println("Entered");
@@ -359,7 +359,7 @@ final static boolean shouldFill = true;
        // TimeLine Scroll 
         
        final JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-        
+       
        tabPane.addChangeListener(new ChangeListener() {
         
                     @Override
@@ -460,34 +460,7 @@ final static boolean shouldFill = true;
         
       
        
-
-//       // PhotoMosiac
-//       File target = new File("images/dataset/dataset/IMG57.png");
-//       try {
-//            PhotoMosaic(target);
-//        } catch (IOException ex) {
-//            Logger.getLogger(PhotoViewer_2.class.getName()).log(Level.SEVERE, null, ex);
-//        } 
-       
-//        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-//        JPanel pane = (JPanel) tabPane.getComponentAt(3);
-//        BufferedImage img = ImageIO.read(new File("output.png"));
-//        InteractivePanel mosaic = new InteractivePanel(img);
-//        
-//        mosaic.setSize(tabPane.getComponentAt(1).getSize());
-//        pane.add(mosaic);
-//        frame.revalidate();
-//        frame.repaint();
-//        
-        // Geo Tags
-        JTabbedPane tabPane1 = (JTabbedPane) frame.getContentPane().getComponent(0);
-        JPanel geopane = (JPanel) tabPane1.getComponentAt(2);
-        final GeoTags sample = new GeoTags();
-        sample.setSize(tabPane1.getComponentAt(1).getSize());
-        geopane.add(sample);
-        frame.revalidate();
-        frame.repaint();
-
+              
 
        
 
@@ -563,12 +536,12 @@ final static boolean shouldFill = true;
         
         int j = 0;
         int k=0;
-        for (int i = 1; i <9 ; i++) {
+        for (int i = 1; i <33 ; i++) {
             try {
-                filename = "images/small/example" + i + ".png";
+                filename = "C:\\Users\\oyku\\Documents\\NetBeansProjects\\PhotoVis\\images\\GeotaggedImages\\example" + i + ".png";
                 BufferedImage img = ImageIO.read(new File(filename));
                 k=0;
-                while(k<25){
+                while(k<1){
                 image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
                 j++;
                 k++;
@@ -1053,11 +1026,6 @@ final static boolean shouldFill = true;
                     return;
              }
             System.out.println("Packed." + System.currentTimeMillis() );
-            while(ENLARGE_COUNT>0 && !timeline){
-                   enlargeWherePossible(pane, images,timeline);
-                   ResolveOverlaps(pane, images, timeline);
-                   ENLARGE_COUNT--;
-                }
             // Once packed, enlarge images..
 //            Image temp = new Image();
 //            double scale=1.2;
@@ -1212,12 +1180,52 @@ final static boolean shouldFill = true;
     }
    
     
+    private  void animateMovementSemantic(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency) throws InterruptedException {
+        // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
+        double t = 0;
+        Point location = new Point();
+        ArrayList<Integer> currentOverlaps = new ArrayList<>();
+        if (!oldLocation.equals(newLocation)) {
+            while (t < 0.8) {
+                t += 0.2;
+                System.out.println("T " + t);
+                location.x = (int) ((1 - t) * oldLocation.x + t * newLocation.x);
+                location.y = (int) ((1 - t) * oldLocation.y + t * newLocation.y);
+                image.setLocation(location);
+                image.updateCenter();
+                labelImageMap.put(image.getId(), image);
+//                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
+//                pane.getComponent(image.getId()).repaint();
+
+                labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
+                
+                pane.revalidate();
+                pane.repaint();
+                long start = new Date().getTime();
+                while(new Date().getTime() - start < 1L){}
+                currentOverlaps = overlappedImages(image, pane, image.getId(),false);
+                //System.out.println("Current overlap size:" + currentOverlaps.size());
+                if(currentOverlaps.size()<=0 ){
+                    // No overlaps
+                    //break;
+                }
+                if(currentOverlaps.size() > 0 ){
+                  //  System.out.println("Here in here");
+                    ResolveOverlaps((JPanel) pane, images,false);
+                }
+                
+                
+            }
+        }
+    }
     
-    private static void FaceRecognition() {
+     
+    
+    public static void FaceRecognition() {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void Color_Grouping() {
+    public static void Color_Grouping() {
         if (!colorGroupClicked){
             colorGroupClicked = true;
         }
@@ -1271,15 +1279,25 @@ final static boolean shouldFill = true;
 
 
 
-    private void onePhotoforColorGroup(src.Image testimg){
+    private void onePhotoforColorGroup(src.Image testimg) throws InterruptedException{
         int[] testavg = ColorSimilarity.averageColor(testimg.getImg());
         double[] testavgd = ColorSimilarity.convertCIEvalues(testavg);
+        System.out.println("Clicked image" + testimg.getId());
         for(src.Image image : images){
-            if(testimg.getId() != image.getId()){
+            int imageId =  image.getId();
+            if(testimg.getId() != imageId ){
                 int[] imageavg = ColorSimilarity.averageColor(image.getImg());
                 double[] imageavgd = ColorSimilarity.convertCIEvalues(imageavg);
                 
                 double diff = ColorSimilarity.findDifference(testavgd, imageavgd);
+                
+                if(diff < 15)
+                {
+                    ArrayList<Integer> adj = new ArrayList<>();
+                    Point oldLoc = image.location;
+                    Point newLoc = testimg.location; 
+                    animateMovementSemantic(pane, image, oldLoc, newLoc, adj);
+                }
             }
             
         }
@@ -1289,7 +1307,7 @@ final static boolean shouldFill = true;
     public void actionPerformed(ActionEvent ae) {
         String image_id = ae.getActionCommand();
         int imageId = Integer.parseInt(image_id);
-        
+        System.out.println("Image: "+image_id +" was in focus");
         JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
         JPanel pane = (JPanel) tabPane.getComponentAt(0);
         
@@ -1311,7 +1329,11 @@ final static boolean shouldFill = true;
         
         else if(colorGroupClicked && !firstColorClicked){
             firstColorClicked = true;
-            onePhotoforColorGroup(labelImageMap.get(imageId));
+            try {
+                onePhotoforColorGroup(labelImageMap.get(imageId));
+            } catch (InterruptedException ex) {
+                Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+            }
             System.out.println("1st photo clicked");
         }
         
