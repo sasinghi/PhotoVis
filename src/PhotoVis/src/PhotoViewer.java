@@ -37,10 +37,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer extends JPanel implements ActionListener{
@@ -65,7 +68,7 @@ final static boolean shouldFill = true;
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
     private static int IMAGE_TRIAL_COUNT_1 =0 ;
-
+    private static int ENLARGE_COUNT = 2;
 
     public static boolean colorGroupClicked = false;
     public static boolean firstColorClicked = false;
@@ -89,7 +92,7 @@ final static boolean shouldFill = true;
     
     // UI
     private static PhoJoy frame;
-   
+    JPanel pane;
 
     
     public PhotoViewer() {
@@ -304,56 +307,7 @@ final static boolean shouldFill = true;
         // For overlaps that couldn't be resolved while placing photos
         ResolveOverlaps(pane, images,timeline);
         
-        Container feature_panel = (Container) frame.getContentPane().getComponent(0);
-//        
-//        ActionListener face_recognition = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//               FaceRecognition();
-//            }};   
-//            
-//        ((JButton) feature_panel.getComponent(2)).addActionListener(face_recognition);
-//            
-//        ActionListener color_group = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                Color_Grouping();
-//            }};   
-//        
-//        ((JButton) feature_panel.getComponent(3)).addActionListener(color_group);
-//        
-//        ActionListener timeline = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                    TimeLine();
-//            }};   
-//        
-//        ((JButton) feature_panel.getComponent(5)).addActionListener(timeline);
-//        
-//        ActionListener geotag = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                    GeoTag();
-//            }}; 
-//        
-//        ((JButton) feature_panel.getComponent(6)).addActionListener(geotag);
-//        
-//        ActionListener photomosaic = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                File target = new File("images/dataset-2/IMG57.png");
-//                frame.setVisible(false);
-//                pane.removeAll();
-//                try {
-//                    PhotoMosaic(target);
-//                } catch (IOException ex) {
-//                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                
-//            }};
-//        
-//        ((JButton) feature_panel.getComponent(7)).addActionListener(photomosaic);
-        
+
         
     }
            
@@ -404,7 +358,48 @@ final static boolean shouldFill = true;
         
        // TimeLine Scroll 
         
-       JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+       final JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+        
+       tabPane.addChangeListener(new ChangeListener() {
+        
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        if (e.getSource() instanceof JTabbedPane) {
+                            JTabbedPane panel = (JTabbedPane) e.getSource();
+                            if(panel.getSelectedIndex()==3){
+                                pane = (JPanel) tabPane.getComponentAt(3);
+
+                                final JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setCurrentDirectory(new File("images/"));
+                                int result = fileChooser.showOpenDialog(pane);
+                                File selectedFile = null;
+                                if (result == JFileChooser.APPROVE_OPTION) {
+                                    selectedFile = fileChooser.getSelectedFile();
+                                }
+                                BufferedImage img = null;
+                                
+                                File file = new File(selectedFile.getAbsolutePath());
+                                try {
+                                   img = PhotoMosaic(file);
+                                           
+                                } catch (IOException ex) {
+                                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                
+                                    InteractivePanel mosaic = new InteractivePanel(img);
+                                    
+                                    mosaic.setBounds(0, 0, pane.getWidth(), pane.getHeight());
+                                    pane.add(mosaic);
+                                    frame.revalidate();
+                                    frame.repaint();
+                            }    
+                        }
+                    }
+                });
+       
+       
+       
+       
        JPanel panel = (JPanel) tabPane.getComponentAt(1);
        
        JPanel longPanel = new JPanel(null);
@@ -465,7 +460,7 @@ final static boolean shouldFill = true;
         
       
        
-              
+
 //       // PhotoMosiac
 //       File target = new File("images/dataset/dataset/IMG57.png");
 //       try {
@@ -474,26 +469,27 @@ final static boolean shouldFill = true;
 //            Logger.getLogger(PhotoViewer_2.class.getName()).log(Level.SEVERE, null, ex);
 //        } 
        
-        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-        JPanel pane = (JPanel) tabPane.getComponentAt(3);
-        BufferedImage img = ImageIO.read(new File("output.png"));
-        InteractivePanel mosaic = new InteractivePanel(img);
-        
-        mosaic.setSize(tabPane.getComponentAt(1).getSize());
-        pane.add(mosaic);
-        frame.revalidate();
-        frame.repaint();
-        
+//        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+//        JPanel pane = (JPanel) tabPane.getComponentAt(3);
+//        BufferedImage img = ImageIO.read(new File("output.png"));
+//        InteractivePanel mosaic = new InteractivePanel(img);
+//        
+//        mosaic.setSize(tabPane.getComponentAt(1).getSize());
+//        pane.add(mosaic);
+//        frame.revalidate();
+//        frame.repaint();
+//        
         // Geo Tags
-        tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-        JPanel geopane = (JPanel) tabPane.getComponentAt(2);
+        JTabbedPane tabPane1 = (JTabbedPane) frame.getContentPane().getComponent(0);
+        JPanel geopane = (JPanel) tabPane1.getComponentAt(2);
         final GeoTags sample = new GeoTags();
-        sample.setSize(tabPane.getComponentAt(1).getSize());
-        
-        geopane.add(sample, BorderLayout.CENTER);
+        sample.setSize(tabPane1.getComponentAt(1).getSize());
+        geopane.add(sample);
         frame.revalidate();
         frame.repaint();
 
+
+       
 
     }
 
@@ -1057,6 +1053,11 @@ final static boolean shouldFill = true;
                     return;
              }
             System.out.println("Packed." + System.currentTimeMillis() );
+            while(ENLARGE_COUNT>0 && !timeline){
+                   enlargeWherePossible(pane, images,timeline);
+                   ResolveOverlaps(pane, images, timeline);
+                   ENLARGE_COUNT--;
+                }
             // Once packed, enlarge images..
 //            Image temp = new Image();
 //            double scale=1.2;
@@ -1261,11 +1262,10 @@ final static boolean shouldFill = true;
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static void PhotoMosaic(File file) throws IOException {
-       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static BufferedImage PhotoMosaic(File file) throws IOException {
        
        PhotoMosaic mosaic = new PhotoMosaic(file);
-       
+       return mosaic.output;
       
     }
 
