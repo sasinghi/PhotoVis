@@ -379,82 +379,84 @@ public class PhotoViewer extends JPanel implements ActionListener {
                         frame.repaint();
                     }
                     if (panel.getSelectedIndex() == 1) {
-                        JPanel pane = (JPanel) tabPane.getComponentAt(1);
-                        System.out.println("Here");
-                        JPanel longPanel = new JPanel(null);
-                        longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width * 2, pane.getPreferredSize().height-15));
-                        //longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
-
-                        int prev = 0;
-                        JPanel timePeriod = new JPanel();
-                        JLabel year = new JLabel("Year");
-                        //       timePeriod.setBackground(Color.yellow);
-                        //       timePeriod.setPreferredSize(new Dimension(200, longPanel.getPreferredSize().height-17));
-                        //       timePeriod.setBounds(10, 10, 200, longPanel.getPreferredSize().height-17);
-                        //       longPanel.add(timePeriod);
-                        //       longPanel.revalidate();
-                        //       longPanel.repaint();
-
-                        JScrollPane scroll = new JScrollPane(longPanel);
-                        scroll.setSize(tabPane.getComponentAt(1).getSize());
-                        scroll.setVisible(true);
-                        pane.add(scroll);
-
-
-
-                        FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
-                        try {
-                            TimeLine();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                        for (int i = 0; i < times.size(); i++) {
-                            timePeriod = new JPanel(null);
-                            year = new JLabel("" + times.get(i));
-                            int width = (int) (timeBoundaryMap.get(times.get(i)));
-                            //int width = 300;
-                            timePeriod.setPreferredSize(new Dimension(width, longPanel.getPreferredSize().height -17));
-                            if (i % 2 == 0) {
-                                timePeriod.setBackground(Color.LIGHT_GRAY);
-                            } else {
-                                timePeriod.setBackground(Color.white);
-                            }
-
-                            timePeriod.setBounds(prev, 30, width, longPanel.getPreferredSize().height-17);
-                            timePeriod.setVisible(true);
-                            year.setBounds(prev, 5, width, 30);
-                            longPanel.add(year);
-                            longPanel.add(timePeriod);
-                            timelineLabels = new ArrayList<>();
-                            //PhotoViewer.images = readImages();
-                            timelineLabelImageMap = new HashMap<>();
-                            addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)), true, false);
-                            enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i)), true);
-                            ResolveOverlaps(timePeriod, timeImageMap.get(times.get(i)), true);
-                            longPanel.revalidate();
-                            longPanel.repaint();
-                            //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
-                            prev += width;
-
-                            frame.revalidate();
-                            frame.repaint();
-                        }
+                       
 
                     }
                     if(panel.getSelectedIndex() == 2){
-                        // Geo Tags
-                        JPanel geopane = (JPanel) tabPane.getComponentAt(2);
-                        final GeoTags sample = new GeoTags();
-                        sample.setSize(geopane.getSize());
-                        geopane.add(sample);
-                        frame.revalidate();
-                        frame.repaint();
+                        
                     }
                 }
             }
         });
 
+        JPanel pane = (JPanel) tabPane.getComponentAt(1);
+        System.out.println("Here");
+        JPanel longPanel = new JPanel(null);
+        longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width * 2, pane.getPreferredSize().height-15));
+        //longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
 
+        int prev = 0;
+        JPanel timePeriod = new JPanel();
+        JLabel year = new JLabel("Year");
+        //       timePeriod.setBackground(Color.yellow);
+        //       timePeriod.setPreferredSize(new Dimension(200, longPanel.getPreferredSize().height-17));
+        //       timePeriod.setBounds(10, 10, 200, longPanel.getPreferredSize().height-17);
+        //       longPanel.add(timePeriod);
+        //       longPanel.revalidate();
+        //       longPanel.repaint();
+
+        JScrollPane scroll = new JScrollPane(longPanel);
+        scroll.setSize(tabPane.getComponentAt(1).getSize());
+        scroll.setVisible(true);
+        pane.add(scroll);
+
+
+
+        FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
+        try {
+            TimeLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        for (int i = 0; i < times.size(); i++) {
+            timePeriod = new JPanel(null);
+            year = new JLabel("" + times.get(i));
+            int width = (int) (timeBoundaryMap.get(times.get(i)));
+            //int width = 300;
+            timePeriod.setPreferredSize(new Dimension(width, longPanel.getPreferredSize().height -17));
+            if (i % 2 == 0) {
+                timePeriod.setBackground(Color.LIGHT_GRAY);
+            } else {
+                timePeriod.setBackground(Color.white);
+            }
+
+            timePeriod.setBounds(prev, 30, width, longPanel.getPreferredSize().height-17);
+            timePeriod.setVisible(true);
+            year.setBounds(prev, 5, width, 30);
+            longPanel.add(year);
+            longPanel.add(timePeriod);
+            timelineLabels = new ArrayList<>();
+            //PhotoViewer.images = readImages();
+            timelineLabelImageMap = new HashMap<>();
+            addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)), true, false);
+            enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i)), true);
+            ResolveOverlaps(timePeriod, timeImageMap.get(times.get(i)), true);
+            longPanel.revalidate();
+            longPanel.repaint();
+            //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
+            prev += width;
+
+            frame.revalidate();
+            frame.repaint();
+        }
+        
+        // Geo Tags
+        JPanel geopane = (JPanel) tabPane.getComponentAt(2);
+        final GeoTags sample = new GeoTags();
+        sample.setSize(geopane.getSize());
+        geopane.add(sample);
+        frame.revalidate();
+        frame.repaint();
        
 
 
@@ -486,6 +488,7 @@ public class PhotoViewer extends JPanel implements ActionListener {
 
     public static ArrayList<Image> readImages() {
         String filename;
+        BufferedImage img;
         ArrayList<Image> image = new ArrayList<>();
         //***********EXAMPLE1****************//
         //***********EXAMPLE1****************//
@@ -529,19 +532,11 @@ public class PhotoViewer extends JPanel implements ActionListener {
 
 
 
-        int j = 0;
-        int k = 0;
-        for (int i = 1; i < 9; i++) {
+        for (int i = 0; i < 100; i++) {
             try {
-                filename = "images/small/example" + i + ".png";
-                BufferedImage img = ImageIO.read(new File(filename));
-                k = 0;
-                while (k < 25) {
-                    image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
-                    j++;
-                    k++;
-                }
-
+                filename = "images/dataset/IMG" + i + ".png";
+                img = ImageIO.read(new File(filename));
+                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, i));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
