@@ -16,6 +16,16 @@ import com.sun.imageio.plugins.png.PNGMetadata;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -40,7 +50,7 @@ public class Metadata {
 
     public static void main(String[] args) throws IOException, Exception {
         
-        String filename = "C:\\Users\\oyku\\Desktop\\Geotagged Images\\example8.png";
+        String filename = "C:\\Users\\oyku\\Desktop\\a.png";
         
         
         /***************** To write keyword-value combination to metadata ***********************/
@@ -54,7 +64,36 @@ public class Metadata {
         
         /***************** To read the GPS info of photo ***********************/
         readGPS(filename);
+        
+        /***************** To read the time info of photo ***********************/
+        readTime(filename);
     }
+    
+    
+    public static Date readTime(String filename) throws Exception{
+       
+        Path p = Paths.get( filename);
+        BasicFileAttributes view = Files.getFileAttributeView( p, BasicFileAttributeView.class ).readAttributes();  
+        FileTime time = view.creationTime(); 
+
+        String date = null;
+        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        String dateCreated = df.format(time.toMillis());
+        System.out.println(dateCreated);
+        
+        
+        Date startDate = null;
+        try {
+            startDate = df.parse(dateCreated);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println(startDate);
+        
+        return startDate;
+    }
+    
     
     public static double[] readGPS(String filename) throws Exception{
        
@@ -70,9 +109,9 @@ public class Metadata {
             System.out.println("There is no GPS information in this photo");
         }
         
-        
         return gps;
     }
+    
     
     
     public static void writeMetaData(String filename, String keyword, String value) throws IOException, Exception{
