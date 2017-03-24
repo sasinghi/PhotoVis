@@ -1,6 +1,8 @@
 package src;
 
 import com.jwetherell.algorithms.data_structures.KdTree;
+import com.teamdev.jxmaps.LatLng;
+import com.teamdev.jxmaps.MapViewOptions;
 import edu.wlu.cs.levy.CG.KDTree;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -30,6 +32,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
@@ -44,6 +48,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import src.metadata.Metadata;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer extends JPanel implements ActionListener {
@@ -79,6 +84,8 @@ public class PhotoViewer extends JPanel implements ActionListener {
     private static ArrayList<JButton> labels;
     private static ArrayList<JButton> timelineLabels;
     private static Date TIME_BEGIN;
+    private static ArrayList<LatLng> geoLocs;
+    private static HashMap<LatLng, ArrayList<Image>> geoImageMap;
     private int FOCUS = 0;
     // TimeLine
     private static ArrayList<Integer> times;
@@ -96,8 +103,18 @@ public class PhotoViewer extends JPanel implements ActionListener {
 
     }
 
+    public static HashMap<LatLng, ArrayList<src.Image>> getGeoImageMap() {
+        return geoImageMap;
+    }
+
+    public static ArrayList<LatLng> getGeoLocs() {
+        return geoLocs;
+    }
+    
+    
+
     @SuppressWarnings("CallToThreadDumpStack")
-    private BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
+    public static BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
         BufferedImage resizedImg = srcImg;
         try {
             resizedImg = Thumbnails.of(srcImg).size(w, h).asBufferedImage();
@@ -234,12 +251,12 @@ public class PhotoViewer extends JPanel implements ActionListener {
             label.setName("" + image.getId());
 
             if (!timeline) {
-                labels.add(label);
+                labels.add(image.getId(),label);
                 labels.get(image.getId()).addActionListener(this);
                 labels.get(image.getId()).setActionCommand(label.getName());
                 pane.add(labels.get(image.getId()));
             } else {
-                timelineLabels.add(label);
+                timelineLabels.add(image.getId(),label);
                 pane.add(timelineLabels.get(image.getId()));
             }
           
@@ -336,8 +353,8 @@ public class PhotoViewer extends JPanel implements ActionListener {
 //        });
 
         //Display the window.
-
-        frame.setVisible(true);
+         
+         frame.setVisible(true);
 
 
 
@@ -348,6 +365,7 @@ public class PhotoViewer extends JPanel implements ActionListener {
         addComponentsToPane(frame, images, false, false);
 
         final JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
+       
 
         tabPane.addChangeListener(new ChangeListener() {
 
@@ -382,18 +400,10 @@ public class PhotoViewer extends JPanel implements ActionListener {
         System.out.println("Here");
         JPanel longPanel = new JPanel(null);
         longPanel.setPreferredSize(new Dimension(frame.getContentPane().getSize().width * 2, pane.getPreferredSize().height-15));
-        //longPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 10));
-
+        
         int prev = 0;
         JPanel timePeriod = new JPanel();
         JLabel year = new JLabel("Year");
-        //       timePeriod.setBackground(Color.yellow);
-        //       timePeriod.setPreferredSize(new Dimension(200, longPanel.getPreferredSize().height-17));
-        //       timePeriod.setBounds(10, 10, 200, longPanel.getPreferredSize().height-17);
-        //       longPanel.add(timePeriod);
-        //       longPanel.revalidate();
-        //       longPanel.repaint();
-
         JScrollPane scroll = new JScrollPane(longPanel);
         scroll.setSize(tabPane.getComponentAt(1).getSize());
         scroll.setVisible(true);
@@ -409,8 +419,8 @@ public class PhotoViewer extends JPanel implements ActionListener {
         }
         for (int i = 0; i < times.size(); i++) {
             timePeriod = new JPanel(null);
-            year = new JLabel("" + times.get(i));
-            int width = (int) (timeBoundaryMap.get(times.get(i)));
+            year = new JLabel("" + times.get(i).intValue());
+            int width = timeBoundaryMap.get(times.get(i).intValue()).intValue();
             //int width = 300;
             timePeriod.setPreferredSize(new Dimension(width, longPanel.getPreferredSize().height -17));
             if (i % 2 == 0) {
@@ -427,9 +437,9 @@ public class PhotoViewer extends JPanel implements ActionListener {
             timelineLabels = new ArrayList<>();
             //PhotoViewer.images = readImages();
             timelineLabelImageMap = new HashMap<>();
-            addComponentsToPane(timePeriod, timeImageMap.get(times.get(i)), true, false);
-            enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i)), true);
-            ResolveOverlaps(timePeriod, timeImageMap.get(times.get(i)), true);
+            addComponentsToPane(timePeriod, timeImageMap.get(times.get(i).intValue()), true, false);
+            enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i).intValue()), true);
+            ResolveOverlaps(timePeriod, timeImageMap.get(times.get(i).intValue()), true);
             longPanel.revalidate();
             longPanel.repaint();
             //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
@@ -441,9 +451,15 @@ public class PhotoViewer extends JPanel implements ActionListener {
         
         // Geo Tags
         JPanel geopane = (JPanel) tabPane.getComponentAt(2);
-        final GeoTags sample = new GeoTags();
-        sample.setSize(geopane.getSize());
-        geopane.add(sample);
+        GeoTag();
+        MapViewOptions options = new MapViewOptions();
+        options.setApiKey("AIzaSyA7woFnkPF68xxL2TOukwln76fFNgq1-ps");
+        final GeoTags geoTagsPanel = new GeoTags(geoLocs,geoImageMap,options);
+        geoTagsPanel.setSize(geopane.getSize());
+//        JScrollPane scrollGeo = new JScrollPane(geoTags);
+//        scrollGeo.setSize(tabPane.getComponentAt(1).getSize());
+//        scrollGeo.setVisible(true);
+        geopane.add(geoTagsPanel);
         frame.revalidate();
         frame.repaint();
        
@@ -478,74 +494,47 @@ public class PhotoViewer extends JPanel implements ActionListener {
         String filename;
         BufferedImage img;
         ArrayList<Image> image = new ArrayList<>();
-        //***********EXAMPLE1****************//
-        //***********EXAMPLE1****************//
-//        int j = 0;
-//        for (int i = 8; i < 10; i++) {
-//            try {
-//                filename = "images/small/image" + i + ".png";
-//                BufferedImage img = ImageIO.read(new File(filename));
-//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
-//                j++;
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-        //***********END EXAMPLE 1****************//
-        //***********EXAMPLE 2****************//
-//        for(int i=8;i<17;i++){
-//            try {
-//                //if(i<3)
-//                  //  filename = "images/image"+0+".jpg";
-//                //else
-//                    filename = "images/small/image"+i+".png";
-//                BufferedImage img = ImageIO.read(new File(filename));        
-//                image.add(new Image(img,img.getHeight(),img.getWidth(),(int)FRAME_WIDTH,(int)FRAME_HEIGHT,i));
-//                
-//            } catch (IOException ex) {
-//            } 
-//        }
-        //***********END EXAMPLE 2****************//
+        Date timestamp;
+        LatLng geoTag;
+        String path = "images/zipp/";
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
 
-        //*********Example 3 - scaling and bounding ************//
-//        try {
-//                filename = "images/image4.jpg";
-//                BufferedImage img = ImageIO.read(new File(filename));
-//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,0));
-//                
-//                } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-        // ********End Example 3*****************//
-
-
-
-//        for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < listOfFiles.length; i++) {
+              if (listOfFiles[i].isFile()) {
+                try {
+                    if(listOfFiles[i].getName().endsWith(".png")||listOfFiles[i].getName().endsWith(".jpg")||listOfFiles[i].getName().endsWith(".JPG")){
+                        img = ImageIO.read(new File(path +listOfFiles[i].getName()));
+                        timestamp = Metadata.readTime(path +listOfFiles[i].getName());
+                        //geoTag = Metadata.readGPS(path +listOfFiles[i].getName());
+                        if(i>=10 && i<15){
+                            geoTag = new LatLng(-23.533773, -46.625290);
+                        }else if(i>5 && i<10){
+                            geoTag = new LatLng(13.067439, 80.237617);
+                        }else if(i>=15 && i<20){
+                            geoTag=null;
+                        }else{
+                            geoTag = new LatLng(33.87546081542969, -116.3016196017795);
+                        }
+                        image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,timestamp,geoTag, i));
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } 
+              } 
+            }
+//        for (int i = 0; i <80 ; i++) {
 //            try {
 //                filename = "images/dataset/IMG" + i + ".png";
 //                img = ImageIO.read(new File(filename));
-//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, i));
-//
-//        
-        
-        
-        int j = 0;
-        int k=0;
-        for (int i = 1; i <9 ; i++) {
-            try {
-                filename = "images/small/example" + i + ".png";
-                img = ImageIO.read(new File(filename));
-                k=0;
-                while(k<1){
-                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
-                j++;
-                k++;
-               }
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+//                timestamp = Metadata.readTime(filename);
+//                geoTag = Metadata.readGPS(filename);
+//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,timestamp,geoTag, i));
+//               }
+//             catch (Exception ex) {
+//                ex.printStackTrace();
+//            } 
+//        }
         return image;
     }
 
@@ -1029,34 +1018,10 @@ public class PhotoViewer extends JPanel implements ActionListener {
                     return;
              }
             System.out.println("Packed." + System.currentTimeMillis() );
-            // Once packed, enlarge images..
-//            Image temp = new Image();
-//            double scale=1.2;
-//            while(containOverlaps.size()<=0){
-//                for(Image image : images){
-//                    scale=1.1;
-//                    temp = new Image();
-//                    temp.setImg(getScaledImage(image.getOriginal_img(), (int)(image.getWidth()*scale), (int)(image.getHeight()*scale)));
-//                    temp.setId(-1);
-//                    temp.setHeight(temp.getImg().getHeight());
-//                    temp.setWidth(temp.getImg().getWidth());
-//                    temp.setLocation(image.getLocation());
-//                    temp.updateCenter();
-//                    adjacency = overlappedImages(temp, pane, image.getId());
-//                    while(adjacency.size()<=0 && insideFrame(temp)&& scale<=2){
-//                        //image.setImg(temp.getImg());
-//                        //image.setHeight(temp.getImg().getHeight());
-//                        //image.setWidth(temp.getImg().getWidth());
-//                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()*scale),(image.getWidth()*scale), adjacency,false);
-//                        adjacency = overlappedImages(image, pane, image.getId());
-//                        scale+=0.2;
-//                    }
-//                    if(adjacency.size()>0){
-//                        // scale back down 
-//                        animateMovement(pane, image, image.getHeight(), image.getWidth(),(image.getHeight()/(scale-0.2)),(image.getWidth()/(scale-0.2)), adjacency,true);
-//                    }
-//                }
-//           
+            while(ENLARGE_COUNT>=0){
+                enlargeWherePossible(pane, images, timeline);
+                ENLARGE_COUNT--;
+            }
         }
     }
 
@@ -1239,26 +1204,36 @@ public class PhotoViewer extends JPanel implements ActionListener {
     }
 
     private static void TimeLine() throws IOException {
+        ENLARGE_COUNT=2;
         timeImageMap = new HashMap<>();
         timeBoundaryMap = new HashMap<>();
+        ArrayList<Image> imgs = new ArrayList<>();
         // Populate Map
         times = new ArrayList<>();
-        
-        for (int i = 0; i < 17; i++) {
-            int j=0;
-            ArrayList<Image> imgs = new ArrayList<>();
-            String filename = "images/small/example1.png";
-            BufferedImage img = ImageIO.read(new File(filename));
-            int k = 0;
-            while (k <= 1) {
-                imgs.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, j));
-                j++;
-                k++;
+        int year;
+        for(src.Image image : images){
+            if(image.getTimestamp()!=null){
+                year = image.getTimestamp().getYear();
+                
+                if(times.size()==0 || !times.contains(year)){
+                    // first time
+                    times.add(year);
+                    imgs = new ArrayList<>();
+                    imgs.add(new Image(image.getOriginal_img(), (int)image.getOriginal_height(), (int)image.getOriginal_width(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,image.getTimestamp(),image.getGeoTag(), 0));
+                    timeImageMap.put(year, imgs);
+                }else{
+                    // entry for year already in map
+                    imgs = timeImageMap.get(year);
+                    int id = imgs.size();
+                    imgs.add(new Image(image.getOriginal_img(), (int)image.getOriginal_height(), (int)image.getOriginal_width(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,image.getTimestamp(),image.getGeoTag(), id));
+                    timeImageMap.put(year, imgs);
+                }
             }
-            times.add(2000 + i);
-            timeImageMap.put(2000 + i, imgs);
         }
-
+        
+        // sort times
+        Collections.sort(times);
+        
         int total = 0;
         for (int k = 0; k < times.size(); k++) {
             total += timeImageMap.get(times.get(k)).size();
@@ -1272,8 +1247,45 @@ public class PhotoViewer extends JPanel implements ActionListener {
 
     }
 
-    private static void GeoTag() {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static void GeoTag() {
+        geoImageMap = new HashMap<>();
+        ArrayList<Image> imgs = new ArrayList<>();
+        // Populate Map
+        geoLocs = new ArrayList<>();
+        Boolean exists = false;
+        Set<LatLng> keys;
+        for(src.Image image : images){
+            if(image.getGeoTag()!=null){
+                imgs = new ArrayList<>();
+                for(LatLng val:geoLocs){
+                    if(val.getLat() == image.getGeoTag().getLat() && val.getLng() == image.getGeoTag().getLng()){
+                        exists = true;
+                        break;
+                    }else{
+                        exists=false;
+                    }
+                }
+                if(!exists || geoLocs.size()==0){
+                    // first time
+                    geoLocs.add(image.getGeoTag());
+                    imgs = new ArrayList<>();
+                    imgs.add(image);
+                    geoImageMap.put(image.getGeoTag(), imgs);
+                    exists = true;
+                }else{
+                    // entry for year already in mapgeoImageMap.get(image.getGeoTag())
+                    keys = geoImageMap.keySet();
+                    for(LatLng key:keys){
+                        if(key.getLat() == image.getGeoTag().getLat() && key.getLng() == image.getGeoTag().getLng()){
+                            imgs = geoImageMap.get(key);
+                            imgs.add(image);
+                            geoImageMap.put(key, imgs);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static BufferedImage PhotoMosaic(File file) throws IOException {
@@ -1301,8 +1313,8 @@ public class PhotoViewer extends JPanel implements ActionListener {
                 if(diff < 15)
                 {
                     ArrayList<Integer> adj = new ArrayList<>();
-                    Point oldLoc = image.location;
-                    Point newLoc = testimg.location; 
+                    Point oldLoc = image.getLocation();
+                    Point newLoc = testimg.getLocation(); 
                     animateMovementSemantic(pane, image, oldLoc, newLoc, adj);
                 }
             }

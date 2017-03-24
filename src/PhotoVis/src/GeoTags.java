@@ -7,16 +7,20 @@ package src;
 
 import com.teamdev.jxmaps.ControlPosition;
 import com.teamdev.jxmaps.InfoWindow;
+import com.teamdev.jxmaps.InfoWindowOptions;
 import com.teamdev.jxmaps.LatLng;
 import com.teamdev.jxmaps.Map;
 import com.teamdev.jxmaps.MapOptions;
 import com.teamdev.jxmaps.MapReadyHandler;
 import com.teamdev.jxmaps.MapStatus;
 import com.teamdev.jxmaps.MapTypeControlOptions;
+import com.teamdev.jxmaps.MapViewOptions;
 import com.teamdev.jxmaps.Marker;
 import com.teamdev.jxmaps.i;
 import com.teamdev.jxmaps.swing.MapView;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.*;
 import javax.xml.bind.DatatypeConverter;
 import java.awt.*;
@@ -25,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Date;
 import javax.imageio.ImageIO;
 
 /**
@@ -51,17 +56,11 @@ public class GeoTags extends MapView {
         return result;
     }
 
-  private  String getBase64ImageString() {
-        String filename = "images/small/image10.png";
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new File(filename));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+  private  String getBase64ImageString(BufferedImage image) {
+        
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
-            ImageIO.write(img,"png", os);
+            ImageIO.write(image,"png", os);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -75,17 +74,18 @@ public class GeoTags extends MapView {
 //            "<p style=\"color:#757575\">Use InfoWindow to display custom information, related to a point on a map. InfoWindow layout can be formatted using HTML.</p>" +
 //            "</td></tr></table>";
   
-   private final  String chennai = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Chennai</b></p>" +
-            "</td></tr></table>";
-   
-    private final  String ankara = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Ankara</b></p>" +
-            "</td></tr></table>";
-    
-    private final  String eindhoven = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Eindhoven</b></p>" +
-            "</td></tr></table>";
+//   private final  String chennai = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Chennai</b></p>" +
+//            "</td></tr></table>";
+//   
+//    private final  String ankara = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Ankara</b></p>" +
+//            "</td></tr></table>";
+//    
+//    private final  String eindhoven = "<table cellpadding=\"5\"><tr><td><img src=\""+getBase64ImageString() + "\" /></td><td valign='top'><p><b>Eindhoven</b></p>" +
+//            "</td></tr></table>";
 
 
-    public GeoTags() {
+    public GeoTags(final ArrayList<LatLng> geoLocs, final HashMap<LatLng, ArrayList<src.Image>> geoImageMap,MapViewOptions options) {
+        super(options);
         // Setting of a ready handler to MapView object. onMapReady will be called when map initialization is done and
         // the map object is ready to use. Current implementation of onMapReady customizes the map object.
         setOnMapReadyHandler(new MapReadyHandler() {
@@ -96,9 +96,9 @@ public class GeoTags extends MapView {
                     // Getting the associated map object
                     final Map map = getMap();
                     // Setting the map center
-                    map.setCenter(new LatLng(28, 3));
+                    map.setCenter(new LatLng(40.736946, -9.142685));
                     // Setting initial zoom value
-                    map.setZoom(3.0);
+                    map.setZoom(4.0);
                     // Creating a map options object
                     MapOptions options = new MapOptions();
                     // Creating a map type control options object
@@ -109,36 +109,43 @@ public class GeoTags extends MapView {
                     options.setMapTypeControlOptions(controlOptions);
                     // Setting map options
                     map.setOptions(options);
-                    // Creating a marker object
-                    final Marker marker = new Marker(map);
-                    // Moving marker to the map center
-                    marker.setPosition(new LatLng(13.067439, 80.237617));
-                    // Creating an information window
-                    final InfoWindow window = new InfoWindow(map);
-                    // Setting html content to the information window
-                    window.setContent(chennai);
-                    // Showing the information window on marker
-                    window.open(map, marker);
                     
-                    final Marker marker2 = new Marker(map);
-                    // Moving marker to the map center
-                    marker2.setPosition(new LatLng(39.925533, 32.866287));
-                    // Creating an information window
-                    final InfoWindow window2 = new InfoWindow(map);
-                    // Setting html content to the information window
-                    window2.setContent(ankara);
-                    // Showing the information window on marker
-                    window2.open(map, marker2);
                     
-                    final Marker marker3 = new Marker(map);
-                    // Moving marker to the map center
-                    marker3.setPosition(new LatLng(51.441642,5.4697225));
-                    // Creating an information window
-                    final InfoWindow window3 = new InfoWindow(map);
-                    // Setting html content to the information window
-                    window3.setContent(eindhoven);
-                    // Showing the information window on marker
-                    window3.open(map, marker3);
+                    for(LatLng geo: geoLocs){
+                        String geoTable = "<table cellpadding=\"2\"><tr>";
+                        int col =0;
+                        for(Image image: geoImageMap.get(geo)){
+                            BufferedImage img = PhotoViewer.getScaledImage(image.getImg(), 100, 100);
+                            geoTable+= "<td><img src=\""+getBase64ImageString(img) + "\" /></td>";
+                            col++;
+                            if(col>5){
+                                geoTable+="</tr><tr>";
+                                col=0;
+                            }
+                        }
+                        geoTable+= "</tr></table>";
+                        System.out.println(geoTable);
+                        Marker marker = new Marker(map);
+                        marker.setPosition(geo);
+                        map.setCenter(geo);
+//                        InfoWindowOptions winOptions = new InfoWindowOptions(map);
+                        InfoWindow window = new InfoWindow(map);
+//                        winOptions.setDisableAutoPan(true);
+//                        window.setOptions(winOptions);
+                        InfoWindowOptions winOps = new InfoWindowOptions();
+                        winOps.setMaxWidth(500);
+                        window.setOptions(winOps);
+                        window.setContent(geoTable);
+                        window.open(map, marker); 
+                        //wait
+                        long start = new Date().getTime();
+                        while (new Date().getTime() - start < 1000L) {
+                        }
+                    }
+                    
+                    map.setCenter(new LatLng(40.736946, -9.142685));
+                    // Setting initial zoom value
+                    map.setZoom(2.0);
                 }
             }
         });
@@ -146,7 +153,12 @@ public class GeoTags extends MapView {
     }
 
     public static void main(String[] args) {
-        final GeoTags sample = new GeoTags();
+        PhotoViewer pv = new PhotoViewer();
+        PhotoViewer.images = PhotoViewer.readImages();
+        PhotoViewer.GeoTag();
+        MapViewOptions options = new MapViewOptions();
+        options.setApiKey("AIzaSyA7woFnkPF68xxL2TOukwln76fFNgq1-ps");
+        final GeoTags sample = new GeoTags(PhotoViewer.getGeoLocs(),PhotoViewer.getGeoImageMap(),options);
 
         JFrame frame = new JFrame("Info window");
 

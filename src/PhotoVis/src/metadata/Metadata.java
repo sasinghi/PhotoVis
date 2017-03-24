@@ -10,9 +10,10 @@
     To read the GPS info    -> readGPS(String filename)
 */
 
-package metadata;
+package src.metadata;
 
 import com.sun.imageio.plugins.png.PNGMetadata;
+import com.teamdev.jxmaps.LatLng;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,9 @@ import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -72,36 +75,46 @@ public class Metadata {
     
     public static Date readTime(String filename) throws Exception{
        
-        Path p = Paths.get( filename);
-        BasicFileAttributes view = Files.getFileAttributeView( p, BasicFileAttributeView.class ).readAttributes();  
-        FileTime time = view.creationTime(); 
-
-        String date = null;
-        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-        String dateCreated = df.format(time.toMillis());
-        System.out.println(dateCreated);
-        
-        
-        Date startDate = null;
-        try {
-            startDate = df.parse(dateCreated);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        Image img = new Image(filename);
+        HashMap<Integer, Object> exifTags = img.getExifTags();
+        System.out.println(exifTags.get(0x0132));
+        String date = (String) exifTags.get(0x0132);
+        Date clicked = null;
+        if(date!=null){
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(5, 7));
+        int day = Integer.parseInt(date.substring(8, 10));
+        clicked = new Date(year,month,day);
         }
+//        Path p = Paths.get(filename);
+//        BasicFileAttributes view = Files.getFileAttributeView( p, BasicFileAttributeView.class ).readAttributes();  
+//        FileTime time = view.creationTime(); 
+//
+//        String date = null;
+//        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+//        String dateCreated = df.format(time.toMillis());
+//        System.out.println(dateCreated);
+//        
+//        
+//        Date startDate = null;
+//        try {
+//            startDate = df.parse(dateCreated);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
         
-        System.out.println(startDate);
-        
-        return startDate;
+        return clicked;
     }
     
     
-    public static double[] readGPS(String filename) throws Exception{
+    public static LatLng readGPS(String filename) throws Exception{
        
         Image image = new Image(filename);
         double[] gps = null;
+        LatLng geoTag = null;
         if(image.getGPSCoordinate() != null){
             gps = image.getGPSCoordinate();
-        
+            geoTag = new LatLng(gps[1], gps[0]);
             System.out.println("Longitude:  " + gps[0]);
             System.out.println("Latitude:   " + gps[1]);
         }
@@ -109,7 +122,7 @@ public class Metadata {
             System.out.println("There is no GPS information in this photo");
         }
         
-        return gps;
+        return geoTag;
     }
     
     
