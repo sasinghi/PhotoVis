@@ -51,6 +51,10 @@ import org.w3c.dom.NodeList;
  */
 public class Metadata {
 
+    
+    private static Image img;
+    private static HashMap<Integer, Object> exifTags;
+        
     public static void main(String[] args) throws IOException, Exception {
         
         String filename = "C:\\Users\\oyku\\Desktop\\a.png";
@@ -66,25 +70,24 @@ public class Metadata {
         
         
         /***************** To read the GPS info of photo ***********************/
-        readGPS(filename);
+        //readGPS(filename);
         
         /***************** To read the time info of photo ***********************/
-        readTime(filename);
+        //readTime(filename);
     }
     
     
-    public static Date readTime(String filename) throws Exception{
-       
-        Image img = new Image(filename);
-        HashMap<Integer, Object> exifTags = img.getExifTags();
-        System.out.println(exifTags.get(0x0132));
+    public static int readTime(Image img) throws Exception{
+        int year=0;
+        //img = new Image(filename);
+        exifTags = img.getExifTags();
         String date = (String) exifTags.get(0x0132);
-        Date clicked = null;
+        System.out.println(date);
         if(date!=null){
-        int year = Integer.parseInt(date.substring(0, 4));
-        int month = Integer.parseInt(date.substring(5, 7));
-        int day = Integer.parseInt(date.substring(8, 10));
-        clicked = new Date(year,month,day);
+        year = Integer.parseInt(date.substring(0, 4));
+//        int month = Integer.parseInt(date.substring(5, 7));
+//        int day = Integer.parseInt(date.substring(8, 10));
+        //clicked = new Date(year,month,day);
         }
 //        Path p = Paths.get(filename);
 //        BasicFileAttributes view = Files.getFileAttributeView( p, BasicFileAttributeView.class ).readAttributes();  
@@ -103,17 +106,17 @@ public class Metadata {
 //            e.printStackTrace();
 //        }
         
-        return clicked;
+        return year;
     }
     
     
-    public static LatLng readGPS(String filename) throws Exception{
+    public static LatLng readGPS(Image img) throws Exception{
        
-        Image image = new Image(filename);
+        //img = new Image(filename);
         double[] gps = null;
         LatLng geoTag = null;
-        if(image.getGPSCoordinate() != null){
-            gps = image.getGPSCoordinate();
+        if(img.getGPSCoordinate() != null){
+            gps = img.getGPSCoordinate();
             geoTag = new LatLng(gps[1], gps[0]);
             System.out.println("Longitude:  " + gps[0]);
             System.out.println("Latitude:   " + gps[1]);

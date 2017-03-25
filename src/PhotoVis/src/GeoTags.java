@@ -115,10 +115,10 @@ public class GeoTags extends MapView {
                         String geoTable = "<table cellpadding=\"2\"><tr>";
                         int col =0;
                         for(Image image: geoImageMap.get(geo)){
-                            BufferedImage img = PhotoViewer.getScaledImage(image.getImg(), 100, 100);
+                            BufferedImage img = PhotoViewer.getScaledImage(image.getOriginal_img(), 100, 100);
                             geoTable+= "<td><img src=\""+getBase64ImageString(img) + "\" /></td>";
                             col++;
-                            if(col>5){
+                            if(col>3){
                                 geoTable+="</tr><tr>";
                                 col=0;
                             }
@@ -139,7 +139,7 @@ public class GeoTags extends MapView {
                         window.open(map, marker); 
                         //wait
                         long start = new Date().getTime();
-                        while (new Date().getTime() - start < 1000L) {
+                        while (new Date().getTime() - start < 100L) {
                         }
                     }
                     

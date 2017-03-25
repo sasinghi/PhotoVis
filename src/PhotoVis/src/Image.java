@@ -34,7 +34,7 @@ class Image {
     int id;
     double original_height;
     double original_width;
-    Date timestamp;
+    int timestamp;
     LatLng geoTag;
 
     public LatLng getGeoTag() {
@@ -45,11 +45,11 @@ class Image {
         this.geoTag = geoTag;
     }
 
-    public Date getTimestamp() {
+    public int getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
     }
     
@@ -69,7 +69,7 @@ class Image {
         //this.center=new XYZPoint(((this.location.x) + (this.location.x+this.width*Math.cos(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)+this.width*Math.cos(this.angle)))/4,((this.location.y)+(this.location.y+this.width*Math.sin(this.angle))+(this.location.y-this.height*Math.cos(this.angle))+(this.location.y-this.height*Math.cos(this.angle)+this.width*Math.sin(this.angle)))/4);
     }
 
-    public Image(BufferedImage img, int height, int width, int frame_width, int frame_height, Date timestamp, LatLng geoTag, int id) {
+    public Image(BufferedImage img, int height, int width, int frame_width, int frame_height, int timestamp, LatLng geoTag, int id) {
         this.img = img;
         this.original_img = img;
         this.height = height;
