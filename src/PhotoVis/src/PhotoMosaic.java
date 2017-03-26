@@ -13,6 +13,11 @@ import static java.lang.Math.floor;
 import static java.lang.Math.min;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import net.coobird.thumbnailator.Thumbnails;
 
 
@@ -21,7 +26,7 @@ import net.coobird.thumbnailator.Thumbnails;
  * @author guliz
  */
 public class PhotoMosaic {
-        static int size = 10;
+        static int size = 5;
         static int final_width;
         static int final_height;
         static int frame_width=1250;
@@ -30,11 +35,11 @@ public class PhotoMosaic {
         static BufferedImage output;
         static File target;
        
-    public static void initiate(File input,String IMAGE_PATH) throws IOException {
+    public static void initiate(File input) throws IOException {
         target = input;
         System.out.println("PhotoMosaic is initiated");
         File directory;
-        directory = new File(IMAGE_PATH);
+        directory = new File("images/zipp/");
         
 
         int j=0;
@@ -58,16 +63,17 @@ public class PhotoMosaic {
             }
                 
             }
-        
+        CalculateDimensions();
         ArrayList<BufferedImage> parts = getImagesFromInput();
         ArrayList<BufferedImage> results = new ArrayList<>();
+        
         for(int k=0;k<parts.size();k++){
             BufferedImage bestFit = getBestFit(parts.get(k));
             results.add(bestFit);
         }
         
         BufferedImage final_result = createOutput(results);
-        CalculateDimensions();
+        
         //ImageIO.write(final_result, "png", new File("output.png"));
         //output=Thumbnails.of(final_result).size(final_width, final_height).asBufferedImage();
         output=final_result;
@@ -75,7 +81,7 @@ public class PhotoMosaic {
     }
         public static void CalculateDimensions() throws IOException{
             BufferedImage input = ImageIO.read(target);
-            System.out.println("input.getHeight() " + input.getHeight() + " input.getWidth()" + input.getWidth() );
+          //  System.out.println("input.getHeight() " + input.getHeight() + " input.getWidth()" + input.getWidth() );
             if(input.getHeight()<frame_height && input.getWidth()<frame_width){
                 final_height = input.getHeight();
                 final_width = input.getWidth();
@@ -95,25 +101,25 @@ public class PhotoMosaic {
                 }
                 
             } 
-            System.out.println("final_height " + final_height + " final_width" + final_width );
+          //  System.out.println("final_height " + final_height + " final_width" + final_width );
 
         
         }
         public static BufferedImage createOutput(ArrayList<BufferedImage> results) throws IOException{
             
-            BufferedImage input = ImageIO.read(target);
-            int tilePerLine = input.getWidth()/size;
-            int tilePerColumn = input.getHeight()/size;
-            int x=input.getWidth()/tilePerLine;
-            int y=input.getHeight()/tilePerColumn;
+           // BufferedImage input = ImageIO.read(target);
+            int tilePerLine = final_width/size;
+            int tilePerColumn = final_height/size;
+            //int x=input.getWidth()/tilePerLine;
+            //int y=input.getHeight()/tilePerColumn;
             //System.out.println(x + " x and y  "+ y);
-            BufferedImage photo = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_3BYTE_BGR); 
+            BufferedImage photo = new BufferedImage(final_width, final_height, BufferedImage.TYPE_3BYTE_BGR); 
             
             for(int k=0;k<results.size();k++){
-                        int locX=x*(k%tilePerLine);
-                        int locY=(int) (y*floor(k/tilePerLine));
+                        int locX=size*(k%tilePerLine);
+                        int locY=(int) (size*floor(k/tilePerLine));
                         
-			BufferedImage imagePart = photo.getSubimage(locX,locY,x,y);
+			BufferedImage imagePart = photo.getSubimage(locX,locY,size,size);
 			imagePart.setData(results.get(k).getData());
 		}
             
@@ -125,15 +131,16 @@ public class PhotoMosaic {
         public static ArrayList<BufferedImage> getImagesFromInput() throws IOException{
             ArrayList<BufferedImage> tiles = new ArrayList<>();
             BufferedImage input=ImageIO.read(target);
-            int totalHeight = input.getHeight();
-            int totalWidth = input.getWidth();
+            BufferedImage shrunkImage = Thumbnails.of(input).forceSize(final_width, final_height).asBufferedImage();
+            int totalHeight = shrunkImage.getHeight();
+            int totalWidth = shrunkImage.getWidth();
             int x=0;
             int y=0;
             int w=size;
             int h=size;
             while(y+h <= totalHeight){
 			while(x+w <= totalWidth){
-				BufferedImage inputPart = input.getSubimage(x, y, w, h);
+				BufferedImage inputPart = shrunkImage.getSubimage(x, y, w, h);
 				tiles.add(inputPart);
 				x+=w;
 			}
@@ -263,10 +270,10 @@ public class PhotoMosaic {
         return diff;
     }
 
-    PhotoMosaic(File file, String IMAGE_PATH) throws IOException {
+    PhotoMosaic(File file) throws IOException {
             
             
-            initiate(file,IMAGE_PATH);
+            initiate(file);
         }
     
     
