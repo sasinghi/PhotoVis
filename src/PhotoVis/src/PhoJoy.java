@@ -25,7 +25,6 @@ public class PhoJoy extends javax.swing.JFrame {
         initComponents();
         
     }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -39,11 +38,12 @@ public class PhoJoy extends javax.swing.JFrame {
         defaultPane = new javax.swing.JPanel();
         timelinePane = new javax.swing.JPanel();
         geoPane = new javax.swing.JPanel();
+        geoPanel = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
         mosaicPane = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        faceDetection = new javax.swing.JCheckBox();
         colorgroup = new javax.swing.JCheckBox();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PhoJoy");
@@ -95,15 +95,34 @@ public class PhoJoy extends javax.swing.JFrame {
 
         geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
+        jLabel3.setText("Geo Tags come here");
+
+        javax.swing.GroupLayout geoPanelLayout = new javax.swing.GroupLayout(geoPanel);
+        geoPanel.setLayout(geoPanelLayout);
+        geoPanelLayout.setHorizontalGroup(
+            geoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(geoPanelLayout.createSequentialGroup()
+                .addGap(167, 167, 167)
+                .addComponent(jLabel3)
+                .addContainerGap(1006, Short.MAX_VALUE))
+        );
+        geoPanelLayout.setVerticalGroup(
+            geoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(geoPanelLayout.createSequentialGroup()
+                .addGap(102, 102, 102)
+                .addComponent(jLabel3)
+                .addContainerGap(471, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout geoPaneLayout = new javax.swing.GroupLayout(geoPane);
         geoPane.setLayout(geoPaneLayout);
         geoPaneLayout.setHorizontalGroup(
             geoPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1271, Short.MAX_VALUE)
+            .addComponent(geoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         geoPaneLayout.setVerticalGroup(
             geoPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 587, Short.MAX_VALUE)
+            .addComponent(geoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("GeoTags", geoPane);
@@ -125,10 +144,10 @@ public class PhoJoy extends javax.swing.JFrame {
 
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jCheckBox1.setText("Face Recognition");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        faceDetection.setText("Face Recognition");
+        faceDetection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
+                faceDetectionActionPerformed(evt);
             }
         });
 
@@ -139,36 +158,24 @@ public class PhoJoy extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Browse for PhotoMosaic");
-        jButton1.setName("browseformosaic"); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jCheckBox1)
+                .addComponent(faceDetection)
                 .addGap(47, 47, 47)
                 .addComponent(colorgroup)
-                .addGap(237, 237, 237)
-                .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jCheckBox1)
-                        .addComponent(colorgroup))
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(17, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(faceDetection)
+                    .addComponent(colorgroup))
                 .addContainerGap())
         );
 
@@ -178,7 +185,7 @@ public class PhoJoy extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1300, Short.MAX_VALUE)
+                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1280, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -195,24 +202,16 @@ public class PhoJoy extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_jCheckBox1ActionPerformed
+private void faceDetectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faceDetectionActionPerformed
+    PhotoViewer.FaceRecognition();
+}//GEN-LAST:event_faceDetectionActionPerformed
 
 private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabbedPaneMouseClicked
 
 }//GEN-LAST:event_tabbedPaneMouseClicked
 
-    private void BrowseForMosaicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BrowseForMosaicActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BrowseForMosaicActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void colorgroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorgroupActionPerformed
-        // TODO add your handling code here:
+        PhotoViewer.Color_Grouping();
     }//GEN-LAST:event_colorgroupActionPerformed
 
     /**
@@ -253,9 +252,10 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox colorgroup;
     private javax.swing.JPanel defaultPane;
+    private javax.swing.JCheckBox faceDetection;
     private javax.swing.JPanel geoPane;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JPanel geoPanel;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
     private javax.swing.JTabbedPane tabbedPane;
