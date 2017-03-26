@@ -124,14 +124,10 @@ public class GeoTags extends MapView {
                             }
                         }
                         geoTable+= "</tr></table>";
-                        System.out.println(geoTable);
                         Marker marker = new Marker(map);
                         marker.setPosition(geo);
                         map.setCenter(geo);
-//                        InfoWindowOptions winOptions = new InfoWindowOptions(map);
                         InfoWindow window = new InfoWindow(map);
-//                        winOptions.setDisableAutoPan(true);
-//                        window.setOptions(winOptions);
                         InfoWindowOptions winOps = new InfoWindowOptions();
                         winOps.setMaxWidth(500);
                         window.setOptions(winOps);

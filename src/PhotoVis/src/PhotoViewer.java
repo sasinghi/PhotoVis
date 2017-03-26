@@ -1,18 +1,12 @@
 package src;
 
-import com.jwetherell.algorithms.data_structures.KdTree;
 import com.teamdev.jxmaps.LatLng;
+import com.teamdev.jxmaps.MapComponentType;
 import com.teamdev.jxmaps.MapViewOptions;
 import edu.wlu.cs.levy.CG.KDTree;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.HierarchyBoundsListener;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,31 +17,22 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
@@ -80,8 +65,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     private static int IMAGE_TRIAL_COUNT_1 = 0;
     private static int ENLARGE_COUNT = 2;
 
-
-
     public static boolean timetoDecreaseSize = false;
     public static int clickedImage = 1000;
     public static boolean mouseClickedInImageArea = false;
@@ -96,7 +79,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     private static boolean GEO_MAP_LOADED = false;
     private static boolean TIMELINE_LOADED = false;
     private static int TIMELINE_TOTAL=0;
-    private int FOCUS = 0;
     // TimeLine
     private static ArrayList<Integer> times;
     static HashMap<Integer, ArrayList<Image>> timeImageMap;
@@ -105,13 +87,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     // UI
     private static PhoJoy frame;
     
-    private boolean mosaicActive=false;
+    private static boolean mosaicActive=false;
 
     public PhotoViewer() {
         labels = new ArrayList<>();
         timelineLabels = new ArrayList<>();
         setFocusable(true);
-
     }
 
     public static HashMap<LatLng, ArrayList<src.Image>> getGeoImageMap() {
@@ -121,8 +102,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     public static ArrayList<LatLng> getGeoLocs() {
         return geoLocs;
     }
-    
-    
 
     @SuppressWarnings("CallToThreadDumpStack")
     public static BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
@@ -278,7 +257,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        //throw new UnsupportedOperationException("Not supported yet.");
                     }
 
                     @Override
@@ -298,7 +276,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
                     @Override
                     public void mouseReleased(MouseEvent e) {
-                        JButton source = (JButton) e.getSource();
                         frame.getGlassPane().setVisible(false);
                     }
 
@@ -446,7 +423,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         }
         });
         
-        class backgroundMosaic extends SwingWorker<Integer, Integer>
+       class backgroundMosaic extends SwingWorker<Integer, Integer>
          {
              protected Integer doInBackground() throws Exception
              {
@@ -476,8 +453,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                                     frame.revalidate();
                                     frame.repaint();
                                     }
-                                
-                            
                  Thread.sleep(1000);
                  browseForMosaic.setEnabled(true);
                  return 0;
@@ -485,22 +460,19 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
          }
        
        
-         class backgroundGeoTag extends SwingWorker<Integer, Integer>
+        class backgroundGeoTag extends SwingWorker<Integer, Integer>
          {
              protected Integer doInBackground() throws Exception
              {
                             GEO_MAP_LOADED = true;
-                             // Geo Tags
                             JPanel geopane = (JPanel) tabPane.getComponentAt(2);
                             GeoTag();
                             MapViewOptions options = new MapViewOptions();
                             options.setApiKey("AIzaSyA7woFnkPF68xxL2TOukwln76fFNgq1-ps");
+                            options.setComponentType(MapComponentType.LIGHTWEIGHT);
                             GeoTags geoTagsPanel = new GeoTags(geoLocs,geoImageMap,options);
-
                             geopane.add(geoTagsPanel, BorderLayout.CENTER);
-                           // geoTagsPanel.setSize(geopane.getSize());
                             geoTagsPanel.setSize(tabPane.getComponentAt(2).getSize());
-                           // geopane.setVisible(true);
                             frame.revalidate();
                             frame.repaint();
                  Thread.sleep(1000);
@@ -513,10 +485,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              protected Integer doInBackground() throws Exception
              {
                     JPanel pane = (JPanel) tabPane.getComponentAt(1);
-//                    JLayeredPane layer = new JLayeredPane();
-//                    layer.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width), pane.getPreferredSize().height));
-
-                    
                     JPanel longPanel = new JPanel(null);
                     longPanel.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width*2), pane.getPreferredSize().height-15));
 
@@ -529,7 +497,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                          
                     pane.add(scroll);
 
-                    FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
+                    FRAME_WIDTH = longPanel.getPreferredSize().width; 
                      try {
                         TimeLine();
                     } catch (IOException ex) {
@@ -553,7 +521,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         longPanel.add(year);
                         longPanel.add(timePeriod);
                         timelineLabels = new ArrayList<>();
-                        //PhotoViewer.images = readImages();
                         timelineLabelImageMap = new HashMap<>();
                         addComponentsToPane(timePeriod, timeImageMap.get(times.get(i).intValue()), true, false);
                         enlargeWherePossible(timePeriod, timeImageMap.get(times.get(i).intValue()), true);
@@ -561,7 +528,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         timePeriod.setLayout(new FlowLayout(FlowLayout.LEADING));
                         longPanel.revalidate();
                         longPanel.repaint();
-                        //timePeriod.setBounds(prev, 10, width, pane.getMinimumSize().height);
                         prev += width;
 
                         frame.revalidate();
@@ -578,7 +544,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              protected Integer doInBackground() throws Exception
              {
                 JPanel pane = (JPanel) tabPane.getComponentAt(0);
-                //pane.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width ), pane.getPreferredSize().height));
                 addComponentsToPane(pane, images, false, false);
 //                pane.setLayout(new FlowLayout(FlowLayout.LEADING));
 //                frame.revalidate();
@@ -598,7 +563,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
            
        });
         
-        //addComponentsToPane(frame, images, false, false);
         new backgroundBrowse().execute();
         new backgroundGeoTag().execute();
         new backgroundTimeLine().execute();
@@ -616,28 +580,15 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         PhotoViewer pv = new PhotoViewer();
         // Add images in an ArrayList
         PhotoViewer.images = PhotoViewer.readImages();
-        // instantiate label image map 
         PhotoViewer.labelImageMap = new HashMap<>();
         PhotoViewer.timelineLabelImageMap = new HashMap<>();
         TIME_BEGIN = new Date();
         System.out.println("Begin:" + System.currentTimeMillis());
         pv.createAndShowGUI(PhotoViewer.images);
 
-//        //Create and set up the window.
-//        frame = new JFrame("PhoJoy");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//         //Use no layout manager
-//        frame.getContentPane().setLayout(null);
-//        frame.add(pv);
-//        frame.getContentPane().setPreferredSize(new Dimension(1200, 780));
-//        frame.pack();
-//        FRAME_WIDTH = 1200;
-//        FRAME_HEIGHT = 780;
     }
 
     public static ArrayList<Image> readImages() {
-        String filename;
-        javaxt.io.Image img_met;
         BufferedImage img;
         ArrayList<Image> image = new ArrayList<>();
         int timestamp=0;
@@ -652,8 +603,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     if(listOfFiles[i].getName().toLowerCase().endsWith(".png")||listOfFiles[i].getName().toLowerCase().endsWith(".jpg")||listOfFiles[i].getName().toLowerCase().endsWith(".jpeg")){
                         img = ImageIO.read(new File(path +listOfFiles[i].getName()));
                         String imagepath = path +listOfFiles[i].getName();
-                        //Metadata.writeGPS(path +listOfFiles[i].getName(), 33.11, 33.11);
-                        //img_met = ;
                         timestamp = Metadata.readTime(new javaxt.io.Image(path +listOfFiles[i].getName()));
                         geoTag = Metadata.readGPS(new javaxt.io.Image(path +listOfFiles[i].getName()));
                         System.out.println(i);
@@ -676,18 +625,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 } 
               } 
             }
-//        for (int i = 0; i <80 ; i++) {
-//            try {
-//                filename = "images/dataset/IMG" + i + ".png";
-//                img = ImageIO.read(new File(filename));
-//                timestamp = Metadata.readTime(filename);
-//                geoTag = Metadata.readGPS(filename);
-//                image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,timestamp,geoTag, i));
-//               }
-//             catch (Exception ex) {
-//                ex.printStackTrace();
-//            } 
-//        }
         return image;
     }
 
@@ -751,7 +688,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     }
                 }
             }
-            // System.out.println("Image" + image.getId() + " has " + adjacency.size() + " overlaps.");
             return adjacency;
         }
     }
@@ -766,11 +702,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         double magnitude = 0;
         double direction = 0;
 
-        Line2D line = null;
-
-        Point2D[] intersections = null;
-        Point2D intersectionPoint = null;
-
+        
         double MIN_S;
         if (timeline) {
             MIN_S = (MIN / 10) - 4;
@@ -809,17 +741,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     if (INTERRUPT) {
                         return;
                     }
-//                    // line joining intersection center and imageRec center
-//                    line = new Line2D.Double(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
-//                    // point of intersection of line with intersection rec
-//                    intersections = getIntersectionPoint(line, intersection);
-//                    
-//                    // To get the intersection point that lies between imageRec.center and intersection.center.
-//                    for (int i = 0; i < intersections.length; i++) {
-//                        if (intersections[i] != null) {
-//                            intersectionPoint=intersections[i];
-//                        }
-//                    }
+
                     // Calculating vector magnitude
                     magnitude = distance(intersection.getCenterX(), intersection.getCenterY(), imageRec.getCenterX(), imageRec.getCenterY());
                     //magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), intersectionPoint.getX(), intersectionPoint.getY());
@@ -830,7 +752,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 if (INTERRUPT) {
                     return;
                 }
-
                 // completely overlapped case 
                 magnitude = distance(imageRec.getCenterX(), imageRec.getCenterY(), compareImgRec.getCenterX(), compareImgRec.getCenterY());
                 direction = Math.atan2((compareImgRec.getCenterY() - imageRec.getCenterY()), (imageRec.getCenterX() - compareImgRec.getCenterX()));
@@ -1069,9 +990,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
     private void ResolveOverlaps(JPanel pane, ArrayList<src.Image> images, Boolean timeline) {
 
-        //pane = (Container) gui.getContentPane().getComponent(1);
-        //pane=gui.getContentPane();
-
         double MIN_S;
         if (timeline) {
             MIN_S = (MIN / 10) - 4;
@@ -1099,9 +1017,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             }
 
 
-            //TESTING
-            //Image image = labelImageMap.get(1);
-            // END TESTING
             IMAGE_TRIAL_COUNT = 0;
             double scaleDown = 1.2;
             adjacency = overlappedImages(image, pane, image.getId(), timeline);
@@ -1212,8 +1127,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     labelImageMap.put(image.getId(), image);
                     labels.get(image.getId()).setBounds(location.x, location.y, (int) image.getWidth(), (int) image.getHeight());
                 }
-//                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
-//                pane.getComponent(image.getId()).repaint();
                 pane.revalidate();
                 pane.repaint();
                 long start = new Date().getTime();
@@ -1299,8 +1212,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 // No overlaps while shrinking down ONLY
                 break;
             }
-
-            //  }
         }
     }
 
@@ -1335,9 +1246,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 }
                 if(currentOverlaps.size() > 0 ){
                     ResolveOverlaps((JPanel) pane, images ,false);
-                }
-                
-                
+                }  
             }
         }
     }
@@ -1401,9 +1310,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             
             length = (int) (FRAME_WIDTH * timeImageMap.get(times.get(i)).size() / total);
             timeBoundaryMap.put(times.get(i), length);
-//            if(timeImageMap.get(times.get(i)).size()==1 && length < 30){
-//                   timeBoundaryMap.put(times.get(i), 30);
-//            }
         }
 
     }
@@ -1655,9 +1561,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     if (timeline && !insideFrame(pane,timelineLabelImageMap.get(image.getId()))) {
                         break;
                     }
-                    //image.setImg(temp.getImg());
-                    //image.setHeight(temp.getImg().getHeight());
-                    //image.setWidth(temp.getImg().getWidth());
                     animateMovement(pane, image, image.getHeight(), image.getWidth(), (image.getHeight() * scale), (image.getWidth() * scale), adjacency, false, timeline);
                     if (timeline) {
                         adjacency = overlappedImages(timelineLabelImageMap.get(image.getId()), pane, image.getId(), timeline);
@@ -1671,7 +1574,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     animateMovement(pane, image, image.getHeight(), image.getWidth(), Math.floor(image.getHeight() / (scale - 0.2)), Math.floor(image.getWidth() / (scale - 0.2)), adjacency, false, timeline);
                 }
             }
-            //containOverlaps = getAllOverlappingImages(pane, images,timeline);
         }
 
         System.out.println("Enlarged where possible." + System.currentTimeMillis());
