@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -261,16 +262,56 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             //label.setBorderPainted(false);
             label.setBounds(image.getLocation().x, image.getLocation().y, (int) image.getWidth(), (int) image.getHeight());
             label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
-            label.setName("" + image.getId());
+            
 
             if (!timeline) {
+                label.setName("" + image.getId());
                 labels.add(image.getId(),label);
                 //labels.get(image.getId()).addActionListener(this);
                 labels.get(image.getId()).addMouseListener(this);
                 labels.get(image.getId()).setActionCommand(label.getName());
                 pane.add(labels.get(image.getId()));
             } else {
+                label.setName("" + image.getId() + "."+image.getTimestamp());
                 timelineLabels.add(image.getId(),label);
+                timelineLabels.get(image.getId()).addMouseListener(new MouseListener() {
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        //throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        JButton source = (JButton) e.getSource();
+                        String image_id =source.getName();
+                        int imageId = Integer.parseInt(image_id.substring(0, image_id.length()-5));
+                        int year = Integer.parseInt(image_id.substring(image_id.length()-4,image_id.length()));
+                        JLabel image = new JLabel(new ImageIcon(getScaledImage(timeImageMap.get(year).get(imageId).getOriginal_img(),900,700)));
+                        JPanel zoomPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                        zoomPane.setBackground(new Color(128, 128, 128, 190));
+                        zoomPane.add(image);
+                        zoomPane.setVisible(true);
+                        frame.setGlassPane(zoomPane);
+                        frame.getGlassPane().setVisible(true);
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        JButton source = (JButton) e.getSource();
+                        frame.getGlassPane().setVisible(false);
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        //throw new UnsupportedOperationException("Not supported yet.");
+                    }
+                });
                 pane.add(timelineLabels.get(image.getId()));
             }
           
@@ -376,6 +417,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                                bottomPane.getComponent(0).setVisible(false);
                                bottomPane.getComponent(1).setVisible(false);
                                bottomPane.getComponent(2).setVisible(false);
+                               
                         }
                         if(panel.getSelectedIndex()==0){
                                frame.getContentPane().getComponent(1).setVisible(true);
@@ -471,9 +513,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              protected Integer doInBackground() throws Exception
              {
                     JPanel pane = (JPanel) tabPane.getComponentAt(1);
-                    System.out.println("Here");
+//                    JLayeredPane layer = new JLayeredPane();
+//                    layer.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width), pane.getPreferredSize().height));
+
+                    
                     JPanel longPanel = new JPanel(null);
-                    longPanel.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width *2), pane.getPreferredSize().height-15));
+                    longPanel.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width*2), pane.getPreferredSize().height-15));
 
                     int prev = 0;
                     JPanel timePeriod = new JPanel();
@@ -481,6 +526,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     JScrollPane scroll = new JScrollPane(longPanel);
                     scroll.setSize(tabPane.getComponentAt(1).getSize());
                     scroll.setVisible(true);
+                         
                     pane.add(scroll);
 
                     FRAME_WIDTH = longPanel.getPreferredSize().width; // EXAMPLE
@@ -534,11 +580,11 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 JPanel pane = (JPanel) tabPane.getComponentAt(0);
                 //pane.setPreferredSize(new Dimension((int)(frame.getContentPane().getSize().width ), pane.getPreferredSize().height));
                 addComponentsToPane(pane, images, false, false);
-                pane.setLayout(new FlowLayout(FlowLayout.LEADING));
-                frame.revalidate();
-                frame.repaint();
+//                pane.setLayout(new FlowLayout(FlowLayout.LEADING));
+//                frame.revalidate();
+//                frame.repaint();
                 Thread.sleep(1000);
-                 return 0;
+                return 0;
              }
          }
          
