@@ -87,7 +87,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     // UI
     private static PhoJoy frame;
     
-    private static boolean mosaicActive=false;
+    private boolean targetSelected=false;
+    private boolean dummy = true;
 
     public PhotoViewer() {
         labels = new ArrayList<>();
@@ -373,7 +374,18 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
        final JPanel bottomPane = (JPanel) frame.getContentPane().getComponent(1);
        
        final JButton browseForMosaic = (JButton) bottomPane.getComponent(2);
+       browseForMosaic.setEnabled(false);
        
+       browseForMosaic.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                     
+
+                        targetSelected = true;        
+                       
+            }
+           
+       });
        
        tabPane.addChangeListener(new ChangeListener() {
         
@@ -383,81 +395,77 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                             JTabbedPane panel = (JTabbedPane) e.getSource();
                             if(panel.getSelectedIndex()==3){
                                frame.getContentPane().getComponent(1).setVisible(true);
-                               bottomPane.getComponent(0).setVisible(false);
-                               bottomPane.getComponent(1).setVisible(false);
-                               bottomPane.getComponent(2).setVisible(true);
-                               mosaicActive = true;    
-                            } else mosaicActive = false;
+                               bottomPane.getComponent(0).setEnabled(false);
+                               bottomPane.getComponent(1).setEnabled(false);
+                               bottomPane.getComponent(2).setEnabled(true);
+                              // mosaicActive = true;    
+                            } //else mosaicActive = false;
                         
                         if(panel.getSelectedIndex()==2 || panel.getSelectedIndex()==1){
                                frame.getContentPane().getComponent(1).setVisible(true);
-                               bottomPane.getComponent(0).setVisible(false);
-                               bottomPane.getComponent(1).setVisible(false);
-                               bottomPane.getComponent(2).setVisible(false);
-                               
+                               bottomPane.getComponent(0).setEnabled(false);
+                               bottomPane.getComponent(1).setEnabled(false);
+                               bottomPane.getComponent(2).setEnabled(false);
                         }
                         if(panel.getSelectedIndex()==0){
                                frame.getContentPane().getComponent(1).setVisible(true);
-                               bottomPane.getComponent(0).setVisible(true);
-                               bottomPane.getComponent(1).setVisible(true);
-                               bottomPane.getComponent(2).setVisible(false);
+                               bottomPane.getComponent(0).setEnabled(true);
+                               bottomPane.getComponent(1).setEnabled(true);
+                               bottomPane.getComponent(2).setEnabled(false);
                         }
-                       // if(panel.getSelectedIndex() == 2 && !PhotoViewer.GEO_MAP_LOADED){
-//                            GEO_MAP_LOADED = true;
-//                             // Geo Tags
-//                            JPanel geopane = (JPanel) tabPane.getComponentAt(2);
-//                            GeoTag();
-//                            MapViewOptions options = new MapViewOptions();
-//                            options.setApiKey("AIzaSyA7woFnkPF68xxL2TOukwln76fFNgq1-ps");
-//                            GeoTags geoTagsPanel = new GeoTags(geoLocs,geoImageMap,options);
-//
-//                            geopane.add(geoTagsPanel, BorderLayout.CENTER);
-//                           // geoTagsPanel.setSize(geopane.getSize());
-//                            geoTagsPanel.setSize(tabPane.getComponentAt(2).getSize());
-//                           // geopane.setVisible(true);
-//                            frame.revalidate();
-//                            frame.repaint();
-
-                  //  } 
                      }
-                        }
+                   }
         });
         
-       class backgroundMosaic extends SwingWorker<Integer, Integer>
+      class backgroundMosaic extends SwingWorker<Integer, Integer>
          {
              protected Integer doInBackground() throws Exception
              {
-                                browseForMosaic.setEnabled(false);
-                                JPanel MosaicPane = (JPanel) tabPane.getComponentAt(3);
+                            JPanel MosaicPane = (JPanel) tabPane.getComponentAt(3);
+                            JFileChooser fileChooser = new JFileChooser();
+                            fileChooser.setCurrentDirectory(new File("images/"));
+                            int result;
+                            File selectedFile = null;
+                            
+                              while(dummy){
+                                  Thread.sleep(1000);
+                                   if(targetSelected){
+                                       
+                                        browseForMosaic.setEnabled(false);
+                                        MosaicPane.removeAll();
+                                        result = fileChooser.showOpenDialog(null);
+                                        selectedFile = fileChooser.getSelectedFile();
+                                              if (result == JFileChooser.APPROVE_OPTION && selectedFile!=null) {
+                                                  BufferedImage img = null;
+                                                  File file = new File(selectedFile.getAbsolutePath());
+                                                  try {
+                                                        img = PhotoMosaic(file);
+                                                      } catch (IOException ex) {
+                                                      Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                                                      }
 
-                                final JFileChooser fileChooser = new JFileChooser();
-                                fileChooser.setCurrentDirectory(new File("images/"));
-                                int result = fileChooser.showOpenDialog(MosaicPane);
-                                File selectedFile = null;
-                                if (result == JFileChooser.APPROVE_OPTION) {
-                                    selectedFile = fileChooser.getSelectedFile();
-                                    BufferedImage img = null;
-                                
-                                    File file = new File(selectedFile.getAbsolutePath());
-                                    try {
-                                            img = PhotoMosaic(file);
-                                        } catch (IOException ex) {
-                                        Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                
-                                    InteractivePanel mosaic = new InteractivePanel(img);
-                                    
-                                    mosaic.setBounds(0, 0, MosaicPane.getWidth(), MosaicPane.getHeight());
-                                    
-                                    MosaicPane.add(mosaic);
-                                    frame.revalidate();
-                                    frame.repaint();
+                                                  InteractivePanel mosaic = new InteractivePanel(img);
+
+                                                  mosaic.setBounds(0, 0, MosaicPane.getWidth(), MosaicPane.getHeight());
+
+                                                  MosaicPane.add(mosaic);
+                                                  frame.revalidate();
+                                                  frame.repaint();
+                                                  }
+
+                                            browseForMosaic.setEnabled(true);
+                                            targetSelected = false;
+                                           // Thread.sleep(1000); 
                                     }
-                 Thread.sleep(1000);
-                 browseForMosaic.setEnabled(true);
-                 return 0;
-             }
+                                  
+                              }
+
+                              Thread.sleep(1000);
+                              return 0;                  
+                        }
+             
          }
+       
        
        
         class backgroundGeoTag extends SwingWorker<Integer, Integer>
@@ -553,20 +561,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              }
          }
          
-         browseForMosaic.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                        if(mosaicActive){
-                            new backgroundMosaic().execute();
-                        }          
-            }
-           
-       });
         
+        new backgroundMosaic().execute();
         new backgroundBrowse().execute();
         new backgroundGeoTag().execute();
         new backgroundTimeLine().execute();
-        
+
        
     }
 
