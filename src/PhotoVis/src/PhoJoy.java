@@ -208,7 +208,7 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     }//GEN-LAST:event_BrowseForMosaicActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        PhotoViewer.FaceRecognition();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void colorgroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorgroupActionPerformed
