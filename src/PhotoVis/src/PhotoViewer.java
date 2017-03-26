@@ -157,7 +157,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
 
         for (src.Image image : images) {
-            dimension = checkBoundingDimensions((int) image.getOriginal_height(), (int) image.getOriginal_width());
+            dimension = checkBoundingDimensions(pane, (int) image.getOriginal_height(), (int) image.getOriginal_width());
             if ((int) dimension.getWidth() < image.getWidth() || (int) dimension.getHeight() < image.getHeight()) {
                 // Scale image to new dimension 
                 image.setImg(getScaledImage(image.img, (int) dimension.getWidth(), (int) dimension.getHeight()));
@@ -628,19 +628,19 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         return image;
     }
 
-    private static Dimension checkBoundingDimensions(int height, int width) {
+    private static Dimension checkBoundingDimensions(JPanel pane , int height, int width) {
         // Checks if image larger than bounding frame
-        if (height < (FRAME_HEIGHT / 2) && width < (FRAME_WIDTH / 2)) {
+        if (height < (pane.getPreferredSize().height / 2) && width < (pane.getPreferredSize().width / 2)) {
             // Image fits, return unchanged Dimensions
             return new Dimension(width, height);
         } else {
-            if (height > (FRAME_HEIGHT / 2) ) {
-                while (height > (FRAME_HEIGHT / 2) && height > 10) {
+            if (height > (pane.getPreferredSize().height / 2) ) {
+                while (height > (pane.getPreferredSize().height / 2) && height > 10) {
                     height -= 10;
                 }
             }
-            if (width > (FRAME_WIDTH / 2) ) {
-                while (width > (FRAME_WIDTH / 2) && width > 10) {
+            if (width > (pane.getPreferredSize().width / 2) ) {
+                while (width > (pane.getPreferredSize().width / 2) && width > 10) {
                     width -= 10;
                 }
             }
