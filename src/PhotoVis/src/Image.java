@@ -5,7 +5,6 @@
 package src;
 
 import com.jwetherell.algorithms.data_structures.KdTree.XYZPoint;
-import com.teamdev.jxmaps.LatLng;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.JComponent;
 import java.lang.Math;
-import java.util.Date;
 
 /**
  *
@@ -34,26 +32,9 @@ class Image {
     int id;
     double original_height;
     double original_width;
-    int timestamp;
-    LatLng geoTag;
-
-    public LatLng getGeoTag() {
-        return geoTag;
-    }
-
-    public void setGeoTag(LatLng geoTag) {
-        this.geoTag = geoTag;
-    }
-
-    public int getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    
+    double assigned_height;
+    double assigned_width;
+    String path;
 
     public Image() {
     }
@@ -69,7 +50,7 @@ class Image {
         //this.center=new XYZPoint(((this.location.x) + (this.location.x+this.width*Math.cos(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)) + (this.location.x+this.height*Math.sin(this.angle)+this.width*Math.cos(this.angle)))/4,((this.location.y)+(this.location.y+this.width*Math.sin(this.angle))+(this.location.y-this.height*Math.cos(this.angle))+(this.location.y-this.height*Math.cos(this.angle)+this.width*Math.sin(this.angle)))/4);
     }
 
-    public Image(BufferedImage img, int height, int width, int frame_width, int frame_height, int timestamp, LatLng geoTag, int id) {
+    public Image(BufferedImage img, int height, int width, int frame_width, int frame_height, int id, String path) {
         this.img = img;
         this.original_img = img;
         this.height = height;
@@ -77,10 +58,7 @@ class Image {
         this.frame_width = frame_width;
         this.frame_height = frame_height;
         this.id = id;
-        
-        this.timestamp = timestamp;
-        this.geoTag = geoTag;
-        
+        this.path = path;
         // maintained to check max shrink/enlargement
         this.original_height = height;  
         this.original_width = width;
@@ -199,6 +177,23 @@ class Image {
     
     public XYZPoint getCenter() {
         return center;
+    }
+    
+    
+    public double getAssignedWidth() {
+        return assigned_width;
+    }
+
+    public void setAssignedWidth(double width) {
+        this.assigned_width = width;
+    }
+    
+    public double getAssignedHeight() {
+        return assigned_height;
+    }
+
+    public void setAssignedHeight(double height) {
+        this.assigned_height = height;
     }
     
 }

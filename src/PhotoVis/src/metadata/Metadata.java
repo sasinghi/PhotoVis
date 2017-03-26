@@ -13,7 +13,6 @@
 package src.metadata;
 
 import com.sun.imageio.plugins.png.PNGMetadata;
-import com.teamdev.jxmaps.LatLng;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,44 +48,18 @@ import org.w3c.dom.NodeList;
  * @author oyku
  */
 public class Metadata {
-
     
-    private static Image img;
-    private static HashMap<Integer, Object> exifTags;
-        
-    public static void main(String[] args) throws IOException, Exception {
-        
-        String filename = "C:\\Users\\oyku\\Desktop\\a.png";
-        
-        
-        /***************** To write keyword-value combination to metadata ***********************/
-//        writeMetaData(filename, "VisTest", "Test is completed!");
-        
-       
-        /***************** To read keyword to metadata ***********************/
-        //String value = readMetaData(filename, "VisTest");
-        //System.out.println(value);
-        
-        
-        /***************** To read the GPS info of photo ***********************/
-        //readGPS(filename);
-        
-        /***************** To read the time info of photo ***********************/
-        //readTime(filename);
-    }
-    
-    
-    public static int readTime(Image img) throws Exception{
-        int year=0;
-        //img = new Image(filename);
-        exifTags = img.getExifTags();
+    public static Date readTime(String filename) throws Exception{
+        Image img = new Image(filename);
+        HashMap<Integer, Object> exifTags = img.getExifTags();
+        System.out.println(exifTags.get(0x0132));
         String date = (String) exifTags.get(0x0132);
-        System.out.println(date);
+        Date clicked = null;
         if(date!=null){
-        year = Integer.parseInt(date.substring(0, 4));
-//        int month = Integer.parseInt(date.substring(5, 7));
-//        int day = Integer.parseInt(date.substring(8, 10));
-        //clicked = new Date(year,month,day);
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(5, 7));
+        int day = Integer.parseInt(date.substring(8, 10));
+        clicked = new Date(year,month,day);
         }
 //        Path p = Paths.get(filename);
 //        BasicFileAttributes view = Files.getFileAttributeView( p, BasicFileAttributeView.class ).readAttributes();  
@@ -106,18 +78,17 @@ public class Metadata {
 //            e.printStackTrace();
 //        }
         
-        return year;
+        return clicked;
     }
     
     
-    public static LatLng readGPS(Image img) throws Exception{
+    public static double[] readGPS(String filename) throws Exception{
        
-        //img = new Image(filename);
+        Image image = new Image(filename);
         double[] gps = null;
-        LatLng geoTag = null;
-        if(img.getGPSCoordinate() != null){
-            gps = img.getGPSCoordinate();
-            geoTag = new LatLng(gps[1], gps[0]);
+        if(image.getGPSCoordinate() != null){
+            gps = image.getGPSCoordinate();
+        
             System.out.println("Longitude:  " + gps[0]);
             System.out.println("Latitude:   " + gps[1]);
         }
@@ -125,7 +96,7 @@ public class Metadata {
             System.out.println("There is no GPS information in this photo");
         }
         
-        return geoTag;
+        return gps;
     }
     
     
@@ -152,7 +123,6 @@ public class Metadata {
         return root;
     }
     
-    
     public static String readMetaData(String fileName , String key) throws IOException{
         
         File file = new File( fileName );
@@ -165,8 +135,9 @@ public class Metadata {
             reader.setInput(iis, true);
             IIOMetadata metadata = reader.getImageMetadata(0);
             PNGMetadata pngmeta = (PNGMetadata) metadata; 
-            NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
-        
+            NodeList childNodes = null;
+            if (pngmeta.getStandardTextNode() == null) {return null;}
+            else{childNodes = pngmeta.getStandardTextNode().getChildNodes();}
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node node = childNodes.item(i);
                 String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
@@ -180,6 +151,7 @@ public class Metadata {
         return null;
     }
     
+   
     
     private static void writeImage(File outputFile, BufferedImage image, IIOMetadataNode newMetadata) throws IOException
     {
