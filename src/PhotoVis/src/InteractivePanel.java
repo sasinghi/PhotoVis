@@ -66,8 +66,8 @@ class ZoomAndPanePanel extends JPanel {
     @Override protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setPaint(new Color(0x55FF0000, true));
-        Rectangle r = new Rectangle(500, 140, 150, 150);
+        //g2.setPaint(new Color(0x55FF0000, true));
+        //Rectangle r = new Rectangle(500, 140, 150, 150);
 
         //use: AffineTransform#concatenate(...) and Graphics2D#setTransform(...)
         //http://docs.oracle.com/javase/8/docs/api/java/awt/geom/AffineTransform.html#concatenate-java.awt.geom.AffineTransform-
@@ -80,7 +80,7 @@ class ZoomAndPanePanel extends JPanel {
         //or use: Graphics2D#drawImage(Image, AffineTransform, ImageObserver)
         //https://docs.oracle.com/javase/8/docs/api/java/awt/Graphics2D.html#drawImage-java.awt.Image-java.awt.geom.AffineTransform-java.awt.image.ImageObserver-
         g2.drawImage(img, zoomTransform, this); //or: g2.drawRenderedImage((RenderedImage) img, zoomTransform);
-        g2.fill(zoomTransform.createTransformedShape(r));
+       // g2.fill(zoomTransform.createTransformedShape(r));
 
         //BAD EXAMPLE
         //g2.setTransform(zoomTransform);
