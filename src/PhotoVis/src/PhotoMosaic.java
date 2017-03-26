@@ -35,11 +35,11 @@ public class PhotoMosaic {
         static BufferedImage output;
         static File target;
        
-    public static void initiate(File input) throws IOException {
+    public static void initiate(File input, String path) throws IOException {
         target = input;
         System.out.println("PhotoMosaic is initiated");
         File directory;
-        directory = new File("images/zipp/");
+        directory = new File(path);
         
 
         int j=0;
@@ -270,10 +270,10 @@ public class PhotoMosaic {
         return diff;
     }
 
-    PhotoMosaic(File file) throws IOException {
+    PhotoMosaic(File file, String path) throws IOException {
             
             
-            initiate(file);
+            initiate(file,path);
         }
     
     

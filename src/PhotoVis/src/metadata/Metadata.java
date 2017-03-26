@@ -26,6 +26,7 @@ import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,9 +50,32 @@ import org.w3c.dom.NodeList;
  * @author oyku
  */
 public class Metadata {
+
     
     private static Image img;
     private static HashMap<Integer, Object> exifTags;
+        
+    public static void main(String[] args) throws IOException, Exception {
+        
+        String filename = "C:\\Users\\oyku\\Desktop\\a.png";
+        
+        
+        /***************** To write keyword-value combination to metadata ***********************/
+//        writeMetaData(filename, "VisTest", "Test is completed!");
+        
+       
+        /***************** To read keyword to metadata ***********************/
+        //String value = readMetaData(filename, "VisTest");
+        //System.out.println(value);
+        
+        
+        /***************** To read the GPS info of photo ***********************/
+        //readGPS(filename);
+        
+        /***************** To read the time info of photo ***********************/
+        //readTime(filename);
+    }
+    
     
     public static int readTime(Image img) throws Exception{
         int year=0;
@@ -106,7 +130,6 @@ public class Metadata {
     
     
     
-    
     public static void writeMetaData(String filename, String keyword, String value) throws IOException, Exception{
         File inputfile = new File(filename);
         BufferedImage image = readImage(inputfile);
@@ -129,6 +152,7 @@ public class Metadata {
         return root;
     }
     
+    
     public static String readMetaData(String fileName , String key) throws IOException{
         
         File file = new File( fileName );
@@ -141,9 +165,8 @@ public class Metadata {
             reader.setInput(iis, true);
             IIOMetadata metadata = reader.getImageMetadata(0);
             PNGMetadata pngmeta = (PNGMetadata) metadata; 
-            NodeList childNodes = null;
-            if (pngmeta.getStandardTextNode() == null) {return null;}
-            else{childNodes = pngmeta.getStandardTextNode().getChildNodes();}
+            NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+        
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node node = childNodes.item(i);
                 String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
@@ -157,7 +180,6 @@ public class Metadata {
         return null;
     }
     
-   
     
     private static void writeImage(File outputFile, BufferedImage image, IIOMetadataNode newMetadata) throws IOException
     {
