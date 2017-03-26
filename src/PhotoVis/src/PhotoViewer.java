@@ -56,7 +56,6 @@ import net.coobird.thumbnailator.Thumbnails;
 
 public class PhotoViewer extends JPanel implements ActionListener, MouseListener {
 
-
     final static boolean shouldFill = true;
     final static boolean shouldWeightX = true;
     final static boolean RIGHT_TO_LEFT = false;
@@ -79,6 +78,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
     private static int IMAGE_TRIAL_COUNT_1 = 0;
     private static int ENLARGE_COUNT = 2;
+
+
 
     public static boolean timetoDecreaseSize = false;
     public static int clickedImage = 1000;
@@ -104,9 +105,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     private static PhoJoy frame;
     
     private boolean mosaicActive=false;
-    
 
-    
     public PhotoViewer() {
         labels = new ArrayList<>();
         timelineLabels = new ArrayList<>();
@@ -121,7 +120,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     public static ArrayList<LatLng> getGeoLocs() {
         return geoLocs;
     }
-    
     
     
 
@@ -164,11 +162,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         Dimension dimension;
         Random random = new Random();
 
-        if (images.size() >= 15 && !(timeline || fromResolve)) {
+        double area = FRAME_HEIGHT*FRAME_WIDTH;
+        if ((area/images.size()) <= 40000) {
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for (Image image : images) {
-                img = getScaledImage(image.getImg(), (int) (image.getWidth() / 40), (int) (image.getHeight() / 40));
+                img = getScaledImage(image.getImg(), (int) (image.getOriginal_width() / 40), (int) (image.getOriginal_height() / 40));        
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -265,14 +264,13 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             label.setName("" + image.getId());
 
             if (!timeline) {
-                labels.add(label);
+                labels.add(image.getId(),label);
                 //labels.get(image.getId()).addActionListener(this);
                 labels.get(image.getId()).addMouseListener(this);
-              
                 labels.get(image.getId()).setActionCommand(label.getName());
                 pane.add(labels.get(image.getId()));
             } else {
-                timelineLabels.add(label);
+                timelineLabels.add(image.getId(),label);
                 pane.add(timelineLabels.get(image.getId()));
             }
           
@@ -326,11 +324,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 IMAGE_TRIAL_COUNT_1++;
             }
 
-            
-           
         }
 
-        
         // For overlaps that couldn't be resolved while placing photos
         ResolveOverlaps(pane, images, timeline);
 
@@ -338,9 +333,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
     }
 
-    
-    
-       public void createAndShowGUI(final ArrayList<Image> images) throws IOException {
+    public void createAndShowGUI(final ArrayList<Image> images) throws IOException {
 
 
         //frame=new CreateGUI();
@@ -400,6 +393,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
          {
              protected Integer doInBackground() throws Exception
              {
+                                browseForMosaic.setEnabled(false);
                                 JPanel MosaicPane = (JPanel) tabPane.getComponentAt(3);
 
                                 final JFileChooser fileChooser = new JFileChooser();
@@ -428,6 +422,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                                 
                             
                  Thread.sleep(1000);
+                 browseForMosaic.setEnabled(true);
                  return 0;
              }
          }
@@ -451,7 +446,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                            // geopane.setVisible(true);
                             frame.revalidate();
                             frame.repaint();
-               //  Thread.sleep(1000);
+                 Thread.sleep(1000);
                  return 0;
              }
          }
@@ -511,7 +506,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         frame.repaint();
                     }
                         
-             //    Thread.sleep(1000);
+                 Thread.sleep(1000);
                  return 0;
              }
          }
@@ -521,7 +516,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              protected Integer doInBackground() throws Exception
              {
                 addComponentsToPane(frame, images, false, false);
-               //  Thread.sleep(1000);
+                 Thread.sleep(1000);
                  return 0;
              }
          }
@@ -542,10 +537,9 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         new backgroundTimeLine().execute();
         //addComponentsToPane(frame, images, false, false);
        
-    } 
-        
-    
-        public static void main(String[] args) throws IOException {
+    }
+
+    public static void main(String[] args) throws IOException {
         if(args.length>0){
             IMAGE_PATH = args[0];
         }else{
@@ -574,7 +568,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 //        FRAME_HEIGHT = 780;
     }
 
-        public static ArrayList<Image> readImages() {
+    public static ArrayList<Image> readImages() {
         String filename;
         javaxt.io.Image img_met;
         BufferedImage img;
@@ -590,7 +584,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 try {
                     if(listOfFiles[i].getName().toLowerCase().endsWith(".png")||listOfFiles[i].getName().toLowerCase().endsWith(".jpg")||listOfFiles[i].getName().toLowerCase().endsWith(".jpeg")){
                         img = ImageIO.read(new File(path +listOfFiles[i].getName()));
-                        String temppath = path +listOfFiles[i].getName();
+                        String imagepath = path +listOfFiles[i].getName();
                         //Metadata.writeGPS(path +listOfFiles[i].getName(), 33.11, 33.11);
                         //img_met = ;
                         timestamp = Metadata.readTime(new javaxt.io.Image(path +listOfFiles[i].getName()));
@@ -605,7 +599,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 //                        }else{
 //                            geoTag = new LatLng(33.87546081542969, -116.3016196017795);
 //                        }
-                        image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT, timestamp, geoTag, temppath, id));
+                        image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,timestamp,geoTag,imagepath, id));
                         id++;
                     }else{
                         System.out.println(listOfFiles[i].getName().toLowerCase());
@@ -629,9 +623,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 //        }
         return image;
     }
-   
-   
-        private static Dimension checkBoundingDimensions(int height, int width) {
+
+    private static Dimension checkBoundingDimensions(int height, int width) {
         // Checks if image larger than bounding frame
         if (height < (FRAME_HEIGHT / 2) && width < (FRAME_WIDTH / 2)) {
             // Image fits, return unchanged Dimensions
@@ -1132,9 +1125,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
         return allOverlappingImages;
     }
-    
-    
-        private void animateMovement(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency, Boolean timeline) {
+
+    private void animateMovement(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency, Boolean timeline) {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         Point location = new Point();
@@ -1245,21 +1237,25 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
     }
 
+   
     
-    private  void animateMovementSemantic(Container pane, src.Image image, Point oldLoc, Point newLoc) throws InterruptedException {
+    private  void animateMovementSemantic(Container pane, src.Image image, Point oldLocation, Point newLocation, ArrayList<Integer> adjacency) throws InterruptedException {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         Point location = new Point();
         ArrayList<Integer> currentOverlaps = new ArrayList<>();
-        if ((oldLoc.x != newLoc.x) || (oldLoc.y != newLoc.y) ) {
+        if (!oldLocation.equals(newLocation)) {
             while (t < 0.8) {
                 t += 0.2;
                 System.out.println("T " + t);
-                location.x = (int) ((1 - t) * oldLoc.x + t * newLoc.x);
-                location.y = (int) ((1 - t) * oldLoc.y + t * newLoc.y);
+                location.x = (int) ((1 - t) * oldLocation.x + t * newLocation.x);
+                location.y = (int) ((1 - t) * oldLocation.y + t * newLocation.y);
                 image.setLocation(location);
                 image.updateCenter();
                 labelImageMap.put(image.getId(), image);
+//                pane.getComponent(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
+//                pane.getComponent(image.getId()).repaint();
+
                 labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
                 
                 pane.revalidate();
@@ -1267,14 +1263,14 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 long start = new Date().getTime();
                 while(new Date().getTime() - start < 1L){}
                 currentOverlaps = overlappedImages(image, pane, image.getId(),false);
-                
                 //System.out.println("Current overlap size:" + currentOverlaps.size());
                 if(currentOverlaps.size()<=0 ){
                     // No overlaps
                     //break;
                 }
                 if(currentOverlaps.size() > 0 ){
-                    ResolveOverlaps((JPanel) pane, images ,false);
+                  //  System.out.println("Here in here");
+                    ResolveOverlaps((JPanel) pane, images,false);
                 }
                 
                 
@@ -1282,15 +1278,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
     }
     
-
+     
     
     public static void FaceRecognition() {
-        if (!faceClicked){
-            faceClicked = true;
-        } else {
-            faceClicked = false;
-        }
-    
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public static void Color_Grouping() {
@@ -1301,7 +1292,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
     }
 
-       private static void TimeLine() throws IOException {
+    private static void TimeLine() throws IOException {
         ENLARGE_COUNT=2;
         timeImageMap = new HashMap<>();
         timeBoundaryMap = new HashMap<>();
@@ -1392,72 +1383,38 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
     private static BufferedImage PhotoMosaic(File file) throws IOException {
 
-        PhotoMosaic mosaic = new PhotoMosaic(file);
+        PhotoMosaic mosaic = new PhotoMosaic(file,IMAGE_PATH);
         return mosaic.output;
 
     }
-    
-    private void faceDetectionWork(src.Image testimg) throws IOException, InterruptedException{
-        JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
-        JPanel pane = (JPanel) tabPane.getComponentAt(0);
-        
-        String str = Metadata.readMetaData(testimg.path, "faces");
-        if(str != null){
-            String[] faces = str.split(",");
-            
-            for(src.Image image : images){ 
-                int imageId =  image.getId();
-                if(testimg.getId() != imageId ){
-                    String imagefaces = Metadata.readMetaData(image.path, "faces");
-                    if(imagefaces != null){
-                        for(String face : faces){
-                           if(imagefaces.contains(face)){
-                            
-                                Point oldLoc = image.location;
-                                Point newLoc = testimg.location; 
-                                animateMovementSemantic(pane, image, oldLoc, newLoc);
-                                break;
-                            }
-                        }
-                    } 
-                }
-            }
-            
-        }
-        
-        
-    
-    }
-    
+
+
     private void onePhotoforColorGroup(src.Image testimg) throws InterruptedException{
         int[] testavg = ColorSimilarity.averageColor(testimg.getImg());
         double[] testavgd = ColorSimilarity.convertCIEvalues(testavg);
         JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
         JPanel pane = (JPanel) tabPane.getComponentAt(0);
         System.out.println("Clicked image" + testimg.getId());
-        for(src.Image image : images){ 
+        for(src.Image image : images){
             int imageId =  image.getId();
             if(testimg.getId() != imageId ){
                 int[] imageavg = ColorSimilarity.averageColor(image.getImg());
                 double[] imageavgd = ColorSimilarity.convertCIEvalues(imageavg);
-                
+
                 double diff = ColorSimilarity.findDifference(testavgd, imageavgd);
                 
                 if(diff < 15)
                 {
-                    Point oldLoc = image.location;
-                    Point newLoc = testimg.location; 
-                    animateMovementSemantic(pane, image, oldLoc, newLoc);
-                    
-                } 
+                    ArrayList<Integer> adj = new ArrayList<>();
+                    Point oldLoc = image.getLocation();
+                    Point newLoc = testimg.getLocation(); 
+                    animateMovementSemantic(pane, image, oldLoc, newLoc, adj);
+                }
             }
+
         }
     }
 
-    
-    
-    
-    
     @Override
     public void actionPerformed(ActionEvent ae) {
         JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(0);
@@ -1468,6 +1425,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             
                 if(!colorGroupClicked && !faceClicked){
                     if((labelImageMap.get(clickedImage).getWidth() >= ratio*labelImageMap.get(clickedImage).getAssignedWidth()) || (labelImageMap.get(clickedImage).getHeight() >= ratio*labelImageMap.get(clickedImage).getAssignedHeight())){
+                        System.out.println("Width------------------------");
+                        System.out.println(labelImageMap.get(clickedImage).getWidth());
+                        System.out.println(ratio*labelImageMap.get(clickedImage).getAssignedWidth());
+                        System.out.println("Height------------------------");
+                        System.out.println(labelImageMap.get(clickedImage).getHeight());
+                        System.out.println(ratio*labelImageMap.get(clickedImage).getAssignedHeight());
                         timetoDecreaseSize = true;
                     }
                     if(timetoDecreaseSize){
@@ -1521,28 +1484,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 
-                
                 }
                 
-                else if(faceClicked){
-                    try {
-                        faceDetectionWork(labelImageMap.get(clickedImage));
-                        mouseClickedInImageArea = false;
-                    } catch (IOException ex) {
-                        Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                
-                }
-           
-           
         }
         
-        
-            
-
-
     }
 
 //    @Override
@@ -1622,6 +1567,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("jdajksdn");
        if(!mouseClickedInImageArea){
            for(int i = 0; i < labels.size(); i++){
                JButton lbl = (JButton) e.getSource();

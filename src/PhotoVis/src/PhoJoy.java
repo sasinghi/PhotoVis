@@ -212,7 +212,7 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void colorgroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorgroupActionPerformed
-        // TODO add your handling code here:
+        PhotoViewer.Color_Grouping();
     }//GEN-LAST:event_colorgroupActionPerformed
 
     /**
