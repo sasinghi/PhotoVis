@@ -143,6 +143,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         addComponentsToPane(pane, images, timeline, fromResolve);
     }
 
+      
+
     private void addComponentsToPane(JPanel pane, ArrayList<src.Image> images, Boolean timeline, Boolean fromResolve) {
         //pane = (Container) gui.getContentPane().getComponent(1);
         //pane = gui.getContentPane();
@@ -164,11 +166,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         Dimension dimension;
         Random random = new Random();
 
-        if (images.size() >= 15 && !(timeline || fromResolve)) {
+        double area = FRAME_HEIGHT*FRAME_WIDTH;
+        if ((area/images.size()) <= 40000) {
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for (Image image : images) {
-                img = getScaledImage(image.getImg(), (int) (image.getWidth() / 40), (int) (image.getHeight() / 40));
+                img = getScaledImage(image.getImg(), (int) (image.getOriginal_width() / 40), (int) (image.getOriginal_height() / 40));        
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -250,8 +253,6 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             } else {
                 // Add pair in labelImage Map
                 labelImageMap.put(pane.getComponentCount(), image);
-                labelImageMap.get(pane.getComponentCount()).setAssignedHeight(image.getHeight());
-                labelImageMap.get(pane.getComponentCount()).setAssignedWidth(image.getWidth());
             }
 
 
@@ -265,14 +266,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             label.setName("" + image.getId());
 
             if (!timeline) {
-                labels.add(label);
-                //labels.get(image.getId()).addActionListener(this);
-                labels.get(image.getId()).addMouseListener(this);
-              
+                labels.add(image.getId(),label);
+                labels.get(image.getId()).addActionListener(this);
                 labels.get(image.getId()).setActionCommand(label.getName());
                 pane.add(labels.get(image.getId()));
             } else {
-                timelineLabels.add(label);
+                timelineLabels.add(image.getId(),label);
                 pane.add(timelineLabels.get(image.getId()));
             }
           
@@ -326,18 +325,14 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 IMAGE_TRIAL_COUNT_1++;
             }
 
-            
-           
         }
 
-        
         // For overlaps that couldn't be resolved while placing photos
         ResolveOverlaps(pane, images, timeline);
 
 
 
     }
-
     
     
        public void createAndShowGUI(final ArrayList<Image> images) throws IOException {
