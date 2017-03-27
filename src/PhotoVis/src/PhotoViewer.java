@@ -114,6 +114,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     @SuppressWarnings("CallToThreadDumpStack")
     public static BufferedImage getScaledImage(BufferedImage srcImg, int w, int h) {
         BufferedImage resizedImg = srcImg;
+        
+        if(w < 1 || h < 1){
+            return resizedImg;
+        }
         try {
             resizedImg = Thumbnails.of(srcImg).size(w, h).asBufferedImage();
         } catch (IOException ex) {
@@ -1126,7 +1130,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         return (image.getLocation().x + image.getWidth()) < pane.getPreferredSize().width && (image.getLocation().y + image.getHeight()) < pane.getPreferredSize().height;
     }
 
-        private void ResolveOverlapsSemantic(JPanel pane, ArrayList<src.Image> images, Boolean timeline, int clicked) {
+    private void ResolveOverlapsSemantic(JPanel pane, ArrayList<src.Image> images, Boolean timeline, int clicked) {
         
         double MIN_S;
         if (timeline) {
@@ -1455,7 +1459,11 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             image.updateCenter();
             labelImageMap.put(image.getId(), image);
             labels.get(image.getId()).setBounds(location.x, location.y, (int)image.getWidth(), (int)image.getHeight());
-            ResolveOverlapsSemantic((JPanel) pane, images ,false, clicked);
+            currentOverlaps = overlappedImages(image, pane, image.getId(), false);
+            
+            if(currentOverlaps.size() > 0){
+                ResolveOverlapsSemantic((JPanel) pane, images ,false, clicked);
+            }
             pane.revalidate();
             pane.repaint();
         }
