@@ -97,6 +97,9 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     
     public static HashMap<Integer, ArrayList<Integer>> colorSimilarityList  = new HashMap<>();
     public static HashMap<Integer, ArrayList<Integer>> faceSimilarityList  = new HashMap<>();
+    private double ZOOM_T;
+    private double ZOOM_HEIGHT;
+    private double ZOOM_WIDTH;
 
 
     public PhotoViewer() {
@@ -336,9 +339,12 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             }
 
         }
-
-        // For overlaps that couldn't be resolved while placing photos
-        ResolveOverlaps(pane, images, timeline,-1);
+        try {
+            // For overlaps that couldn't be resolved while placing photos
+            ResolveOverlaps(pane, images, timeline,-1);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
 
 
 
@@ -354,7 +360,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
         addMouseListener(this);
 
-        Timer timer = new Timer(20, this);
+        Timer timer = new Timer(1150, this);
         timer.start();
 
         // TO-DO - Make below three run in parallel. Zoom, shrink interaction
@@ -397,7 +403,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                             File fbFile = new File("fb.png");
                             fbFile.createNewFile();
                             ImageIO.write(screenshotImage, "png", fbFile);
-                            GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAIb2ZCCWZCueSs5U91eFyOW6hsjiZACwqW7iuS4oSOGcvo8Rx2K8M5lEurRZAYLOLOBt3cXcqHmnWJ5avFE4Jsnw2HDk8RXjvs8nUTLzb4uZCxOiozFCbhvSfxIsj39ZC7ENd7tr9iDosDRZBkLDJgWlrAj0NnZAlMmmP4FaFMsP5mK7a5z0LsUZD");
+                            GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAMwFq6rG9MIEwW3UJUiGX5luITrOPrLJ8lynjfzTn666nCZAKHV4r42iIFBlmZBZC8r7yO8UyLclyKB8sXnBZAXZCS13RgHAZAAkGhMpxepME1thKztqzFIhwRr3GwbZClB7EiSfXy4fN4VoVCpNCUmCoRcbLxHOlat27DwbJwPqJQ7okuPgCqgxqjeCPRx3jmu426cVZAD2EO5HoIMzZCR8ZD");
                             graphPub.publishPhoto(fbFile, "Check out my latest GeoPrint!");
                             JOptionPane.showMessageDialog(frame,
                             "Your GeoPrint is shared on your timeline. Try out another one!");
@@ -409,7 +415,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                      
                      File mosaic = new File("mosaic.jpg");
                      mosaic.createNewFile();
-                     GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAL8GtM4yWTnoDFgrTk4ilHI1J6MMJVbdbwegZCAcc4QIyyEBS33DEyIf4kICO0PsP865OWDCx4zkXh1fw65QxRasRsqmAv4mg2EVsesvyVtFhzZApOgoEpZAEfgRN0YYaQc3SWAfr3W6OqdnmausrYSgeY74bOPFh7dcvhycihyucWpm4gZD");
+                     GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAMwFq6rG9MIEwW3UJUiGX5luITrOPrLJ8lynjfzTn666nCZAKHV4r42iIFBlmZBZC8r7yO8UyLclyKB8sXnBZAXZCS13RgHAZAAkGhMpxepME1thKztqzFIhwRr3GwbZClB7EiSfXy4fN4VoVCpNCUmCoRcbLxHOlat27DwbJwPqJQ7okuPgCqgxqjeCPRx3jmu426cVZAD2EO5HoIMzZCR8ZD");
                      graphPub.publishPhoto(mosaic, "Check out my cool new photo mosaic!");
                      JOptionPane.showMessageDialog(frame,
                         "Your cool new mosaic is shared on your timeline. Try out another one!");
@@ -1168,7 +1174,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     
     
     
-    private void ResolveOverlaps(JPanel pane, ArrayList<src.Image> images, Boolean timeline,int exclude) {
+    private void ResolveOverlaps(JPanel pane, ArrayList<src.Image> images, Boolean timeline,int exclude) throws InterruptedException {
 
         double MIN_S;
         if (timeline) {
@@ -1365,7 +1371,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
     }
 
-    private void animateMovementForZoom(JPanel pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, Boolean timeline) {
+    private void animateMovementForZoom(JPanel pane, src.Image image, double oldHeight, double oldWidth, double newHeight, double newWidth, Boolean timeline) throws InterruptedException {
         // (x,y) = (1-t)*(x1,y1) + t*(x2,y2)
         double t = 0;
         BufferedImage img;
@@ -1665,13 +1671,73 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     timetoDecreaseSize = true;
                 }
                 if(timetoDecreaseSize){
-                    shrinkPicture(pane);
+                    try {
+                        shrinkPicture(pane);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
                     repaint();
 
                 }
                 else{
-                    zoomPicture(pane);
-                    repaint();
+                     
+                    Image image = labelImageMap.get(clickedImage);
+                    BufferedImage img;
+                    if (ZOOM_HEIGHT != BEGIN_HEIGHT && ZOOM_WIDTH != BEGIN_WIDTH) {
+                    if ( ZOOM_T< 1) {
+                        ZOOM_T += 0.2;
+                        img = getScaledImage(image.getOriginal_img(), (int) (((1 - ZOOM_T) * BEGIN_WIDTH) + (ZOOM_T * ZOOM_WIDTH)), (int) (((1 - ZOOM_T) * BEGIN_HEIGHT) + (ZOOM_T * ZOOM_HEIGHT)));
+                        image.setImg(img);
+                        image.setHeight(img.getHeight());
+                        image.setWidth(img.getWidth());
+                        image.updateCenter();
+                        labelImageMap.put(image.getId(), image);
+                        labels.get(image.getId()).setIcon(new ImageIcon(img));
+                        labels.get(image.getId()).setLocation(image.getLocation());
+                        labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int) Math.ceil(image.getWidth()), (int) Math.ceil(image.getHeight()));
+                    
+                        revalidate();
+                        repaint();
+                        
+                        try {
+                                   ResolveOverlaps(pane, images, false, clickedImage);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                        revalidate();
+                        repaint();
+                        ArrayList<Integer> containOverlaps = getAllOverlappingImages(pane, images, false);
+                        while(containOverlaps.size()>0){
+                            ZOOM_TRIALS=3;
+                            ArrayList<Integer> neighborList = Neighbours(labelImageMap.get(clickedImage), clickedImage, false);
+                            if(neighborList.size()>0){
+                                ArrayList<Image> neighbors = new ArrayList<>();
+                                for(int i : neighborList){
+                                    neighbors.add(labelImageMap.get(i));
+                                }
+                                try {
+                                    shrinkNeighbors(pane, neighbors, false);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                
+                                revalidate();
+                                repaint();
+                             }
+                                try {
+                                    ResolveOverlaps(pane, images, false, clickedImage);
+                                } catch (InterruptedException ex) {
+                                    ex.printStackTrace();
+                                }
+                            revalidate();
+                            repaint();
+                            containOverlaps = getAllOverlappingImages(pane, images, false);
+                            if(containOverlaps.size()<=0){
+                                timetoDecreaseSize=true;
+                            }
+                        }
+                      }
+                    }
                 }
             }
             else if(colorGroupClicked && !faceClicked){
@@ -1776,11 +1842,15 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         if(!mouseClickedInImageArea){
           JButton lbl = (JButton) e.getSource();
           clickedImage = Integer.parseInt(lbl.getName());
+          System.out.println("Image:"+clickedImage+" will be zoomed");
           mouseClickedInImageArea = true;
           timetoDecreaseSize=false;
           ZOOM_TRIALS=3;
           BEGIN_HEIGHT = labelImageMap.get(clickedImage).getHeight();
           BEGIN_WIDTH = labelImageMap.get(clickedImage).getWidth();
+          ZOOM_T = 0;
+          ZOOM_HEIGHT = labelImageMap.get(clickedImage).getHeight()*2;
+          ZOOM_WIDTH = labelImageMap.get(clickedImage).getWidth()*2;
         }
      }
 
@@ -1806,16 +1876,16 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         }
     }
 
-    private void zoomPicture(JPanel pane) {
+    private void zoomPicture(JPanel pane) throws InterruptedException {
          animateMovementForZoom(pane, labelImageMap.get(clickedImage),  labelImageMap.get(clickedImage).getHeight(),labelImageMap.get(clickedImage).getWidth(), (int)(labelImageMap.get(clickedImage).getHeight()*2), (int)(labelImageMap.get(clickedImage).getWidth()*2), false);                 
     }
 
-    private void shrinkPicture(JPanel pane) {
-        longWait();
+    private void shrinkPicture(JPanel pane) throws InterruptedException {
+        //longWait();
         //animateMovement(pane, labelImageMap.get(clickedImage),  labelImageMap.get(clickedImage).getHeight(),labelImageMap.get(clickedImage).getWidth(), (int)Math.ceil(BEGIN_HEIGHT), (int)Math.ceil(BEGIN_WIDTH),false);
-       // if((labelImageMap.get(clickedImage).getWidth() <= BEGIN_WIDTH) || (labelImageMap.get(clickedImage).getHeight() <= BEGIN_HEIGHT)){
-        //    double diff = BEGIN_WIDTH-labelImageMap.get(clickedImage).getWidth();
-           // animateMovement(pane, labelImageMap.get(clickedImage),  labelImageMap.get(clickedImage).getHeight(),labelImageMap.get(clickedImage).getWidth(),  (labelImageMap.get(clickedImage).getHeight()+diff) ,(labelImageMap.get(clickedImage).getWidth()+diff), false);
+        //if((labelImageMap.get(clickedImage).getWidth() <= BEGIN_WIDTH) || (labelImageMap.get(clickedImage).getHeight() <= BEGIN_HEIGHT)){
+         //  double diff = BEGIN_WIDTH-labelImageMap.get(clickedImage).getWidth();
+          //  animateMovement(pane, labelImageMap.get(clickedImage),  labelImageMap.get(clickedImage).getHeight(),labelImageMap.get(clickedImage).getWidth(),  (labelImageMap.get(clickedImage).getHeight()+diff) ,(labelImageMap.get(clickedImage).getWidth()+diff), false);
             mouseClickedInImageArea = false;
             timetoDecreaseSize = false;
 //            ArrayList<Integer> neighborList = Neighbours(labelImageMap.get(clickedImage), clickedImage, false);
@@ -1827,10 +1897,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 //               enlargeWherePossible(pane, neighbors, false);
 //                ResolveOverlaps(pane, images, false, clickedImage);
 //           }    
-//        }
+ //      }
     }
 
-    private void shrinkNeighbors(JPanel pane, ArrayList<src.Image> images, boolean timeline) {
+    private void shrinkNeighbors(JPanel pane, ArrayList<src.Image> images, boolean timeline) throws InterruptedException  {
         FRAME_WIDTH = pane.getPreferredSize().width;
         FRAME_HEIGHT = pane.getPreferredSize().height;
         double scale = 1.2;
