@@ -10,14 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.floor;
-import static java.lang.Math.min;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import net.coobird.thumbnailator.Thumbnails;
 
 

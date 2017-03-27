@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
@@ -30,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -376,6 +380,61 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
        final JButton browseForMosaic = (JButton) bottomPane.getComponent(2);
        browseForMosaic.setEnabled(false);
        
+       JButton fbShare = (JButton) bottomPane.getComponent(3);
+       fbShare.setIcon(new ImageIcon(getScaledImage(ImageIO.read(new File(IMAGE_PATH+"fb.png")),30,30))); // Change path and position
+       fbShare.setOpaque(false);
+       fbShare.setContentAreaFilled(false);
+       fbShare.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    //                 try {
+                    //                       URI uri = new URI("https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdrive.google.com%2Fdrive%2Ffolders%2F0B0HLqlaAcdt7aDNMcnMzUEZqN1U&amp");
+                    //                        Desktop dt = Desktop.getDesktop();
+                    //                        dt.browse(uri);
+                    //                    } catch (URISyntaxException ex) {
+                    //                        ex.printStackTrace();
+                    //                    } catch (IOException ex) {
+                    //                        ex.printStackTrace();
+                    //                    }
+                    JTabbedPane tab = (JTabbedPane) frame.getContentPane().getComponent(0);
+                    if(tab.getSelectedIndex()==2){
+                        BufferedImage screenshotImage = new BufferedImage(
+                                tab.getComponentAt(2).getBounds().width, tab.getComponentAt(2).getBounds().height,
+                                BufferedImage.TYPE_INT_RGB);
+                        tab.getComponentAt(2).paint(screenshotImage.getGraphics());
+                        try {
+                            File fbFile = new File("fb.png");
+                            fbFile.createNewFile();
+                            ImageIO.write(screenshotImage, "png", fbFile);
+                            GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAL8GtM4yWTnoDFgrTk4ilHI1J6MMJVbdbwegZCAcc4QIyyEBS33DEyIf4kICO0PsP865OWDCx4zkXh1fw65QxRasRsqmAv4mg2EVsesvyVtFhzZApOgoEpZAEfgRN0YYaQc3SWAfr3W6OqdnmausrYSgeY74bOPFh7dcvhycihyucWpm4gZD");
+                            graphPub.publishPhoto(fbFile, "Check out my latest GeoPrint!");
+                            JOptionPane.showMessageDialog(frame,
+                            "Your GeoPrint is shared on your timeline. Try out another one!");
+                        }
+                        catch (IOException ex) {
+                            System.err.println("ImageIsuues");
+                        }
+                    }if(tab.getSelectedIndex()==3){
+                     
+                     File mosaic = new File("mosaic.jpg");
+                     mosaic.createNewFile();
+                     GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAL8GtM4yWTnoDFgrTk4ilHI1J6MMJVbdbwegZCAcc4QIyyEBS33DEyIf4kICO0PsP865OWDCx4zkXh1fw65QxRasRsqmAv4mg2EVsesvyVtFhzZApOgoEpZAEfgRN0YYaQc3SWAfr3W6OqdnmausrYSgeY74bOPFh7dcvhycihyucWpm4gZD");
+                     graphPub.publishPhoto(mosaic, "Check out my cool new photo mosaic!");
+                     JOptionPane.showMessageDialog(frame,
+                        "Your cool new mosaic is shared on your timeline. Try out another one!");
+                    }
+                }catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                     
+                
+                }             
+        });
+       frame.revalidate();
+       frame.repaint();
+       
        browseForMosaic.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -440,6 +499,9 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                                                   File file = new File(selectedFile.getAbsolutePath());
                                                   try {
                                                         img = PhotoMosaic(file);
+                                                        File outputfile = new File("mosaic.jpg");
+                                                        outputfile.createNewFile();
+                                                        ImageIO.write(img, "jpg", outputfile);
                                                       } catch (IOException ex) {
                                                       Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
                                                       }
@@ -625,6 +687,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 } 
               } 
             }
+            
+            
         return image;
     }
 

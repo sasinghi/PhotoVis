@@ -10,8 +10,13 @@
  */
 package src;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.JOptionPane;
 
 /**
@@ -44,13 +49,14 @@ public class PhoJoy extends javax.swing.JFrame {
         jCheckBox1 = new javax.swing.JCheckBox();
         colorgroup = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PhoJoy");
         setLocationByPlatform(true);
         setResizable(false);
 
-        tabbedPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        tabbedPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
         tabbedPane.setToolTipText("");
         tabbedPane.setAutoscrolls(true);
         tabbedPane.setDoubleBuffered(true);
@@ -63,7 +69,7 @@ public class PhoJoy extends javax.swing.JFrame {
             }
         });
 
-        defaultPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        defaultPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         javax.swing.GroupLayout defaultPaneLayout = new javax.swing.GroupLayout(defaultPane);
         defaultPane.setLayout(defaultPaneLayout);
@@ -73,12 +79,12 @@ public class PhoJoy extends javax.swing.JFrame {
         );
         defaultPaneLayout.setVerticalGroup(
             defaultPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 587, Short.MAX_VALUE)
+            .addGap(0, 589, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Browse", defaultPane);
 
-        timelinePane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 10));
+        timelinePane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true), 10));
 
         javax.swing.GroupLayout timelinePaneLayout = new javax.swing.GroupLayout(timelinePane);
         timelinePane.setLayout(timelinePaneLayout);
@@ -88,12 +94,12 @@ public class PhoJoy extends javax.swing.JFrame {
         );
         timelinePaneLayout.setVerticalGroup(
             timelinePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 569, Short.MAX_VALUE)
+            .addGap(0, 571, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Timeline", timelinePane);
 
-        geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        geoPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         javax.swing.GroupLayout geoPaneLayout = new javax.swing.GroupLayout(geoPane);
         geoPane.setLayout(geoPaneLayout);
@@ -103,12 +109,12 @@ public class PhoJoy extends javax.swing.JFrame {
         );
         geoPaneLayout.setVerticalGroup(
             geoPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 587, Short.MAX_VALUE)
+            .addGap(0, 589, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("GeoTags", geoPane);
 
-        mosaicPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        mosaicPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         javax.swing.GroupLayout mosaicPaneLayout = new javax.swing.GroupLayout(mosaicPane);
         mosaicPane.setLayout(mosaicPaneLayout);
@@ -118,12 +124,12 @@ public class PhoJoy extends javax.swing.JFrame {
         );
         mosaicPaneLayout.setVerticalGroup(
             mosaicPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 587, Short.MAX_VALUE)
+            .addGap(0, 589, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Mosaic", mosaicPane);
 
-        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(-16777216,true)));
 
         jCheckBox1.setText("Face Recognition");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
@@ -147,6 +153,14 @@ public class PhoJoy extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setText("Share");
+        jButton2.setName("fbShare"); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -158,17 +172,20 @@ public class PhoJoy extends javax.swing.JFrame {
                 .addComponent(colorgroup)
                 .addGap(237, 237, 237)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 286, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addContainerGap(290, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jCheckBox1)
                         .addComponent(colorgroup))
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
 
@@ -178,21 +195,21 @@ public class PhoJoy extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1300, Short.MAX_VALUE)
+                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1280, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE)
+                .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 621, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        setSize(new java.awt.Dimension(1306, 729));
-        setLocationRelativeTo(null);
+        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds((screenSize.width-1306)/2, (screenSize.height-729)/2, 1306, 729);
     }// </editor-fold>//GEN-END:initComponents
 
 private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
@@ -214,6 +231,10 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     private void colorgroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorgroupActionPerformed
         PhotoViewer.Color_Grouping();
     }//GEN-LAST:event_colorgroupActionPerformed
+
+private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       
+}//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -255,6 +276,7 @@ private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:
     private javax.swing.JPanel defaultPane;
     private javax.swing.JPanel geoPane;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel mosaicPane;
