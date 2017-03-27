@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.JComponent;
 import java.lang.Math;
+import java.util.List;
 
 /**
  *
@@ -38,6 +39,18 @@ class Image {
     double assigned_height;
     double assigned_width;
     String path;
+    double[] averageColor;
+    
+    
+    
+    
+    public double[] getAverageColor() {
+        return averageColor;
+    }
+
+    public void setAverageColor(double[] averageColor) {
+        this.averageColor = averageColor;
+    }
     
     
     public LatLng getGeoTag() {

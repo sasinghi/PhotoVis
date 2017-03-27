@@ -155,26 +155,37 @@ public class Metadata {
     
     public static String readMetaData(String fileName , String key) throws IOException{
         
-        File file = new File( fileName );
-        ImageInputStream iis = ImageIO.createImageInputStream(file);
-        Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-
-        if (readers.hasNext()) {
-
-            ImageReader reader = readers.next();
-            reader.setInput(iis, true);
-            IIOMetadata metadata = reader.getImageMetadata(0);
-            PNGMetadata pngmeta = (PNGMetadata) metadata; 
-            NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+        if(fileName.endsWith("png")){
         
-            for (int i = 0; i < childNodes.getLength(); i++) {
-                Node node = childNodes.item(i);
-                String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
-                String value = node.getAttributes().getNamedItem("value").getNodeValue();
-                if(key.equals(keyword)){
-                    return value;
+            File file = new File( fileName );
+            ImageInputStream iis = ImageIO.createImageInputStream(file);
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+
+            if (readers.hasNext()) {
+
+                ImageReader reader = readers.next();
+                reader.setInput(iis, true);
+                IIOMetadata metadata = reader.getImageMetadata(0);
+                PNGMetadata pngmeta = (PNGMetadata) metadata; 
+                NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node node = childNodes.item(i);
+                    String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
+                    String value = node.getAttributes().getNamedItem("value").getNodeValue();
+                    if(key.equals(keyword)){
+                        return value;
+                    }
                 }
             }
+        }
+        
+        
+        else{
+            Image img = new javaxt.io.Image(fileName);
+            exifTags = img.getExifTags();
+            String name = (String) exifTags.get(315);
+            return name;
         }
         
         return null;
