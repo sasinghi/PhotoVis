@@ -93,6 +93,9 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     
     private boolean targetSelected=false;
     private boolean dummy = true;
+    
+    public static HashMap<Integer, ArrayList<Integer>> colorSimilarityList  = new HashMap<>();
+    public static HashMap<Integer, ArrayList<Integer>> faceSimilarityList  = new HashMap<>();
 
     public PhotoViewer() {
         labels = new ArrayList<>();
@@ -365,7 +368,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         frame.setVisible(true);
 
         addMouseListener(this);
-        Timer timer = new Timer(50, this);
+        Timer timer = new Timer(20, this);
         timer.start();
 
         // TO-DO - Make below three run in parallel. Zoom, shrink interaction
@@ -623,15 +626,86 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
              }
          }
          
+         
+        class backgroundColorGroup extends SwingWorker<Integer, Integer>
+        {
+            protected Integer doInBackground() throws Exception
+            {   
+                
+                for(src.Image image: images){
+                    BufferedImage unitImg = Thumbnails.of(image.getImg()).forceSize(1, 1).asBufferedImage();
+                    double[] avg = ColorSimilarity.convertCIEvalues(ColorSimilarity.averageColor(unitImg));
+                    image.setAverageColor(avg);
+                }
+
+                for(src.Image image: images){
+                    int id = image.getId();
+                    ArrayList<Integer> similars = new ArrayList<Integer>();
+
+                    for(src.Image compareimage: images){
+                        if(compareimage.getId() != id){
+
+                            System.out.println(id + "  --- " + compareimage.getId());
+                            double diff = ColorSimilarity.findDifference(image.getAverageColor(), compareimage.getAverageColor());
+
+                            if(diff < 15){
+                                similars.add(compareimage.getId());
+                            }
+                        }
+                    }
+                    colorSimilarityList.put(id, similars);
+                }
+                
+                Thread.sleep(1000);
+                return 0;
+            }
+        } 
+         
+        
+        class backgroundFaceGroup extends SwingWorker<Integer, Integer>
+        {
+            protected Integer doInBackground() throws Exception
+            {   
+             
+                for(src.Image image : images){
+                    String str = Metadata.readMetaData(image.path, "faces");
+                    ArrayList<Integer> similars = new ArrayList<Integer>();
+                    
+                    if(str != null){
+                        String[] faces = str.split(",");
+                        
+                        for(src.Image compareimage : images){
+                            if(image.getId() != compareimage.getId()){
+                                String imagefaces = Metadata.readMetaData(compareimage.path, "faces");
+                                
+                                if(imagefaces != null){
+                                    for(String face : faces){
+                                        if(imagefaces.contains(face)){
+                                            similars.add(compareimage.getId());
+                                            break;
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                    faceSimilarityList.put(image.getId(), similars);
+                }
+                
+                Thread.sleep(1000);
+                return 0;
+            }
+        } 
         
         new backgroundMosaic().execute();
         new backgroundBrowse().execute();
         new backgroundGeoTag().execute();
         new backgroundTimeLine().execute();
-
+        new backgroundColorGroup().execute();
+        new backgroundFaceGroup().execute();
        
     }
-
+    
     public static void main(String[] args) throws IOException {
         if(args.length>0){
             IMAGE_PATH = args[0];
@@ -1370,7 +1444,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
        
         Point location = new Point();
         ArrayList<Integer> currentOverlaps = new ArrayList<>();
-        double limit = Math.max(image.getHeight(), image.getWidth()) + 20;
+        double limit = Math.max(image.getHeight(), image.getWidth());
         double diff = Math.sqrt(Math.pow((oldLoc.x - newLoc.x),2) + Math.pow((oldLoc.y - newLoc.y),2));
         
         if (diff > limit ) {
@@ -1614,79 +1688,55 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             else if(colorGroupClicked && !faceClicked){
 
                 src.Image testimg = labelImageMap.get(clickedImage);
-                int[] testavg = ColorSimilarity.averageColor(testimg.getImg());
-                double[] testavgd = ColorSimilarity.convertCIEvalues(testavg);
-                boolean flag = false;
-                for(src.Image image : images){
-
-                    int imageId =  image.getId();
-                    if(testimg.getId() != imageId ){
-                        int[] imageavg = ColorSimilarity.averageColor(image.getImg());
-                        double[] imageavgd = ColorSimilarity.convertCIEvalues(imageavg);
-
-                        double diff = ColorSimilarity.findDifference(testavgd, imageavgd);
-
-                        if(diff < 15)
-                        {
-                            flag = true;
-                            Point oldLoc = image.getLocation();
-                            Point newLoc = testimg.getLocation(); 
-                            try {
-                                animateMovementSemantic(pane, image, oldLoc, newLoc, testimg.getId());
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                }
-
-                if(!flag){
+                
+                if(colorSimilarityList.get(testimg.getId()).size() == 0 ){
                     System.out.println("None of the images are related");
                     mouseClickedInImageArea = false;
                 }
+                
+                else{
+                    for(int id : colorSimilarityList.get(testimg.getId())){
+                        src.Image image = labelImageMap.get(id);
+                        Point oldLoc = image.getLocation();
+                        Point newLoc = testimg.getLocation(); 
 
+                        try {
+                            animateMovementSemantic(pane, image, oldLoc, newLoc, testimg.getId());
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+                
             }
 
 
             else if(faceClicked){
+                
                 src.Image testimg = labelImageMap.get(clickedImage);
-                String str = null;
-                try {
-                    str = Metadata.readMetaData(testimg.path, "faces");
-                } catch (IOException ex) {
-                    Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
+                
+                if(faceSimilarityList.get(testimg.getId()).size() == 0 ){
+                    System.out.println("None of the images are related");
+                    mouseClickedInImageArea = false;
                 }
-                if(str != null){
-                    String[] faces = str.split(",");
+                
+                else{
+                    for(int id : faceSimilarityList.get(testimg.getId())){
+                        src.Image image = labelImageMap.get(id);
+                        Point oldLoc = image.getLocation();
+                        Point newLoc = testimg.getLocation(); 
 
-                    for(src.Image image : images){ 
-                        int imageId =  image.getId();
-                        if(testimg.getId() != imageId ){
-                            String imagefaces = null;
-                            try {
-                                imagefaces = Metadata.readMetaData(image.path, "faces");
-                            } catch (IOException ex) {
-                                Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            if(imagefaces != null){
-                                for(String face : faces){
-                                   if(imagefaces.contains(face)){
-
-                                        Point oldLoc = image.location;
-                                        Point newLoc = testimg.location; 
-                                       try {
-                                           animateMovementSemantic(pane, image, oldLoc, newLoc, testimg.getId());
-                                       } catch (InterruptedException ex) {
-                                           Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
-                                       }
-                                        break;
-                                    }
-                                }
-                            } 
+                        try {
+                            animateMovementSemantic(pane, image, oldLoc, newLoc, testimg.getId());
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(PhotoViewer.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
-            }
+                
+                
+                
+            }   
         }
     }
 
@@ -1774,8 +1824,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                    break;
                }
            }
-
-       }
+        }
     }
 
     @Override
