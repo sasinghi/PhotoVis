@@ -40,7 +40,16 @@ class Image {
     double assigned_width;
     String path;
     double[] averageColor;
+    String faces;
     
+    
+    public String getFaces() {
+        return faces;
+    }
+
+    public void setFaces(String faces) {
+        this.faces = faces;
+    }
     
     
     
@@ -85,6 +94,8 @@ class Image {
         this.assigned_height = image.getAssignedHeight();
         this.assigned_width = image.getAssignedWidth();
     }
+    
+    
     
     public Image(BufferedImage img, Point location, int height, int width, float angle, int id) {
         this.img = img;

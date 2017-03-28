@@ -213,7 +213,7 @@ public class PhoJoy extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-// TODO add your handling code here:
+    PhotoViewer.FaceRecognition();
 }//GEN-LAST:event_jCheckBox1ActionPerformed
 
 private void tabbedPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabbedPaneMouseClicked
