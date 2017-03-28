@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import src.metadata.Metadata;
@@ -57,9 +58,23 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     final static int yrad = 800;
     // Minimum scale is h/2 * w/2
     // Maximum scale is h*2 * w*2
-    final static double MIN = 60.0;
+    
+        //50
+    final static double MIN = 50.0;
     final static double MAX = 9.5;
-    final static double SCALE = 1;
+    final static double SCALE = 20;
+    //100
+//    final static double MIN = 50.0;
+//    final static double MAX = 9.5;
+//    final static double SCALE = 40;
+    
+//   
+//    final static double MIN = 50.0;
+//    final static double MAX = 9.5;
+//    final static double SCALE = 40;
+    
+    
+
     private static int IMAGE_TRIAL_COUNT = 0;
     private static int PACKING_TRIAL_COUNT = 0;
 
@@ -168,7 +183,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             //scale all images down  mAKE 1/10th
             BufferedImage img = null;
             for (Image image : images) {
-                img = getScaledImage(image.getImg(), (int) (image.getOriginal_width() / 40), (int) (image.getOriginal_height() / 40));        
+                img = getScaledImage(image.getImg(), (int) (image.getOriginal_width() / SCALE), (int) (image.getOriginal_height() / SCALE));        
                 image.setImg(img);
                 image.setHeight(img.getHeight());
                 image.setWidth(img.getWidth());
@@ -263,7 +278,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             label.setContentAreaFilled(false);
             //label.setBorderPainted(false);
             label.setBounds(image.getLocation().x, image.getLocation().y, (int) image.getWidth(), (int) image.getHeight());
-            label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
+            //label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
+            label.setBorder(new MatteBorder(3, 3, 3, 3, Color.WHITE));
             
 
             if (!timeline) {
@@ -578,7 +594,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         if (i % 2 == 0) {
                             timePeriod.setBackground(Color.LIGHT_GRAY);
                         } else {
-                            timePeriod.setBackground(Color.white);
+                            //timePeriod.setBackground(Color.white);
+                             timePeriod.setBackground(Color.DARK_GRAY);
                         }
 
                         timePeriod.setBounds(prev, 30, width, longPanel.getPreferredSize().height-17);
