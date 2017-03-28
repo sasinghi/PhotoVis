@@ -51,8 +51,6 @@ class Image {
         this.faces = faces;
     }
     
-    
-    
     public double[] getAverageColor() {
         return averageColor;
     }
@@ -83,20 +81,6 @@ class Image {
     public Image() {
     }
 
-    public Image(Image image) {
-        this.img = image.getImg();
-        this.original_img = image.getOriginal_img();
-        this.location = image.getLocation();
-        this.height = image.getHeight();
-        this.width = image.getWidth();
-        this.angle = image.getAngle();
-        this.id = image.getId();
-        this.assigned_height = image.getAssignedHeight();
-        this.assigned_width = image.getAssignedWidth();
-    }
-    
-    
-    
     public Image(BufferedImage img, Point location, int height, int width, float angle, int id) {
         this.img = img;
         this.original_img = img;

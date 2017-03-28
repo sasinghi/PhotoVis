@@ -781,7 +781,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         String imagepath = path +listOfFiles[i].getName();
                         timestamp = Metadata.readTime(new javaxt.io.Image(path +listOfFiles[i].getName()));
                         geoTag = Metadata.readGPS(new javaxt.io.Image(path +listOfFiles[i].getName()));
-                        System.out.println(i);
+                       // System.out.println(i);
 //                        if(i>=10 && i<15){
 //                            geoTag = new LatLng(-23.533773, -46.625290);
 //                        }else if(i>5 && i<10){
@@ -794,7 +794,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                         image.add(new Image(img, img.getHeight(), img.getWidth(), (int) FRAME_WIDTH, (int) FRAME_HEIGHT,timestamp,geoTag,imagepath, id));
                         id++;
                     }else{
-                        System.out.println(listOfFiles[i].getName().toLowerCase());
+                       // System.out.println(listOfFiles[i].getName().toLowerCase());
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -1227,7 +1227,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 }
                  
                 IMAGE_TRIAL_COUNT++;
-                System.out.println("Trying again...." + IMAGE_TRIAL_COUNT);
+               // System.out.println("Trying again...." + IMAGE_TRIAL_COUNT);
             }
             containOverlaps = getAllOverlappingImages(pane, images, timeline);
             PACKING_TRIAL_COUNT++;
@@ -1300,7 +1300,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 }
 
                 IMAGE_TRIAL_COUNT++;
-                System.out.println("Trying again...." + IMAGE_TRIAL_COUNT);
+               // System.out.println("Trying again...." + IMAGE_TRIAL_COUNT);
             }
             containOverlaps = getAllOverlappingImages(pane, images, timeline);
             PACKING_TRIAL_COUNT++;
@@ -1315,7 +1315,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             // After 5 tries, overlaps still exist. Change positions of all images. 
             try {
                 // Remove all components
-                System.out.println(containOverlaps.size() + " UNRESOLVED OVERLAPS");
+              //  System.out.println(containOverlaps.size() + " UNRESOLVED OVERLAPS");
                 pane.removeAll();
                 pane.revalidate();
                 pane.repaint();
@@ -1562,7 +1562,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             total += timeImageMap.get(times.get(k)).size();
         }
         int length = 0;
-        System.out.println("TOTAL:" + total);
+       // System.out.println("TOTAL:" + total);
         for (int i = 0; i < times.size(); i++) {
             
             length = (int) (FRAME_WIDTH * timeImageMap.get(times.get(i)).size() / total);
@@ -1693,16 +1693,35 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 else{
                     src.Image image = labelImageMap.get(clickedImage);
                     BufferedImage img = getScaledImage(image.getOriginal_img(), (int)labelImageMap.get(clickedImage).getWidth()+1, (int)labelImageMap.get(clickedImage).getHeight()+1);
-                    image.setImg(img);
-                    image.setHeight(img.getHeight());
-                    image.setWidth(img.getWidth());
-                    image.updateCenter();
+                    
+                    if(insideFrame(pane,image.getLocation(),img)){
+                        image.setImg(img);
+                        image.setHeight(img.getHeight());
+                        image.setWidth(img.getWidth());
+                        image.updateCenter();
 
-                    labelImageMap.put(clickedImage, image);
-                    labels.get(image.getId()).setIcon(new ImageIcon(img));
-                    labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
-                    labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
-                    labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                        labelImageMap.put(clickedImage, image);
+                        labels.get(image.getId()).setIcon(new ImageIcon(img));
+                        labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
+                        labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
+                        labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                       
+                    
+                    }
+                    
+                    else   {
+                            image.setImg(img);
+                            image.setHeight(img.getHeight());
+                            image.setWidth(img.getWidth());
+                            image.updateCenter();
+
+                            labelImageMap.put(clickedImage, image);
+                            labels.get(image.getId()).setIcon(new ImageIcon(img));
+                            labels.get(image.getId()).setBounds((image.getLocation().x)-5, (image.getLocation().y-5), (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
+                            labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
+                            labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                    }
+                    
                     ArrayList<Integer> currentOverlaps = new ArrayList<>();
                     currentOverlaps = overlappedImages(image, pane, image.getId(), false);
             
@@ -1743,7 +1762,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             else if(faceClicked){
                 
                 src.Image testimg = labelImageMap.get(clickedImage);
-                System.out.println("Size  " + faceSimilarityList.get(testimg.getId()).size());
+               // System.out.println("Size  " + faceSimilarityList.get(testimg.getId()).size());
                 
                 if(faceSimilarityList.get(testimg.getId()).isEmpty() ){
                     System.out.println("None of the images are related");
@@ -1838,7 +1857,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             }
         }
 
-        System.out.println("Enlarged where possible." + System.currentTimeMillis());
+       // System.out.println("Enlarged where possible." + System.currentTimeMillis());
 
     }
     
@@ -1862,8 +1881,8 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             else                            RATIO = 1.5;
             
             
-            System.out.println("Face size:    " + faceSimilarityList.size());
-            System.out.println("Color size:    " + colorSimilarityList.size());
+           // System.out.println("Face size:    " + faceSimilarityList.size());
+            //System.out.println("Color size:    " + colorSimilarityList.size());
         }
         
         
@@ -1886,3 +1905,31 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     }
     
 }
+
+
+/*if(insideFrame(pane,image.getLocation(),img)){
+                            image.setImg(img);
+                            image.setHeight(img.getHeight());
+                            image.setWidth(img.getWidth());
+                            image.updateCenter();
+
+                            labelImageMap.put(clickedImage, image);
+                            labels.get(image.getId()).setIcon(new ImageIcon(img));
+                            labels.get(image.getId()).setBounds(image.getLocation().x, image.getLocation().y, (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
+                            labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
+                            labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                    }
+                    else   {
+                            image.setImg(img);
+                            image.setHeight(img.getHeight());
+                            image.setWidth(img.getWidth());
+                            image.updateCenter();
+
+                            labelImageMap.put(clickedImage, image);
+                            labels.get(image.getId()).setIcon(new ImageIcon(img));
+                            labels.get(image.getId()).setBounds((image.getLocation().x)-5, (image.getLocation().y-5), (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
+                            labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
+                            labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                    }
+
+*/

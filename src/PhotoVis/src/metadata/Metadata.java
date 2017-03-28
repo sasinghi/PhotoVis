@@ -74,6 +74,19 @@ public class Metadata {
         
         /***************** To read the time info of photo ***********************/
         //readTime(filename);
+        
+        
+//        File infilepath = new File("C:\\Users\\oyku\\Downloads\\dataset_geo_time\\");
+//        File[] listOfFiles = infilepath.listFiles();
+//        
+//        for (int i = 0; i < listOfFiles.length; i++) {
+//            
+//            String temp = listOfFiles[i].getName();
+//            String spath = "C:\\Users\\oyku\\Downloads\\dataset_geo_time\\" + temp;
+//            System.out.println(readMetaData(spath, "faces"));
+//           
+//        }
+//      
     }
     
     
@@ -82,7 +95,7 @@ public class Metadata {
         //img = new Image(filename);
         exifTags = img.getExifTags();
         String date = (String) exifTags.get(0x0132);
-        System.out.println(date);
+        //System.out.println(date);
         if(date!=null){
         year = Integer.parseInt(date.substring(0, 4));
 //        int month = Integer.parseInt(date.substring(5, 7));
@@ -118,11 +131,11 @@ public class Metadata {
         if(img.getGPSCoordinate() != null){
             gps = img.getGPSCoordinate();
             geoTag = new LatLng(gps[1], gps[0]);
-            System.out.println("Longitude:  " + gps[0]);
-            System.out.println("Latitude:   " + gps[1]);
+            //System.out.println("Longitude:  " + gps[0]);
+            //System.out.println("Latitude:   " + gps[1]);
         }
         else{
-            System.out.println("There is no GPS information in this photo");
+            //System.out.println("There is no GPS information in this photo");
         }
         
         return geoTag;
@@ -167,14 +180,16 @@ public class Metadata {
                 reader.setInput(iis, true);
                 IIOMetadata metadata = reader.getImageMetadata(0);
                 PNGMetadata pngmeta = (PNGMetadata) metadata; 
-                NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
-
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node node = childNodes.item(i);
-                    String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
-                    String value = node.getAttributes().getNamedItem("value").getNodeValue();
-                    if(key.equals(keyword)){
-                        return value;
+                
+                if(pngmeta.getStandardTextNode() != null){
+                    NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+                    for (int i = 0; i < childNodes.getLength(); i++) {
+                        Node node = childNodes.item(i);
+                        String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
+                        String value = node.getAttributes().getNamedItem("value").getNodeValue();
+                        if(key.equals(keyword)){
+                            return value;
+                        }
                     }
                 }
             }
