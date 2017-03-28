@@ -1151,19 +1151,19 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     }
 
     private static boolean insideFrame(JPanel pane, Point newLocation) {
-        return newLocation.x < pane.getPreferredSize().width && newLocation.y < pane.getPreferredSize().height && newLocation.x >= 0 && newLocation.y >= 0;
+        return (newLocation.x < pane.getPreferredSize().width - 20) && (newLocation.y < pane.getPreferredSize().height -20)&& (newLocation.x >= 0 && newLocation.y >= 0);
     }
 
     private static boolean insideFrame(JPanel pane,Point newLocation, Image image) {
-        return (newLocation.x + image.getWidth()) < pane.getPreferredSize().width && (newLocation.y + image.getHeight()) < pane.getPreferredSize().height;
+        return ((newLocation.x + image.getWidth()) < pane.getPreferredSize().width-20) && ((newLocation.y + image.getHeight()) < pane.getPreferredSize().height-20);
     }
 
     private static boolean insideFrame(JPanel pane,Point newLocation, BufferedImage image) {
-        return (newLocation.x + image.getWidth()) < pane.getPreferredSize().width && (newLocation.y + image.getHeight()) < pane.getPreferredSize().height;
+        return ((newLocation.x + image.getWidth()) < pane.getPreferredSize().width-20) && ((newLocation.y + image.getHeight()) < pane.getPreferredSize().height - 20);
     }
 
     private static boolean insideFrame(JPanel pane, src.Image image) {
-        return (image.getLocation().x + image.getWidth()) < pane.getPreferredSize().width && (image.getLocation().y + image.getHeight()) < pane.getPreferredSize().height;
+        return ((image.getLocation().x + image.getWidth()) < pane.getPreferredSize().width - 20) && ((image.getLocation().y + image.getHeight()) < pane.getPreferredSize().height - 20);
     }
 
     private void ResolveOverlapsSemantic(JPanel pane, ArrayList<src.Image> images, Boolean timeline, int clicked) {
@@ -1511,8 +1511,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     
     public static void FaceRecognition() {
         if (!faceClicked){
+            System.out.println("Face Recognition is on");
             faceClicked = true;
         } else {
+            System.out.println("Face Recognition is off");
             faceClicked = false;
         }
     
@@ -1520,8 +1522,10 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
     public static void Color_Grouping() {
         if (!colorGroupClicked){
+            System.out.println("Color Grouping is on");
             colorGroupClicked = true;
         } else {
+            System.out.println("Color Recognition is off");
             colorGroupClicked = false;
         }
     }
@@ -1710,16 +1714,16 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                     }
                     
                     else   {
-                            image.setImg(img);
-                            image.setHeight(img.getHeight());
-                            image.setWidth(img.getWidth());
-                            image.updateCenter();
+                        image.setImg(img);
+                        image.setHeight(img.getHeight());
+                        image.setWidth(img.getWidth());
+                        image.updateCenter();
 
-                            labelImageMap.put(clickedImage, image);
-                            labels.get(image.getId()).setIcon(new ImageIcon(img));
-                            labels.get(image.getId()).setBounds((image.getLocation().x)-5, (image.getLocation().y-5), (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
-                            labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
-                            labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
+                        labelImageMap.put(clickedImage, image);
+                        labels.get(image.getId()).setIcon(new ImageIcon(img));
+                        labels.get(image.getId()).setBounds((image.getLocation().x)-5, (image.getLocation().y-5), (int) Math.floor(image.getWidth()), (int) Math.floor(image.getHeight()));
+                        labelImageMap.get(clickedImage).setHeight(labelImageMap.get(clickedImage).getHeight()+1);
+                        labelImageMap.get(clickedImage).setWidth(labelImageMap.get(clickedImage).getWidth()+1);
                     }
                     
                     ArrayList<Integer> currentOverlaps = new ArrayList<>();
