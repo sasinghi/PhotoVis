@@ -423,7 +423,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                             File fbFile = new File("fb.png");
                             fbFile.createNewFile();
                             ImageIO.write(screenshotImage, "png", fbFile);
-                            GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAL8GtM4yWTnoDFgrTk4ilHI1J6MMJVbdbwegZCAcc4QIyyEBS33DEyIf4kICO0PsP865OWDCx4zkXh1fw65QxRasRsqmAv4mg2EVsesvyVtFhzZApOgoEpZAEfgRN0YYaQc3SWAfr3W6OqdnmausrYSgeY74bOPFh7dcvhycihyucWpm4gZD");
+                            GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAAoAhQ3MVBQyi9jiIUK6ChHL1vZBa54RAvgLqAUxZCUqqN1BWkvWEIVu05skS5Fwq2YvYCBnP6CRPvzoQE2HcsZAd263OSobZBjBigTfYZCK7abPwGln1yJbZA1qSIuVn1Ti80G3ZCUbTW601nYVMiTgGdkUSRDUtrkN6xlnUwTZA80MhMu5LPQZD");
                             graphPub.publishPhoto(fbFile, "Check out my latest GeoPrint!");
                             JOptionPane.showMessageDialog(frame,
                             "Your GeoPrint is shared on your timeline. Try out another one!");
@@ -435,7 +435,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                      
                      File mosaic = new File("mosaic.jpg");
                      mosaic.createNewFile();
-                     GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAL8GtM4yWTnoDFgrTk4ilHI1J6MMJVbdbwegZCAcc4QIyyEBS33DEyIf4kICO0PsP865OWDCx4zkXh1fw65QxRasRsqmAv4mg2EVsesvyVtFhzZApOgoEpZAEfgRN0YYaQc3SWAfr3W6OqdnmausrYSgeY74bOPFh7dcvhycihyucWpm4gZD");
+                     GraphPublisherExample graphPub = new GraphPublisherExample("EAACEdEose0cBAAoAhQ3MVBQyi9jiIUK6ChHL1vZBa54RAvgLqAUxZCUqqN1BWkvWEIVu05skS5Fwq2YvYCBnP6CRPvzoQE2HcsZAd263OSobZBjBigTfYZCK7abPwGln1yJbZA1qSIuVn1Ti80G3ZCUbTW601nYVMiTgGdkUSRDUtrkN6xlnUwTZA80MhMu5LPQZD");
                      graphPub.publishPhoto(mosaic, "Check out my cool new photo mosaic!");
                      JOptionPane.showMessageDialog(frame,
                         "Your cool new mosaic is shared on your timeline. Try out another one!");
