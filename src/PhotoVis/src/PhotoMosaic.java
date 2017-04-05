@@ -20,7 +20,9 @@ import net.coobird.thumbnailator.Thumbnails;
  * @author guliz
  */
 public class PhotoMosaic {
+    //tile size
         static int size = 5;
+    //the final dimensions of the output image
         static int final_width;
         static int final_height;
         static int frame_width=1250;
@@ -67,15 +69,13 @@ public class PhotoMosaic {
         }
         
         BufferedImage final_result = createOutput(results);
-        
-        //ImageIO.write(final_result, "png", new File("output.png"));
-        //output=Thumbnails.of(final_result).size(final_width, final_height).asBufferedImage();
+       
         output=final_result;
         System.out.println("PhotoMosaic is created");
     }
         public static void CalculateDimensions() throws IOException{
             BufferedImage input = ImageIO.read(target);
-          //  System.out.println("input.getHeight() " + input.getHeight() + " input.getWidth()" + input.getWidth() );
+    
             if(input.getHeight()<frame_height && input.getWidth()<frame_width){
                 final_height = input.getHeight();
                 final_width = input.getWidth();
@@ -95,8 +95,7 @@ public class PhotoMosaic {
                 }
                 
             } 
-          //  System.out.println("final_height " + final_height + " final_width" + final_width );
-
+        
         
         }
         public static BufferedImage createOutput(ArrayList<BufferedImage> results) throws IOException{
@@ -104,9 +103,7 @@ public class PhotoMosaic {
            // BufferedImage input = ImageIO.read(target);
             int tilePerLine = final_width/size;
             int tilePerColumn = final_height/size;
-            //int x=input.getWidth()/tilePerLine;
-            //int y=input.getHeight()/tilePerColumn;
-            //System.out.println(x + " x and y  "+ y);
+         
             BufferedImage photo = new BufferedImage(final_width, final_height, BufferedImage.TYPE_3BYTE_BGR); 
             
             for(int k=0;k<results.size();k++){
