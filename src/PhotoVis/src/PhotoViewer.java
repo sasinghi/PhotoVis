@@ -820,7 +820,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
             //this function finds 9 nearest neighbours of image
             ArrayList<Integer> list = Neighbours(image, exclude, timeline);
-            //System.out.println("Image " + image.getId() + " has " + list.size() + " neighbors.");
+     
             for (int i = 0; i < list.size(); i++) {
                 int key = list.get(i);
                 if (key != exclude) {
