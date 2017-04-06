@@ -57,24 +57,24 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     final static int yrad = 800;
    
     // 50 images
-    final static double MIN = 40.0;
+    final static double MIN = 50.0;
     final static double MAX = 9.5;
-    final static double SCALE = 20;
+    final static double SCALE = 30;
     
 //    // 70 images
 //    final static double MIN = 50.0;
 //    final static double MAX = 9.5;
-//    final static double SCALE = 20;
+//    final static double SCALE = 30;
 //    
 //    // 100 images
-//    final static double MIN = 50.0;
+//    final static double MIN = 60.0;
 //    final static double MAX = 9.5;
-//    final static double SCALE = 25;
+//    final static double SCALE = 40;
 //    
 //    // 150 images
-//    final static double MIN = 50.0;
+//    final static double MIN = 60.0;
 //    final static double MAX = 9.5;
-//    final static double SCALE = 30;
+//    final static double SCALE = 40;
 //    
 //    // 200 images
 //    final static double MIN = 60.0;
@@ -167,7 +167,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         if (timeline) {
             MIN_S = (MIN / 10) - 4;
             if(MIN_S <= 0){
-                MIN_S = 2;
+                MIN_S = 4;
             }
         } else {
             MIN_S = MIN;
@@ -323,7 +323,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
             IMAGE_TRIAL_COUNT_1 = 0;
             double scaleDown = 1.2;
             ArrayList<Integer> adjacency = overlappedImages(image, pane, image.getId(), timeline);
-            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size() / 5)) {
+            while (adjacency.size() > 0 && IMAGE_TRIAL_COUNT_1 <= (images.size() / 10)) {
                 if (IMAGE_TRIAL_COUNT_1 > (images.size() / 20) && (image.getOriginal_height() / image.getHeight()) <= MIN_S && (image.getOriginal_width() / image.getWidth()) <= MIN_S && insideFrame(pane,image)) {
                     // Tried enough times. Now shrink and try
                     animateMovement(pane, image, image.getHeight(), image.getWidth(), image.getHeight() / scaleDown, image.getWidth() / scaleDown, timeline);
@@ -343,7 +343,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
 
         // For overlaps that couldn't be resolved while placing photos
         ResolveOverlaps(pane, images, timeline);
-
+       // enlargeWherePossible(pane, images, timeline);
 
 
     }
@@ -860,7 +860,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         if (timeline) {
             MIN_S = (MIN / 10) - 4;
             if(MIN_S <= 0){
-                MIN_S = 2;
+                MIN_S = 4;
             }
         } else {
             MIN_S = MIN;
@@ -1242,7 +1242,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         if (timeline) {
             MIN_S = (MIN / 10) - 4;
             if(MIN_S <= 0){
-                MIN_S = 2;
+                MIN_S = 4;
             }
         } else {
             MIN_S = MIN;
@@ -1407,7 +1407,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         BufferedImage img;
        if (newWidth != oldWidth && newHeight != oldHeight) {
             while (t < 1) {
-                t += 0.6;
+                t += 0.4;
                 img = getScaledImage(image.getOriginal_img(), (int) (((1 - t) * oldWidth) + (t * newWidth)), (int) (((1 - t) * oldHeight) + (t * newHeight)));
                 image.setImg(img);
                 image.setHeight(img.getHeight());
@@ -1438,7 +1438,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         ArrayList<Integer> currentOverlaps = new ArrayList<>();
         //if (newWidth != oldWidth && newHeight!=oldHeight) {
         while (t < 1) {
-            t += 0.6;
+            t += 0.4;
             img = getScaledImage(image.getOriginal_img(), (int) (((1 - t) * oldWidth) + (t * newWidth)), (int) (((1 - t) * oldHeight) + (t * newHeight)));
             image.setImg(img);
             image.setHeight(img.getHeight());
@@ -1475,7 +1475,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
         double diff = Math.sqrt(Math.pow((oldLoc.x - newLoc.x),2) + Math.pow((oldLoc.y - newLoc.y),2));
         
         if (diff > limit ) {
-            double t = 0.2;   
+            double t = 0.4;   
             location.x = (int) ((1 - t) * oldLoc.x + t * newLoc.x);
             location.y = (int) ((1 - t) * oldLoc.y + t * newLoc.y);
             image.setLocation(location);
