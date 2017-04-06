@@ -59,7 +59,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
     // 50 images
     final static double MIN = 40.0;
     final static double MAX = 9.5;
-    final static double SCALE = 10;
+    final static double SCALE = 20;
     
 //    // 70 images
 //    final static double MIN = 50.0;
@@ -1426,9 +1426,7 @@ public class PhotoViewer extends JPanel implements ActionListener, MouseListener
                 }
                 pane.revalidate();
                 pane.repaint();
-                long start = new Date().getTime();
-                while (new Date().getTime() - start < 1L) {
-                }
+                
             }
         }
     }
